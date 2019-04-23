@@ -1,0 +1,3 @@
+SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:w199547@localhost:3306/tianchi'
+SQLALCHEMY_TRACK_MODIFICATIONS = True
+SECRET_KEY = "12345678"
