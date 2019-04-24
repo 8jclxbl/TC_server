@@ -3,6 +3,9 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output
 from app import app
 
+from models.student import controller_info_by_student_id
+from apps.draw_controller import draw_controller_figure
+
 colors = {     
     'background': '#111111',     
     'text': '#7FDBFF' 
@@ -36,9 +39,13 @@ sub_layout = [
         html.H3(children = '绘图条件', style = {'color':colors['text']}),
         html.Div(id = 'plot-conditions')
     ]),
+    html.Div([
+        draw_controller_figure(controller_info_by_student_id(14444))
+    ]),
     dcc.Tabs(id='graph-table-selector', value = 'graph',children = [
         dcc.Tab(label = '图', value = 'graph' ),
         dcc.Tab(label = '数据表', value = 'table'),
+    
     ])]
 
 welcome_layout = [
