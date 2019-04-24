@@ -74,6 +74,8 @@ class CurStudent(db.Model):
     born_year = db.Column(db.String(16))
     #bf_NativePlace
     native = db.Column(db.String(16))
+
+    #确认此列数据全是城镇
     residence = db.Column(db.String(16))
     #cla_id:同上面的class表相关联
     #ClassId = db.Column(db.Integer, db.ForeignKey('class_.Id'))
