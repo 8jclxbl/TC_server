@@ -4,14 +4,14 @@ import plotly.graph_objs as go
 import pandas as pd 
 from app import app
 
-def draw_consumption_figure(query_res):
+def draw_consumption_graph(query_res):
     data = query_res['data']
     text = query_res['text']
     x = data['date']
     y = data['money']
     
 
-    total = [consumption_figure(x,y,text)]
+    total = [consumption_graph(x,y,text)]
 
     return dcc.Graph(
             id = 'student-consumption',
@@ -39,7 +39,7 @@ def draw_consumption_figure(query_res):
         )
 
 
-def consumption_figure(x,y,text):
+def consumption_graph(x,y,text):
     return go.Scatter(
         x = x,
         y = y,

@@ -1,6 +1,7 @@
 import dash_html_components as html 
 import dash_core_components as dcc
 import plotly.graph_objs as go 
+from apps.util import transpose
 from app import app
 
 
@@ -72,22 +73,24 @@ def draw_controller(query_res,ctype):
     total = []
     if ctype == 'graph':
         data_p = data_partation(data,table)
-        return draw_controller_figure(data_p)
+        return draw_controller_graph(data_p)
     else:
         value = []
         for i in data:
             v = [i['date'],i['time'],table[i['type_id']]]
+            value.append(v)
         header = ['日期','时间','类型']
-        return draw_controller_table(header,value)
+        return draw_controller_table(header,transpose(value))
 
-def draw_controller_figure(data_p):
+def draw_controller_graph(data_p):
+    total = []
     for i in data_p.values():
         total.append(sep_scatter_by_type(i['name'],i['color'],i['x'],i['y'],i['desc']))
 
     return dcc.Graph(
             id = 'student-controller',
             figure = {
-                'data':total,
+            'data':total,
             'layout': go.Layout(  
                     autosize=False,     
                     hovermode='closest',  
@@ -105,8 +108,8 @@ def draw_controller_figure(data_p):
                     margin=dict(l=140,r=40,b=50,t=80),
                     #paper_bgcolor='rgb(254, 247, 234)',
                     #plot_bgcolor='rgb(254, 247, 234)',
-                )
-            }
+            )
+            },
         )
 
 def draw_controller_table(head_val,value_val):
@@ -132,6 +135,6 @@ def draw_controller_table(head_val,value_val):
             #'layout':go.Layout(
             #    width=500, 
             #    height=300)
-        }
+        },
     )
     
