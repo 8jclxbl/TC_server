@@ -66,16 +66,26 @@ def sep_scatter_by_type(name,color_value,x,y,text):
             )
         )
 
-def draw_controller_figure(query_res):
+def draw_controller(query_res,ctype):
     data = query_res['data']
     table = query_res['type']
     total = []
-    data_p = data_partation(data,table)
+    if ctype == 'graph':
+        data_p = data_partation(data,table)
+        return draw_controller_figure(data_p)
+    else:
+        value = []
+        for i in data:
+            v = [i['date'],i['time'],table[i['type_id']]]
+        header = ['日期','时间','类型']
+        return draw_controller_table(header,value)
+
+def draw_controller_figure(data_p):
     for i in data_p.values():
         total.append(sep_scatter_by_type(i['name'],i['color'],i['x'],i['y'],i['desc']))
 
     return dcc.Graph(
-            id = 'my-heatmap',
+            id = 'student-controller',
             figure = {
                 'data':total,
             'layout': go.Layout(  
@@ -93,9 +103,35 @@ def draw_controller_figure(query_res):
                         xanchor='left',
                     ),
                     margin=dict(l=140,r=40,b=50,t=80),
-                    paper_bgcolor='rgb(254, 247, 234)',
-                    plot_bgcolor='rgb(254, 247, 234)',
+                    #paper_bgcolor='rgb(254, 247, 234)',
+                    #plot_bgcolor='rgb(254, 247, 234)',
                 )
             }
         )
+
+def draw_controller_table(head_val,value_val):
+
+    #作为图的一个下拉菜单来处理
+    #max_rows = 10
+    return dcc.Graph(
+        id = 'consumption-table',
+        figure = {
+            'data':[go.Table(
+                header = dict(
+                        values = head_val,
+                        line = dict(color='#7D7F80'),
+                        fill = dict(color='#a1c3d1'),
+                        align = ['left'] * 5),
+                cells = dict(
+                    values = value_val,
+                    line = dict(color='#7D7F80'),
+                    fill = dict(color='#EDFAFF'),
+                    align = ['left'] * 5))
+            ]
+            
+            #'layout':go.Layout(
+            #    width=500, 
+            #    height=300)
+        }
+    )
     
