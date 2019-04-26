@@ -1,7 +1,8 @@
 from app import db
-from models.models import CurStudent,ControllerInfo,Controller,Consumption,Class_
+from models.models import CurStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject
 import pandas as pd
 
+#根据学生id来获取学生的所有信息
 def get_student_info_by_student_id(stu_id):
     student = db.session.query(CurStudent).filter_by(id = stu_id).first()
     class_info = db.session.query(Class_).filter_by(id = student.class_id).first()
@@ -12,6 +13,24 @@ def get_student_info_by_student_id(stu_id):
                 student.policy,class_info.name,student.class_id,class_info.term,zhusu,tuixue,student.qinshihao]
     return {'index':index, 'value':value}
 
+#根据班级编号来获取所有班级的任课教师
+def get_teachers_by_class_id(cla_id):
+    lessons = db.session.query(Lesson).filter_by(class_id = cla_id).all()
+    subjects_table = get_all_subject()
+    class_teachers = {}
+    for i in lessons:
+        teacher = db.session.query(Teacher).filter_by(id = i.teacher_id).first()
+        subject = subjects_table[i.subject_id]
+        class_teachers[subject] = teacher.name
+    return class_teachers
+
+#获取全部的科目信息
+def get_all_subject():
+    subjects = db.session().query(Subject).all()
+    sub_dic = {}
+    for i in subjects:
+        sub_dic[i.id] = i.name
+    return sub_dic
 #基于学生id查询考勤信息, type: int
 def controller_info_by_student_id(id):
     infos = db.session.query(ControllerInfo).filter_by(student_id = id).all()
@@ -42,6 +61,7 @@ def consumption_by_student_id(id):
         data.append(record)
     return data
 
+#以pd.dataframe的格式来输出查询结果
 def pd_consumption_by_student_id(id):
     infos = db.session.query(Consumption).filter_by(student_id = id).all()
 
@@ -63,5 +83,4 @@ def pd_consumption_by_student_id(id):
     data = {'date':date, 'time':time, 'money':money}
     return {'id':id,'data':pd.DataFrame(data),'text':text}
 
-
-    
+# {id:student_id,data:[columns[date,time,money]],text:total_info}
