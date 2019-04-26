@@ -1,9 +1,25 @@
 import dash_html_components as html 
 import dash_core_components as dcc
 import plotly.graph_objs as go 
+
 from apps.util import transpose
 from app import app
 
+
+def controller_total(query_res,ctype):
+    data = query_res['data']
+    table = query_res['type']
+    total = []
+    if ctype == 'graph':
+        data_p = data_partation(data,table)
+        return controller_graph(data_p)
+    else:
+        value = []
+        for i in data:
+            v = [i['date'],i['time'],table[i['type_id']]]
+            value.append(v)
+        header = ['日期','时间','类型']
+        return controller_table(header,transpose(value))
 
 #根据考勤类型的不同建立一个色表
 #色值开始为10
@@ -51,7 +67,7 @@ def data_partation(data,table):
     return dp_dic
 
 #绘制子图
-def sep_scatter_by_type(name,color_value,x,y,text):
+def sub_scatter_bytype(name,color_value,x,y,text):
     return go.Scatter(
         x = x,
         y = y,
@@ -67,25 +83,10 @@ def sep_scatter_by_type(name,color_value,x,y,text):
             )
         )
 
-def draw_controller(query_res,ctype):
-    data = query_res['data']
-    table = query_res['type']
-    total = []
-    if ctype == 'graph':
-        data_p = data_partation(data,table)
-        return draw_controller_graph(data_p)
-    else:
-        value = []
-        for i in data:
-            v = [i['date'],i['time'],table[i['type_id']]]
-            value.append(v)
-        header = ['日期','时间','类型']
-        return draw_controller_table(header,transpose(value))
-
-def draw_controller_graph(data_p):
+def controller_graph(data_p):
     total = []
     for i in data_p.values():
-        total.append(sep_scatter_by_type(i['name'],i['color'],i['x'],i['y'],i['desc']))
+        total.append(sub_scatter_bytype(i['name'],i['color'],i['x'],i['y'],i['desc']))
 
     return dcc.Graph(
             id = 'student-controller',
@@ -112,10 +113,7 @@ def draw_controller_graph(data_p):
             },
         )
 
-def draw_controller_table(head_val,value_val):
-
-    #作为图的一个下拉菜单来处理
-    #max_rows = 10
+def controller_table(head_val,value_val):
     return dcc.Graph(
         id = 'consumption-table',
         figure = {
@@ -131,10 +129,7 @@ def draw_controller_table(head_val,value_val):
                     fill = dict(color='#EDFAFF'),
                     align = ['left'] * 5))
             ]
-            
-            #'layout':go.Layout(
-            #    width=500, 
-            #    height=300)
+
         },
     )
     

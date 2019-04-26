@@ -4,7 +4,26 @@ import plotly.graph_objs as go
 import pandas as pd 
 from app import app
 
-def draw_consumption_graph(query_res):
+#前缀用于标识所分析的数据
+#_uds后缀，支持上卷和下钻
+
+#之后的所有新功能都按此方式命名，前缀标识所分析的数据，中缀为功能，后缀标识额外的功能
+
+#整个文件只向外导出_total即可
+def consumption_total(query_res,sep,ctype):
+    if sep == 'total':
+        if ctype == 'graph':
+            return consumption_line_chart(query_res)
+        else:
+            return consumption_table(query_res)
+    else:        
+        sumed = consumption_data_seperate(query_res,sep)
+        if ctype == 'graph':
+            return consumption_bar_uds(sumed)
+        else:
+            return consumption_tabler_uds(sumed)
+
+def consumption_line_chart(query_res):
     data = query_res['data']
     text = query_res['text']
     x = data['date']
@@ -51,7 +70,7 @@ def consumption_graph(x,y,text):
             )
         )
 
-def draw_consumption_table(query_res):
+def consumption_table(query_res):
     data = query_res['data']
     id = query_res['id']
 
@@ -81,12 +100,7 @@ def draw_consumption_table(query_res):
         }
     )
 
-def consumption_sep_table_graph(query_res,sep,ctype):
-    sumed = consumption_data_seperate(query_res,sep)
-    if ctype == 'graph':
-        return draw_consumption_bar_by_year_month(sumed)
-    else:
-        return draw_consumption_table_by_year_month(sumed)
+
 
 
 #按月和年份划分
@@ -103,7 +117,7 @@ def consumption_data_seperate(data, sep):
     
     return {'data':sumed,'title_part':month_or_year}
 
-def draw_consumption_table_by_year_month(sumed):
+def consumption_tabler_uds(sumed):
     data = sumed['data']
     month_or_year = sumed['title_part']
 
@@ -126,7 +140,7 @@ def draw_consumption_table_by_year_month(sumed):
         }
     )
 
-def draw_consumption_bar_by_year_month(sumed):
+def consumption_bar_uds(sumed):
     data = sumed['data']
     month_or_year = sumed['title_part']
     total = [

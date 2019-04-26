@@ -3,9 +3,9 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.student import controller_info_by_student_id,pd_consumption_by_student_id,get_student_info_by_student_id,get_teachers_by_class_id
-from apps.draw_controller import draw_controller
-from apps.draw_consumption import draw_consumption_graph,draw_consumption_table,consumption_sep_table_graph
+from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_teachers_by_class_id
+from apps.draw_controller import controller_total
+from apps.draw_consumption import consumption_total
 from apps.draw_student import draw_student_table,draw_student_teachers
 
 colors = {     
@@ -161,24 +161,8 @@ def graph_table_selector(aspect,graph_table,month_year,stu_id):
     if aspect == 'controller':
         query_res = controller_info_by_student_id(stu_id)
         if not query_res['data']:return '缺失该学生的考勤数据'
-        return draw_controller(query_res,graph_table)
+        return controller_total(query_res,graph_table)
     else:
-        query_res = pd_consumption_by_student_id(stu_id)
+        query_res = consumption_by_student_id(stu_id)
         if query_res['data'].empty:return '缺失该学生的消费数据'
-
-        if month_year == 'total':
-            if graph_table == 'graph':
-                return draw_consumption_graph(query_res)
-            else:
-                return draw_consumption_table(query_res)
-        else:
-            return consumption_sep_table_graph(query_res,month_year,graph_table)
-
-        """    
-        if graph_table == 'graph':
-            #return draw_consumption_graph(query_res)
-            #这里年月选择统一成大写
-            return draw_consumption_bar(query_res,'Month')
-        else:
-            return draw_consumption_table(query_res)
-        """
+        return consumption_total(query_res,month_year,graph_table)

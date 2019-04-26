@@ -49,20 +49,9 @@ def controller_info_by_student_id(id):
 
     return {'data':data,'type':type_dic}
 
-#基于学生id查询消费信息，type:int
-def consumption_by_student_id(id):
-    infos = db.session.query(Consumption).filter_by(student_id = id).all()
-
-    data = []
-    for i in infos:
-        record = {}
-        record['date']['time'] = str(i.date_time).split(' ')
-        record['money'] = i.money
-        data.append(record)
-    return data
 
 #以pd.dataframe的格式来输出查询结果
-def pd_consumption_by_student_id(id):
+def consumption_by_student_id(id):
     infos = db.session.query(Consumption).filter_by(student_id = id).all()
 
     date = []
