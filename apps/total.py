@@ -3,10 +3,10 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.student import controller_info_by_student_id,pd_consumption_by_student_id,get_student_info_by_student_id
+from models.student import controller_info_by_student_id,pd_consumption_by_student_id,get_student_info_by_student_id,get_teachers_by_class_id
 from apps.draw_controller import draw_controller
-from apps.draw_consumption import draw_consumption_graph,draw_consumption_table
-from apps.draw_student import draw_student_table
+from apps.draw_consumption import draw_consumption_graph,draw_consumption_table,consumption_sep_table_graph
+from apps.draw_student import draw_student_table,draw_student_teachers
 
 colors = {     
     'background': '#111111',     
@@ -14,12 +14,9 @@ colors = {
 }
 
 total_layout = html.Div([
-    html.H1(
-        children = '忽然之间克哈的霓虹为我在闪烁', 
-        style = {
-            'textAlign':'center',
-            'color':colors['text']
-        }),
+    html.Div(
+        children = '忽然之间克哈的霓虹为我在闪烁', className = 'app-title'
+    ),
 
     dcc.Tabs(id='main-func-selector', value = 'welcome',children = [
         dcc.Tab(label = '欢迎', value = 'welcome' ),
@@ -50,33 +47,63 @@ sub_layout = [
 
 student_layout = [
     html.Div(id = 'student-id',children = [
-        html.H4(id = 'student-id-indicator',children = '请输入所要查询的学号'),
-        dcc.Input(id='input-student-id', type='text', value='13012'),
-        html.Button(children = '提交', id='student-id-submmit',n_clicks = 0), 
+        html.H4(
+            id = 'student-id-indicator',
+            children = '请输入所要查询的学号',
+            style = {'display': 'inline-block'}),
+        dcc.Input(
+            id='input-student-id', 
+            type='text', 
+            value='13012',
+            style = {'display': 'inline-block'}),
+        html.Button(
+            children = '提交', 
+            id='student-id-submmit',
+            n_clicks = 0,
+            style={
+                "height": "34",
+                "background": "#119DFF",
+                "border": "1px solid #119DFF",
+                "color": "white"}), 
         html.Div(id = 'student-info'),
     ]),
     html.Div([
         html.H3(children = '绘图条件', style = {'color':colors['text']}),
         html.Div(id = 'plot-conditions', children = [
-            dcc.RadioItems( 
+            dcc.Dropdown( 
                 id = 'aspect-selector',
                 options=[            
                     {'label': '学生考勤情况', 'value': 'controller'},             
                     {'label': '学生消费情况', 'value': 'consumption'},             
                    ],         
-                value='controller',         
-               ), 
-        ]),
-        html.Div(id = 'graph-table', children = [
-            dcc.RadioItems( 
+                value='controller',  
+                style={'width': '20%', 'display': 'inline-block'},
+                clearable=False,       
+            ), 
+
+            dcc.Dropdown( 
+                id = 'month-year-selector',
+                options=[            
+                    {'label': '年度数据', 'value': 'Year'},             
+                    {'label': '月度数据', 'value': 'Month'},  
+                    {'label': '总体数据', 'value': 'total'},           
+                   ],         
+                value='total',    
+                style={'width': '20%', 'display': 'inline-block'},
+                clearable=False,     
+            ), 
+
+            dcc.Dropdown( 
                 id = 'graph-table-selector',
                 options=[            
                     {'label': '统计图', 'value': 'graph'},             
                     {'label': '统计表', 'value': 'table'},             
-                   ],         
-                value='controller',         
-               ), 
-        ])
+                ],         
+                value='graph', 
+                style={'width': '20%', 'display': 'inline-block'},
+                clearable=False,         
+            ), 
+        ]),
     ]),
     html.Div(id ='student-show'),
 ]
@@ -116,17 +143,21 @@ def select_student(n_clicks,value):
             info = get_student_info_by_student_id(id)
         except AttributeError:
             return "此学生的部分信息有缺失"
-        return draw_student_table(info)
+
+        class_id = info['value'][9]
+        teachers = get_teachers_by_class_id(class_id)
+        student_infos = draw_student_table(info)
+        student_teachers = draw_student_teachers(teachers)
+        return [student_infos,student_teachers]
     except ValueError:
         return "学号应该是纯数字"
 
 @app.callback(
     Output('student-show','children'),
-    [Input('aspect-selector','value'),Input('graph-table-selector','value')],
+    [Input('aspect-selector','value'),Input('graph-table-selector','value'),Input('month-year-selector','value')],
     [State('input-student-id', 'value')]
-    #[State('input-student-id', 'value')]
 )
-def graph_table_selector(aspect,graph_table,stu_id):
+def graph_table_selector(aspect,graph_table,month_year,stu_id):
     if aspect == 'controller':
         query_res = controller_info_by_student_id(stu_id)
         if not query_res['data']:return '缺失该学生的考勤数据'
@@ -134,7 +165,20 @@ def graph_table_selector(aspect,graph_table,stu_id):
     else:
         query_res = pd_consumption_by_student_id(stu_id)
         if query_res['data'].empty:return '缺失该学生的消费数据'
+
+        if month_year == 'total':
+            if graph_table == 'graph':
+                return draw_consumption_graph(query_res)
+            else:
+                return draw_consumption_table(query_res)
+        else:
+            return consumption_sep_table_graph(query_res,month_year,graph_table)
+
+        """    
         if graph_table == 'graph':
-            return draw_consumption_graph(query_res)
+            #return draw_consumption_graph(query_res)
+            #这里年月选择统一成大写
+            return draw_consumption_bar(query_res,'Month')
         else:
             return draw_consumption_table(query_res)
+        """
