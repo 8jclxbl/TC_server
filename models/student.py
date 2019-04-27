@@ -2,6 +2,9 @@ from app import db
 from models.models import CurStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject
 import pandas as pd
 
+
+#简单的信息单行表同一返回以下结构的字典
+#{'index'：表头信息，'value'：表中数据}
 #根据学生id来获取学生的所有信息
 def get_student_info_by_student_id(stu_id):
     student = db.session.query(CurStudent).filter_by(id = stu_id).first()
@@ -17,37 +20,45 @@ def get_student_info_by_student_id(stu_id):
 def get_teachers_by_class_id(cla_id):
     lessons = db.session.query(Lesson).filter_by(class_id = cla_id).all()
     subjects_table = get_all_subject()
-    class_teachers = {}
+
+    subjects = []
+    teachers = []
     for i in lessons:
         teacher = db.session.query(Teacher).filter_by(id = i.teacher_id).first()
-        subject = subjects_table[i.subject_id]
-        class_teachers[subject] = teacher.name
-    return class_teachers
+        subjects.append(subjects_table[i.subject_id])
+        teachers.append(teacher.name)
+    return {'index':subjects,'value':teachers}
 
 #获取全部的科目信息
 def get_all_subject():
-    subjects = db.session().query(Subject).all()
+    subjects = db.session.query(Subject).all()
     sub_dic = {}
     for i in subjects:
         sub_dic[i.id] = i.name
     return sub_dic
+
+
+def get_all_controller():
+    controllers = db.session.query(Controller).all()
+    controllers_table = {}
+    for i in controllers:
+        controllers_table[i.task_id] = i.name + ':' + i.task_name
+    return controllers_table
+
 #基于学生id查询考勤信息, type: int
 def controller_info_by_student_id(id):
     infos = db.session.query(ControllerInfo).filter_by(student_id = id).all()
-    types = Controller.query.all()
+    type_table = get_all_controller()
 
-    type_dic = {}
-    for i in types:
-        type_dic[i.task_id] = i.task_name
-    
-    data = []
+    type_ids = []
+    dates = []
+
     for i in infos:
-        record = {}
-        record['type_id'] = i.type_id
-        record['date'],record['time'] =  str(i.date_time).split(' ')
-        data.append(record)
+        type_ids.append(i.type_id)
+        dates.append(i.date_time)
 
-    return {'data':data,'type':type_dic}
+    data = {'dates':dates,'types':type_ids}
+    return {'id':id,'data':pd.DataFrame(data),'type':type_table}
 
 
 #以pd.dataframe的格式来输出查询结果
