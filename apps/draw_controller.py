@@ -2,24 +2,26 @@ import dash_html_components as html
 import dash_core_components as dcc
 import plotly.graph_objs as go 
 
-from apps.util import transpose
 from app import app
 
 
 def controller_total(query_res,ctype):
     data = query_res['data']
     table = query_res['type']
-    total = []
+    stu_id = query_res['id']
+
+    data['date'] = data['dates'].dt.date
+    data['time'] = data['dates'].dt.time
+
     if ctype == 'graph':
+        data = data[['date','time','types']]
         data_p = data_partation(data,table)
         return controller_graph(data_p)
     else:
-        value = []
-        for i in data:
-            v = [i['date'],i['time'],table[i['type_id']]]
-            value.append(v)
+        
+        data = data[['date','time','types']]
         header = ['日期','时间','类型']
-        return controller_table(header,transpose(value))
+        return controller_table(header,data.T)
 
 #根据考勤类型的不同建立一个色表
 #色值开始为10
@@ -39,19 +41,18 @@ def gen_color_value_map(type_table):
 def data_partation(data,table):
     colors = gen_color_value_map(table)
     dp_dic = {}
-    for i in data:
+
+    for row in data.values:
         #当前类型
-        cur_type = i['type_id']
+        cur_type = row[2]
 
         #原始数据处理，这里只是在测试的时候将就着用，具体使用的时候会根据orm模型的值来处理
-        d = i['date']
-        t = i['time']
-        h,m,s = t.split(':')
-        h = int(h)
-        m = float(m)/60
-        tp = table[cur_type]
-        cl = colors[cur_type]
-        desc = d + ' ' + t + ' ' + tp
+        date = row[0]
+        time = row[1]
+
+        c_type = table[cur_type]
+        color = colors[cur_type]
+        desc = str(date) + ' ' + str(time) + ' ' + c_type
 
         #收录的数据意义如下
         #name:数据类型的名称，当前为考勤的类型
@@ -59,10 +60,10 @@ def data_partation(data,table):
         #x,y:数据点
         #desc:每个数据点的详细信息
         if cur_type not in dp_dic:
-            dp_dic[cur_type] = {'name':tp,'color':cl,'x':[d],'y':[h + m],'desc':[desc]}
+            dp_dic[cur_type] = {'name':c_type,'color':color,'x':[date],'y':[time],'desc':[desc]}
         else:
-            dp_dic[cur_type]['x'].append(d)
-            dp_dic[cur_type]['y'].append(h+m)
+            dp_dic[cur_type]['x'].append(date)
+            dp_dic[cur_type]['y'].append(time)
             dp_dic[cur_type]['desc'].append(desc)
     return dp_dic
 
