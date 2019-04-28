@@ -19,6 +19,10 @@ def consumption_total(query_res,sep,ctype):
     else:
         return consumption_table_uds(sumed)
 
+def delete_selected_data_series(data,val):
+    need_del_bool = data.values != val
+    return data[need_del_bool]
+
 #按月和年份划分
 def consumption_data_seperate(data, sep):
     info = data['data']
@@ -29,6 +33,8 @@ def consumption_data_seperate(data, sep):
     else:
         info['date'] = pd.to_datetime(info['date'])
         sumed = info.set_index('date').resample(sep[0])['money'].sum()
+        sumed = delete_selected_data_series(sumed,0)
+        sumed = round(sumed,2)
         if sep == 'Day':
             sumed.index = [str(i.year) +'-'+ str(i.month) + '-' + str(i.day) for i in sumed.index]
         elif sep == 'Month':
