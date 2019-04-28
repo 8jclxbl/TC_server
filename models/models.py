@@ -160,3 +160,11 @@ class ControllerInfo(db.Model):
 
     def __repr__(self):
         return '<ControllerInfo: {0}>'.format(self.id)
+
+
+class StudyDays(db.Model):
+    year = db.Column(db.Integer,primary_key = True)
+    term_one = db.Column(db.Integer)
+    term_two_first =  db.Column(db.Integer)
+    term_two_second =  db.Column(db.Integer)
+    term_two_trird =  db.Column(db.Integer)
