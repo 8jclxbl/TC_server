@@ -41,3 +41,6 @@ pandas获取存在缺失值的列 df.isnull().any()
 pandas的列划分
 > 对于字符串数据，可以直接用df['str_column'].str.split()
 > 对于时间属性，可以直接 df['dates'].dt.date (time,......)
+
+
+git如果当前的branch未命名，直接git checkout -b ‘’ 既是对当前分支命名

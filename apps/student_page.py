@@ -6,6 +6,7 @@ from app import app
 from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
+from apps.draw_controller_statics import controller_statics_total,controller_statics
 from apps.simple_chart import simple_table
 
 
@@ -42,11 +43,12 @@ student_layout = [
             dcc.Dropdown( 
                 id = 'aspect-selector',
                 options=[            
-                    {'label': '学生考勤情况', 'value': 'controller'},             
+                    {'label': '学生考勤情况', 'value': 'controller'},
+                    {'label': '学生考勤统计', 'value': 'controller-st'},             
                     {'label': '学生消费情况', 'value': 'consumption'},             
                    ],         
                 value='controller',  
-                style={'width': '20%', 'display': 'inline-block'},
+                style={'width': '40%', 'display': 'inline-block'},
                 clearable=False,       
             ), 
 
@@ -57,12 +59,12 @@ student_layout = [
                     {'label': '统计表', 'value': 'table'},             
                 ],         
                 value='graph', 
-                style={'width': '20%', 'display': 'inline-block'},
+                style={'width': '30%', 'display': 'inline-block'},
                 clearable=False,         
             ), 
             
             dcc.Dropdown( 
-                id = 'month-year-selector',
+                id = 'interval-selector',
                 options=[            
                     {'label': '年数据', 'value': 'Year'},             
                     {'label': '月数据', 'value': 'Month'},  
@@ -70,7 +72,7 @@ student_layout = [
                     {'label': '总数据', 'value': 'Total'}        
                    ],         
                 value='Day',    
-                style={'width': '20%', 'display': 'inline-block'},
+                
                 clearable=False,     
             ), 
             
@@ -110,18 +112,48 @@ def select_student(n_clicks,value):
     except ValueError:
         return "学号应该是纯数字"
 
+
+cs = None
 @app.callback(
     Output('student-show','children'),
-    [Input('aspect-selector','value'),Input('graph-table-selector','value'),Input('month-year-selector','value')],
+    [Input('aspect-selector','value'),Input('graph-table-selector','value'),Input('interval-selector','value')],
     [State('input-student-id', 'value')]
 )
-def graph_table_selector(aspect,graph_table,intervel,stu_id):
+def aspect_selector(aspect,graph_table,intervel,stu_id):
     if aspect == 'controller':
         query_res = controller_info_by_student_id(stu_id)
         #The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
         if query_res['data'].empty:return '缺失该学生的考勤数据'
         return controller_total(query_res,graph_table,stu_id)
-    else:
+    elif aspect == 'consumption':
         query_res = consumption_by_student_id(stu_id)
         if query_res['data'].empty:return '缺失该学生的消费数据'
         return consumption_total(query_res,intervel,graph_table)
+    else:
+        query_res = controller_info_by_student_id(stu_id)
+        if query_res['data'].empty:return '缺失该学生的考勤数据'
+        global cs
+        cs = controller_statics(query_res)
+        return cs.gen_layout()
+
+
+@app.callback(
+    Output('interval-selector','style'),
+    [Input('aspect-selector','value')]
+)
+def graph_table_selector(aspect):
+    if aspect != 'consumption' :
+       return {'display':'None'}
+    else:
+        return {'width':'30%','display':'inline-block'}
+
+
+@app.callback(
+    Output('controller-statics','children'),
+    [Input('term-selector','value')]
+)
+def term_selector(term):
+    info = cs.pie_data(term)
+    title = cs.title
+    print(term,info)
+    return controller_statics_total(info,term,title)

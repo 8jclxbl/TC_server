@@ -1,5 +1,5 @@
 from app import db
-from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject
+from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays
 import pandas as pd
 
 
@@ -56,17 +56,28 @@ def get_all_controller():
 def controller_info_by_student_id(id):
     infos = db.session.query(ControllerInfo).filter_by(student_id = id).all()
     type_table = get_all_controller()
+    
+    cur_info = infos[0]
+    type_ids = [cur_info.type_id]
+    dates = [cur_info.date_time]
+    terms = [cur_info.Term]
 
-    type_ids = []
-    dates = []
-    terms = []
+    cla_info = db.session.query(Class_).filter_by(id = cur_info.class_id).first()
+    class_ = [cla_info.name]
 
-    for i in infos:
+    cur_class = cur_info.class_id
+    for i in infos[1:]:
         type_ids.append(i.type_id)
         dates.append(i.date_time)
         terms.append(i.Term)
+        if i.class_id == cur_class:
+            class_.append(cla_info.name)
+        else:
+            cla_info = db.session.query(Class_).filter_by(id = i.class_id).first()
+            class_.append(cla_info.name)
+            cur_class = i.class_id
 
-    data = {'dates':dates,'types':type_ids,'terms':terms}
+    data = {'dates':dates,'types':type_ids,'terms':terms,'class':class_}
     return {'id':id,'data':pd.DataFrame(data),'type':type_table}
 
 
@@ -93,3 +104,8 @@ def consumption_by_student_id(id):
     return {'id':id,'data':pd.DataFrame(data),'text':text}
 
 # {id:student_id,data:[columns[date,time,money]],text:total_info}
+
+def get_study_days_by_start_year(year):
+    info = db.session.query(StudyDays).filter_by(year = year).first()
+    data = [info.term_one,info.term_two_first,info.term_two_second,info.term_two_trird]
+    return data
