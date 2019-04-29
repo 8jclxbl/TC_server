@@ -165,4 +165,5 @@ def graph_table_lantent(aspect):
 def term_selector(term):
     info = cs.pie_data(term)
     title = cs.title
-    return controller_statics_total(info,term,title)
+    table_data = {'index':['出勤','迟到早退','请假'],'value':info}
+    return [controller_statics_total(info,term,title),simple_table(table_data)]

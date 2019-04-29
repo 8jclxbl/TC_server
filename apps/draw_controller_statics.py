@@ -51,7 +51,7 @@ class controller_statics:
             ),
             html.Div(
                 id = 'controller-statics',
-            )
+            ),
         ]
         return layout
     
