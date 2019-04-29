@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from models import *
 
 server = Flask(__name__)
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] 
+external_stylesheets = ['./static/total.css'] 
 app = dash.Dash(server = server,external_stylesheets=external_stylesheets)
 #app = dash.Dash(server = server)
 app.config.suppress_callback_exceptions = True 

@@ -12,7 +12,12 @@ colors = {
 
 total_layout = html.Div([
     html.Div(
-        children = '忽然之间克哈的霓虹为我在闪烁', className = 'app-title',style = {'backgroundColor':'#7FDBFF' },
+        className = 'app-title',
+        children = [html.Span(
+            children = ['忽然之间克哈的霓虹为我在闪烁'], 
+            style = {'color':'#FFF','line-height':'60px','font-weight':'200','padding-left':'10px'},
+        )],
+        style = {'backgroundColor':'#7FDBFF','height':'60px'},
     ),
 
     dcc.Tabs(id='main-func-selector', value = 'welcome',children = [

@@ -48,7 +48,7 @@ student_layout = [
                     {'label': '学生消费情况', 'value': 'consumption'},             
                    ],         
                 value='controller',  
-                style={'width': '40%', 'display': 'inline-block'},
+                style={'width':'400px','display': 'inline-block','margin-right':'20px'},
                 clearable=False,       
             ), 
 
@@ -59,7 +59,7 @@ student_layout = [
                     {'label': '统计表', 'value': 'table'},             
                 ],         
                 value='graph', 
-                style={'width': '30%', 'display': 'inline-block'},
+                style={'display': 'inline-block','margin-right':'20px'},
                 clearable=False,         
             ), 
             
@@ -72,7 +72,6 @@ student_layout = [
                     {'label': '总数据', 'value': 'Total'}        
                    ],         
                 value='Day',    
-                
                 clearable=False,     
             ), 
             
