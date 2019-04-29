@@ -1,5 +1,5 @@
 from app import db
-from models.models import CurStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject
+from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject
 import pandas as pd
 
 
@@ -14,6 +14,13 @@ def get_student_info_by_student_id(stu_id):
     tuixue = '是' if student.zhusu else '否'
     value = [stu_id,student.name,student.sex,student.nation,student.born_year,student.native,student.residence,
                 student.policy,class_info.name,student.class_id,class_info.term,zhusu,tuixue,student.qinshihao]
+    return {'index':index, 'value':value}
+
+def get_grad_student_info_by_student_id(stu_id):
+    student = db.session.query(GradStudent).filter_by(id = stu_id).first()
+    class_info = db.session.query(Class_).filter_by(id = student.class_id).first()
+    index = ['学号','姓名','班级名称','班级编号','班级学期']
+    value = [stu_id,student.name,class_info.name,student.class_id,class_info.term]
     return {'index':index, 'value':value}
 
 #根据班级编号来获取所有班级的任课教师
@@ -52,12 +59,14 @@ def controller_info_by_student_id(id):
 
     type_ids = []
     dates = []
+    terms = []
 
     for i in infos:
         type_ids.append(i.type_id)
         dates.append(i.date_time)
+        terms.append(i.Term)
 
-    data = {'dates':dates,'types':type_ids}
+    data = {'dates':dates,'types':type_ids,'terms':terms}
     return {'id':id,'data':pd.DataFrame(data),'type':type_table}
 
 

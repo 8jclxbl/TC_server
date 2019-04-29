@@ -49,7 +49,6 @@ def consumption_data_seperate(data, sep):
 def consumption_table_uds(sumed):
     data = sumed['data']
     #interval = sumed['title_part']
-
     return dcc.Graph(
         id = 'consumption-table-by-year-month',
         figure = {
@@ -59,13 +58,20 @@ def consumption_table_uds(sumed):
                         values = ['时间','花费'],
                         line = dict(color='#7D7F80'),
                         fill = dict(color='#a1c3d1'),
-                        align = ['left'] * 5),
+                ),
+                        #align = ['left'] * 5),
                 cells = dict(
                     values = [data.index, data.values * -1],
                     line = dict(color='#7D7F80'),
                     fill = dict(color='#EDFAFF'),
-                    align = ['left'] * 5))
-            ]
+                ))
+                    #align = ['left'] * 5))
+            ],
+            'layout':go.Layout(
+                title = '学生消费表',
+                #width = 500,
+                margin=dict(l=10,r=10,b=20,t=40),
+            )
         }
     )
 
@@ -75,7 +81,7 @@ def consumption_bar_uds(sumed):
     total = [
         go.Bar(
             x = data.index,
-            y = data.values * -1
+            y = data.values * - 1
         )
     ]
 
@@ -86,13 +92,14 @@ def consumption_bar_uds(sumed):
                 'layout': go.Layout(  
                     autosize=False,     
                     hovermode='closest',  
-                    dragmode='select',    
-                    width = 1000, 
+                    dragmode='select',
+                    plot_bgcolor="#191A1A",
+                    #paper_bgcolor="#020202",    
+                    #width = 800, 
                     title='学生{0}消费统计'.format(interval),
                     xaxis = dict(title = '时间', showline = True, tickangle = 75),
                     yaxis = dict(title = '花费', showline = True),
-                    margin=dict(l=140,r=40,b=200,t=80),
-                
+                    margin=dict(l=40,r=40,b=140,t=40),
                 )
             }
         )

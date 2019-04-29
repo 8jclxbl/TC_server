@@ -4,8 +4,7 @@ import plotly.graph_objs as go
 
 from app import app
 
-
-def controller_total(query_res,ctype):
+def controller_total(query_res,ctype,stu_id):
     data = query_res['data']
     table = query_res['type']
     stu_id = query_res['id']
@@ -13,15 +12,16 @@ def controller_total(query_res,ctype):
     data['date'] = data['dates'].dt.date
     data['time'] = data['dates'].dt.time
 
+
     if ctype == 'graph':
         data = data[['date','time','types']]
         data_p = data_partation(data,table)
-        return controller_graph(data_p)
+        chart = controller_graph(data_p,stu_id)
     else:
-        
         data = data[['date','time','types']]
         header = ['日期','时间','类型']
-        return controller_table(header,data.T)
+        chart = controller_table(header,data.T)
+    return chart
 
 #根据考勤类型的不同建立一个色表
 #色值开始为10
@@ -84,7 +84,7 @@ def sub_scatter_bytype(name,color_value,x,y,text):
             )
         )
 
-def controller_graph(data_p):
+def controller_graph(data_p,stu_id):
     total = []
     for i in data_p.values():
         total.append(sub_scatter_bytype(i['name'],i['color'],i['x'],i['y'],i['desc']))
@@ -97,7 +97,7 @@ def controller_graph(data_p):
                     autosize=False,     
                     hovermode='closest',  
                     dragmode='select',     
-                    title='学生{0}考勤记录统计'.format('14444'),
+                    title='学生{0}考勤记录统计'.format(stu_id),
                     xaxis = dict(title = '日期', showline = True),
                     yaxis = dict(title = '时间', showline = True),
                     legend=dict(
@@ -133,4 +133,20 @@ def controller_table(head_val,value_val):
 
         },
     )
-    
+
+def controller_rangeslider(data):
+    terms = data['terms'].drop_duplicates().values
+    length = len(terms)
+
+    layout = dcc.RangeSlider(
+            id = 'controller-range-slider',
+            min=0,
+            max=length,
+            step=1,
+            value=[0, length]),
+
+    return layout
+
+
+
+

@@ -3,7 +3,7 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_teachers_by_class_id
+from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.simple_chart import simple_table
@@ -46,7 +46,7 @@ student_layout = [
                     {'label': '学生消费情况', 'value': 'consumption'},             
                    ],         
                 value='controller',  
-                style={'width': '20%', 'display': 'inline-block', 'margin-right':'20px'},
+                style={'width': '20%', 'display': 'inline-block'},
                 clearable=False,       
             ), 
 
@@ -57,7 +57,7 @@ student_layout = [
                     {'label': '统计表', 'value': 'table'},             
                 ],         
                 value='graph', 
-                style={'width': '20%', 'display': 'inline-block', 'margin-right':'20px'},
+                style={'width': '20%', 'display': 'inline-block'},
                 clearable=False,         
             ), 
             
@@ -70,13 +70,14 @@ student_layout = [
                     {'label': '总数据', 'value': 'Total'}        
                    ],         
                 value='Day',    
-                style={'width': '20%', 'display': 'inline-block', 'margin-right':'20px'},
+                style={'width': '20%', 'display': 'inline-block'},
                 clearable=False,     
             ), 
             
         ]),
     ]),
-    html.Div(id ='student-show'),
+    html.Div(id = 'student-show' ),
+    html.Div(id = 'controller-pies'),
 ]
 #注意此处的参数位置和名称无关，只和Input的位置
 @app.callback(
@@ -85,17 +86,24 @@ student_layout = [
     [State('input-student-id', 'value')]
 )
 def select_student(n_clicks,value):
+    is_grad = False
     try:
         id = int(value)
         try:
             info = get_student_info_by_student_id(id)
         except AttributeError:
-            return "此学生的部分信息有缺失"
+            try:
+                info = get_grad_student_info_by_student_id(id)
+                is_grad = True
+            except AttributeError:
+                return "此学生的部分信息有缺失"
+
+        student_infos = simple_table(info)
+        if is_grad:
+            return [student_infos]
 
         class_id = info['value'][9]
         teachers = get_teachers_by_class_id(class_id)
-
-        student_infos = simple_table(info)
         student_teachers = simple_table(teachers)
 
         return [student_infos,student_teachers]
@@ -112,7 +120,7 @@ def graph_table_selector(aspect,graph_table,intervel,stu_id):
         query_res = controller_info_by_student_id(stu_id)
         #The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
         if query_res['data'].empty:return '缺失该学生的考勤数据'
-        return controller_total(query_res,graph_table)
+        return controller_total(query_res,graph_table,stu_id)
     else:
         query_res = consumption_by_student_id(stu_id)
         if query_res['data'].empty:return '缺失该学生的消费数据'
