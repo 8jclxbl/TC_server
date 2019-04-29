@@ -141,8 +141,18 @@ def aspect_selector(aspect,graph_table,intervel,stu_id):
     Output('interval-selector','style'),
     [Input('aspect-selector','value')]
 )
-def graph_table_selector(aspect):
+def interval_lantent(aspect):
     if aspect != 'consumption' :
+       return {'display':'None'}
+    else:
+        return {'width':'30%','display':'inline-block'}
+
+@app.callback(
+    Output('graph-table-selector','style'),
+    [Input('aspect-selector','value')]
+)
+def graph_table_lantent(aspect):
+    if aspect == 'controller-st' :
        return {'display':'None'}
     else:
         return {'width':'30%','display':'inline-block'}
@@ -155,5 +165,4 @@ def graph_table_selector(aspect):
 def term_selector(term):
     info = cs.pie_data(term)
     title = cs.title
-    print(term,info)
     return controller_statics_total(info,term,title)
