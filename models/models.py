@@ -168,3 +168,5 @@ class StudyDays(db.Model):
     term_two_first =  db.Column(db.Integer)
     term_two_second =  db.Column(db.Integer)
     term_two_trird =  db.Column(db.Integer)
+
+

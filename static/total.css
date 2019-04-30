@@ -253,6 +253,8 @@
     font-family: inherit;
     font-size: inherit; /*https://stackoverflow.com/questions/6080413/why-doesnt-input-inherit-the-font-from-body*/}
   /* Removes awkward default styles on some inputs for iOS */
+ 
+
   input[type="email"],
   input[type="number"],
   input[type="search"],
@@ -317,13 +319,24 @@
   /* Tables
   –––––––––––––––––––––––––––––––––––––––––––––––––– */
   table {
-    border-collapse: collapse;
+    border: 1px;
+    color:white;
+    font-size:1.3rem;
+    width:80%;
+    font-family:Ubuntu;
+    margin-left: 10%;
+    margin-right: 10%;
   }
-  th,
+  th{
+    background-color: #003472;
+  }
   td {
     padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #E1E1E1; }
+    text-align: center;
+    color:white;
+    border-bottom: 1px solid #E1E1E1; 
+    background-color: #177cb0
+  }
   th:first-child,
   td:first-child {
     padding-left: 0; }

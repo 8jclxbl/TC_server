@@ -20,4 +20,29 @@ def simple_table(query_res):
         [html.Tr([html.Td(value) for value in values])]
     ) 
 
+def dash_table(head_val,value_val,tag_id):
+    return dcc.Graph(
+        id = tag_id,
+        figure = {
+            'data':[go.Table(
+                header = dict(
+                        values = ['<b>{0}</b>'.format(i) for i in head_val],
+                        line = dict(color='white'),
+                        fill = dict(color='#003472'),
+                        align = ['left'] * 5,
+                        font = {'color':'white'},
+                        ),
+                cells = dict(
+                    values = value_val,
+                    line = dict(color='white'),
+                    fill = dict(color='#177cb0'),
+                    align = ['left'] * 5,
+                    font = {'color':'white'},
+                    )
+                )
+            ]
+
+        },
+    )
+
     

@@ -1,9 +1,10 @@
 import dash_html_components as html 
 import dash_core_components as dcc
 import plotly.graph_objs as go
+
 import pandas as pd 
 from app import app
-
+from apps.simple_chart import dash_table
 
 title_table = {'Year':'年','Month':'月','Day':'日','Total':'总'}
 #前缀用于标识所分析的数据
@@ -49,31 +50,7 @@ def consumption_data_seperate(data, sep):
 def consumption_table_uds(sumed):
     data = sumed['data']
     #interval = sumed['title_part']
-    return dcc.Graph(
-        id = 'consumption-table-by-year-month',
-        figure = {
-            'data':[go.Table(
-                header = dict(
-                        #values = data.columns,
-                        values = ['时间','花费'],
-                        line = dict(color='#7D7F80'),
-                        fill = dict(color='#a1c3d1'),
-                ),
-                        #align = ['left'] * 5),
-                cells = dict(
-                    values = [data.index, data.values * -1],
-                    line = dict(color='#7D7F80'),
-                    fill = dict(color='#EDFAFF'),
-                ))
-                    #align = ['left'] * 5))
-            ],
-            'layout':go.Layout(
-                title = '学生消费表',
-                #width = 500,
-                margin=dict(l=10,r=10,b=20,t=40),
-            )
-        }
-    )
+    return dash_table(['时间','花费'],[data.index, data.values * -1],'consumption-table-by-interval')
 
 def consumption_bar_uds(sumed):
     data = sumed['data']
@@ -94,14 +71,14 @@ def consumption_bar_uds(sumed):
                     hovermode='closest',  
                     dragmode='select',
                     plot_bgcolor="#191A1A",
-                    #paper_bgcolor="#020202",    
-                    #width = 800, 
+
                     title='学生{0}消费统计'.format(interval),
                     xaxis = dict(title = '时间', showline = True, tickangle = 75),
                     yaxis = dict(title = '花费', showline = True),
-                    margin=dict(l=40,r=40,b=140,t=40),
+                    margin=dict(l=40,r=40,b=140,t=80),
                 )
-            }
+            },
+            style = {'align':'center','width':'80%','margin-left': '10%','margin-right': '10%'},
         )
 
 def consumption_line_chart(query_res):

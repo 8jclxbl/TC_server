@@ -12,8 +12,10 @@ def get_student_info_by_student_id(stu_id):
     index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','政治面貌','班级','班级编号','班级学期','是否住校','是否退学','寝室号']
     zhusu = '是' if student.zhusu else '否'
     tuixue = '是' if student.zhusu else '否'
+    if not student.zhusu:qinshihao = '无'
+    else: qinshihao = student.qinshihao
     value = [stu_id,student.name,student.sex,student.nation,student.born_year,student.native,student.residence,
-                student.policy,class_info.name,student.class_id,class_info.term,zhusu,tuixue,student.qinshihao]
+                student.policy,class_info.name,student.class_id,class_info.term,zhusu,tuixue,qinshihao]
     return {'index':index, 'value':value}
 
 def get_grad_student_info_by_student_id(stu_id):

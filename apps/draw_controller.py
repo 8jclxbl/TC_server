@@ -1,6 +1,7 @@
 import dash_html_components as html 
 import dash_core_components as dcc
 import plotly.graph_objs as go 
+from apps.simple_chart import dash_table
 
 from app import app
 
@@ -108,31 +109,14 @@ def controller_graph(data_p,stu_id):
                         xanchor='left',
                     ),
                     margin=dict(l=140,r=40,b=50,t=80),
-                    #paper_bgcolor='rgb(254, 247, 234)',
-                    #plot_bgcolor='rgb(254, 247, 234)',
+                    
             )
             },
+            style = {'align':'center','width':'80%','margin-left': '10%','margin-right': '10%'},
         )
 
 def controller_table(head_val,value_val):
-    return dcc.Graph(
-        id = 'consumption-table',
-        figure = {
-            'data':[go.Table(
-                header = dict(
-                        values = head_val,
-                        line = dict(color='#7D7F80'),
-                        fill = dict(color='#a1c3d1'),
-                        align = ['left'] * 5),
-                cells = dict(
-                    values = value_val,
-                    line = dict(color='#7D7F80'),
-                    fill = dict(color='#EDFAFF'),
-                    align = ['left'] * 5))
-            ]
-
-        },
-    )
+    return dash_table(head_val,value_val,'consumption-table')
 
 def controller_rangeslider(data):
     terms = data['terms'].drop_duplicates().values

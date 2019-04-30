@@ -19,13 +19,13 @@ student_layout = [
     html.Div(id = 'student-id',children = [
         html.H4(
             id = 'student-id-indicator',
-            children = '请输入所要查询的学号',
-            style = {'display': 'inline-block'}),
+            children = '请输入所要查询的学号: ',
+            style = {'display': 'inline-block','margin-left':'20px','margin-right':'20px'}),
         dcc.Input(
             id='input-student-id', 
             type='text', 
             value='13012',
-            style = {'display': 'inline-block'}),
+            style = {'display': 'inline-block','margin-left':'20px','margin-right':'20px'}),
         html.Button(
             children = '提交', 
             id='student-id-submmit',
@@ -34,7 +34,9 @@ student_layout = [
                 "height": "34",
                 "background": "#119DFF",
                 "border": "1px solid #119DFF",
-                "color": "white"}), 
+                "color": "white",
+                'margin-left':'20px',
+                'margin-right':'20px'}), 
         html.Div(id = 'student-info'),
     ]),
     html.Div([
@@ -59,7 +61,7 @@ student_layout = [
                     {'label': '统计表', 'value': 'table'},             
                 ],         
                 value='graph', 
-                style={'display': 'inline-block','margin-right':'20px'},
+                style={'width':'311px','display': 'inline-block','margin-right':'20px'},
                 clearable=False,         
             ), 
             
@@ -72,6 +74,7 @@ student_layout = [
                     {'label': '总数据', 'value': 'Total'}        
                    ],         
                 value='Day',    
+                style={'width':'311px','display': 'inline-block','margin-right':'20px'},
                 clearable=False,     
             ), 
             
@@ -144,7 +147,7 @@ def interval_lantent(aspect):
     if aspect != 'consumption' :
        return {'display':'None'}
     else:
-        return {'width':'30%','display':'inline-block'}
+        return {'width':'311px','display':'inline-block','margin-right':'20px'}
 
 @app.callback(
     Output('graph-table-selector','style'),
@@ -154,7 +157,7 @@ def graph_table_lantent(aspect):
     if aspect == 'controller-st' :
        return {'display':'None'}
     else:
-        return {'width':'30%','display':'inline-block'}
+        return {'width':'311px','display':'inline-block','margin-right':'20px'}
 
 
 @app.callback(
