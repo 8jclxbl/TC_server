@@ -1,5 +1,5 @@
 from app import db
-from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays
+from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType
 import pandas as pd
 
 
@@ -59,25 +59,21 @@ def controller_info_by_student_id(id):
     infos = db.session.query(ControllerInfo).filter_by(student_id = id).all()
     type_table = get_all_controller()
     
-    cur_info = infos[0]
-    type_ids = [cur_info.type_id]
-    dates = [cur_info.date_time]
-    terms = [cur_info.Term]
+    type_ids = []
+    dates = []
+    terms = []
+    class_ = []
 
-    cla_info = db.session.query(Class_).filter_by(id = cur_info.class_id).first()
-    class_ = [cla_info.name]
-
-    cur_class = cur_info.class_id
-    for i in infos[1:]:
+    cur_class_id = -1
+    for i in infos:
         type_ids.append(i.type_id)
         dates.append(i.date_time)
         terms.append(i.Term)
-        if i.class_id == cur_class:
-            class_.append(cla_info.name)
-        else:
+        if i.class_id != cur_class_id:
             cla_info = db.session.query(Class_).filter_by(id = i.class_id).first()
-            class_.append(cla_info.name)
-            cur_class = i.class_id
+            cur_class_id = i.class_id
+        class_.append(cla_info.name)
+            
 
     data = {'dates':dates,'types':type_ids,'terms':terms,'class':class_}
     return {'id':id,'data':pd.DataFrame(data),'type':type_table}
@@ -111,3 +107,45 @@ def get_study_days_by_start_year(year):
     info = db.session.query(StudyDays).filter_by(year = year).first()
     data = [info.term_one,info.term_two_first,info.term_two_second,info.term_two_trird]
     return data
+
+def get_all_exam_type():
+    info = db.session.query(ExamType).all()
+
+    exam_dic = {}
+    for i in info:
+        exam_dic[i.id] = i.name
+    return exam_dic   
+
+SUBJECTS = get_all_subject()
+#EXAMS = get_all_exam_type()
+GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考'}
+
+
+def get_student_grades_by_student_id(id):
+    info = db.session.query(ExamRes).filter_by(student_id = id).order_by(ExamRes.test_id).all()
+    
+    examNames = []
+    Subjects = []
+    Scores = []
+    Zscores = []
+    Tscores = []
+    Rscores = []
+
+    last_exam_id = -1
+
+    for i in info:
+        if i.exam_id != last_exam_id:
+            exam_info = db.session.query(Exam).filter_by(id = i.exam_id).first()
+            last_exam_id = i.exam_id
+        examNames.append(exam_info.name.strip())
+        Subjects.append(SUBJECTS[int(i.subject_id)] if i.subject_id > 0 else '此次考试科目数据缺失')
+        Scores.append(i.score if i.score >= 0 else GRADETYPE[int(i.score)])
+        Zscores.append(i.z_score if i.z_score != -6 else '考试状态异常')
+        Tscores.append(i.t_score if i.t_score != -6 else '考试状态异常')
+        Rscores.append(i.r_score if i.r_score != -6 else '考试状态异常')
+
+    data = {'examName':examNames,'subject':Subjects,'score':Scores,
+            'z_score':Zscores,'t_score':Tscores,'r_score':Rscores}
+
+    return pd.DataFrame(data)
+

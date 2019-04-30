@@ -3,11 +3,11 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id
+from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id,get_student_grades_by_student_id
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.draw_controller_statics import controller_statics_total,controller_statics
-from apps.simple_chart import simple_table
+from apps.simple_chart import simple_table,dash_table
 
 
 colors = {     
@@ -38,6 +38,7 @@ student_layout = [
                 'margin-left':'20px',
                 'margin-right':'20px'}), 
         html.Div(id = 'student-info'),
+        html.Div(id = 'student-grade'),
     ]),
     html.Div([
         html.H3(children = '绘图条件', style = {'color':colors['text']}),
@@ -114,6 +115,16 @@ def select_student(n_clicks,value):
     except ValueError:
         return "学号应该是纯数字"
 
+@app.callback(
+    Output('student-grade', 'children'),
+    [Input('student-id-submmit','n_clicks')],
+    [State('input-student-id', 'value')]
+)
+def student_grade(n_clicks,id):
+    grade = get_student_grades_by_student_id(id)
+    if grade.empty:return '缺失该学生的考试数据'
+    header = ['考试名称','科目','分数','Z值','T值','等第']
+    return dash_table(header,grade.T,'student-grade-table')
 
 cs = None
 @app.callback(

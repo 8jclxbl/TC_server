@@ -169,4 +169,25 @@ class StudyDays(db.Model):
     term_two_second =  db.Column(db.Integer)
     term_two_trird =  db.Column(db.Integer)
 
+class Exam(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64))
+    term = db.Column(db.String(16))
+    type_id = db.Column(db.Integer)
+    date_time = db.Column(db.DateTime)
+
+class ExamType(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64))
+
+class ExamRes(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    test_id = db.Column(db.Integer)
+    exam_id = db.Column(db.Integer)
+    subject_id = db.Column(db.Integer)
+    student_id = db.Column(db.Integer)
+    score = db.Column(db.Float)
+    z_score = db.Column(db.Float)
+    t_score = db.Column(db.Float)
+    r_score = db.Column(db.Float)
 
