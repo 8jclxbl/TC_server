@@ -44,3 +44,13 @@ pandas的列划分
 
 
 git如果当前的branch未命名，直接git checkout -b ‘’ 既是对当前分支命名
+
+
+直接放弃本地的修改，从远程仓库获取最新代码 
+git fetch --all 
+git reset --hard origin/master
+git pull
+
+python 3.6 以后字典是有序的
+注意dash如果出现内容报错的话，可能是某些属性的值的类型不对
+注意回调函数中的html元素不要重名，注意回调函数不要重名
