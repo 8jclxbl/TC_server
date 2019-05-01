@@ -3,10 +3,11 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id,get_student_grades_by_student_id
+from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id,grade_query_res
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.draw_controller_statics import controller_statics_total,controller_statics
+from apps.draw_grade import Grade,draw_line_total
 from apps.simple_chart import simple_table,dash_table
 
 
@@ -30,18 +31,12 @@ student_layout = [
             children = '提交', 
             id='student-id-submmit',
             n_clicks = 0,
-            style={
-                "height": "34",
-                "background": "#119DFF",
-                "border": "1px solid #119DFF",
-                "color": "white",
-                'margin-left':'20px',
-                'margin-right':'20px'}), 
+            style={"height": "34","background": "#119DFF","border": "1px solid #119DFF","color": "white",'margin-left':'20px','margin-right':'20px'}), 
         html.Div(id = 'student-info'),
         html.Div(id = 'student-grade'),
+        html.Div(id = 'grade-lines')
     ]),
     html.Div([
-        html.H3(children = '绘图条件', style = {'color':colors['text']}),
         html.Div(id = 'plot-conditions', children = [
             dcc.Dropdown( 
                 id = 'aspect-selector',
@@ -121,10 +116,33 @@ def select_student(n_clicks,value):
     [State('input-student-id', 'value')]
 )
 def student_grade(n_clicks,id):
-    grade = get_student_grades_by_student_id(id)
+    grade = grade_query_res(id)['data']
     if grade.empty:return '缺失该学生的考试数据'
     header = ['考试名称','科目','分数','Z值','T值','等第']
+    grade = grade[['exam_name','subject','score','z_score','t_score','r_score']]
     return dash_table(header,grade.T,'student-grade-table')
+
+@app.callback(
+    Output('grade-lines', 'children'),
+    [Input('student-id-submmit','n_clicks')],
+    [State('input-student-id', 'value')]
+)
+def student_grade_graph_layout(n_clicks,id):
+    grade = grade_query_res(id)
+    if grade['data'].empty:return '缺失该学生的考试数据'
+    global gd
+    gd = Grade(grade)
+    return gd.gen_layout()
+
+@app.callback(
+    Output('grade-graph', 'children'),
+    [Input('grade-subject-selector','value'),Input('score-class-selector','value'),Input('grade-type-selector','value')]
+)
+def student_grade_graph(subjects,score_type,score_types):
+    if score_type == 'origin':
+        return draw_line_total(gd,subjects,0)
+    else:
+        return draw_line_total(gd,subjects,score_types)
 
 cs = None
 @app.callback(
@@ -180,3 +198,14 @@ def term_selector(term):
     title = cs.title
     table_data = {'index':['出勤','迟到早退','请假'],'value':info}
     return [controller_statics_total(info,term,title),simple_table(table_data)]
+
+
+@app.callback(
+    Output('grade-type-selector','style'),
+    [Input('score-class-selector','value')]
+)
+def score_type_latent(score_type):
+    if score_type == 'origin' :
+        return {'display':'None'}
+    else:
+        return {'width':'311px','display':'inline-block','margin-left':'20px'}

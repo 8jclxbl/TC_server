@@ -120,32 +120,41 @@ SUBJECTS = get_all_subject()
 #EXAMS = get_all_exam_type()
 GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考'}
 
-
 def get_student_grades_by_student_id(id):
     info = db.session.query(ExamRes).filter_by(student_id = id).order_by(ExamRes.test_id).all()
     
-    examNames = []
-    Subjects = []
-    Scores = []
-    Zscores = []
-    Tscores = []
-    Rscores = []
+    Test_ids    = []
+    Exam_ids    = []
+    Exam_names  = []
+    Subject_ids = []
+    Subjects    = []
+    Scores      = []
+    Zscores     = []
+    Tscores     = []
+    Rscores     = []
 
     last_exam_id = -1
 
     for i in info:
+        Test_ids.append(i.test_id)
+        Exam_ids.append(i.exam_id)
+
         if i.exam_id != last_exam_id:
             exam_info = db.session.query(Exam).filter_by(id = i.exam_id).first()
             last_exam_id = i.exam_id
-        examNames.append(exam_info.name.strip())
+        Exam_names.append(exam_info.name.strip())
         Subjects.append(SUBJECTS[int(i.subject_id)] if i.subject_id > 0 else '此次考试科目数据缺失')
+        Subject_ids.append(int(i.subject_id))
         Scores.append(i.score if i.score >= 0 else GRADETYPE[int(i.score)])
         Zscores.append(i.z_score if i.z_score != -6 else '考试状态异常')
         Tscores.append(i.t_score if i.t_score != -6 else '考试状态异常')
         Rscores.append(i.r_score if i.r_score != -6 else '考试状态异常')
 
-    data = {'examName':examNames,'subject':Subjects,'score':Scores,
-            'z_score':Zscores,'t_score':Tscores,'r_score':Rscores}
+    data = {'test_id':Test_ids,'exam_id':Exam_ids,'exam_name':Exam_names,'subject_id':Subject_ids,'subject':Subjects,
+        'score':Scores,'z_score':Zscores,'t_score':Tscores,'r_score':Rscores}
 
     return pd.DataFrame(data)
+
+def grade_query_res(id):
+    return {'id':id,'data':get_student_grades_by_student_id(id)}
 
