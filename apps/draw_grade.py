@@ -36,19 +36,20 @@ def draw_line(subject_name,type_name,data):
 
 def draw_line_total(grade,subject_selected,type_selected):
     total = []
-    if type_selected == 0:
-        data = grade.grade_line_graph_score(subject_selected)
-        for subject in data.keys():
-            total.append(draw_line(subject,'score',data[subject]))
-    elif type_selected != []:
-        data = grade.grade_line_graph(subject_selected,type_selected)
-        for subject in data.keys():
-            cur_subject = data[subject]
-            for type_ in cur_subject.keys():
-                cur_type = cur_subject[type_]
-                total.append(draw_line(subject,type_,cur_type))
-    else:
-        total = []
+    if not grade.isNone:
+        if type_selected == 0:
+            data = grade.grade_line_graph_score(subject_selected)
+            for subject in data.keys():
+                total.append(draw_line(subject,'score',data[subject]))
+        elif type_selected != []:
+            data = grade.grade_line_graph(subject_selected,type_selected)
+            for subject in data.keys():
+                cur_subject = data[subject]
+                for type_ in cur_subject.keys():
+                    cur_type = cur_subject[type_]
+                    total.append(draw_line(subject,type_,cur_type))
+        else:
+            total = []
     return dcc.Graph(
             id = 'student-grade-graph',
             figure = {
@@ -77,15 +78,19 @@ def draw_line_total(grade,subject_selected,type_selected):
 
 class Grade:
     def __init__(self, query_res):
-        self.student_id = query_res['id']
-        self.title = '学生{0}成绩'.format(self.student_id)
-        self.data = query_res['data']
-        self.other_types = {'Z值':'z_score','T值':'t_score','等第':'r_score'}
-        self.separate_by_exam()
-        self.info_each_exam()
+        if not query_res:
+            self.isNone = True
+        else:
+            self.isNone = False
+            self.student_id = query_res['id']
+            self.title = '学生{0}成绩'.format(self.student_id)
+            self.data = query_res['data']
+            self.other_types = {'Z值':'z_score','T值':'t_score','等第':'r_score'}
+            self.separate_by_exam()
+            self.info_each_exam()
 
-        self.separate_by_subject()
-        self.info_each_subject()
+            self.separate_by_subject()
+            self.info_each_subject()
 
     def gen_layout(self):
         layout = [

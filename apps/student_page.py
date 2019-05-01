@@ -122,6 +122,7 @@ def student_grade(n_clicks,id):
     grade = grade[['exam_name','subject','score','z_score','t_score','r_score']]
     return dash_table(header,grade.T,'student-grade-table')
 
+gd = Grade(0)
 @app.callback(
     Output('grade-lines', 'children'),
     [Input('student-id-submmit','n_clicks')],
