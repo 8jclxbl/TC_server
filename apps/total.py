@@ -4,6 +4,7 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from apps.student_page import student_layout
+from apps.subject_page import subject_layout
 
 colors = {     
     'background': '#111111',     
@@ -66,5 +67,7 @@ def main_func_selector(value):
         return welcome_layout
     elif value  == 'student_analysis':
         return student_layout
+    elif value  == 'subject_analysis':
+        return subject_layout
     else:
         return sub_layout

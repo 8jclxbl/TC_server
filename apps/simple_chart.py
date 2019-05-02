@@ -21,9 +21,9 @@ def simple_table(query_res):
         [html.Tr([html.Td(str(value)) for value in values])]
     ) 
 
-def dash_table(head_val,value_val,tag_id):
+def dash_table(head_val,value_val,tab_id):
     return dcc.Graph(
-        id = tag_id,
+        id = tab_id,
         figure = {
             'data':[go.Table(
                 header = dict(
