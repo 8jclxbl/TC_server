@@ -7,7 +7,7 @@ from models.student import controller_info_by_student_id,consumption_by_student_
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.draw_controller_statics import controller_statics_total,controller_statics
-from apps.draw_grade import Grade,draw_line_total
+from apps.draw_grade import Grade
 from apps.simple_chart import simple_table,dash_table
 
 
@@ -141,9 +141,9 @@ def student_grade_graph_layout(n_clicks,id):
 )
 def student_grade_graph(subjects,score_type,score_types):
     if score_type == 'origin':
-        return draw_line_total(gd,subjects,0)
+        return gd.draw_line_total(subjects,0)
     else:
-        return draw_line_total(gd,subjects,score_types)
+        return gd.draw_line_total(subjects,score_types)
 
 cs = None
 @app.callback(

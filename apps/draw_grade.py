@@ -23,7 +23,7 @@ def draw_line(subject_name,type_name,data):
         y = data['score'],
         name = subject_name + ' ' + type_name,
         mode = 'lines+markers',
-        text = ['{0}考试{1}科目{2}:{3}'.format(k,subject_name,type_name,v) for k,v in data.items()],
+        text = ['{0}{1}{2}:{3}'.format(k,subject_name,type_name,v) for k,v in zip(data['head'],data['score'])],
         marker = dict(
             symbol='circle',
             size = 8, 
@@ -33,48 +33,6 @@ def draw_line(subject_name,type_name,data):
             color = SOCRE_TYPE_COLOR[type_name],
         )
     )
-
-def draw_line_total(grade,subject_selected,type_selected):
-    total = []
-    if not grade.isNone:
-        if type_selected == 0:
-            data = grade.grade_line_graph_score(subject_selected)
-            for subject in data.keys():
-                total.append(draw_line(subject,'score',data[subject]))
-        elif type_selected != []:
-            data = grade.grade_line_graph(subject_selected,type_selected)
-            for subject in data.keys():
-                cur_subject = data[subject]
-                for type_ in cur_subject.keys():
-                    cur_type = cur_subject[type_]
-                    total.append(draw_line(subject,type_,cur_type))
-        else:
-            total = []
-    return dcc.Graph(
-            id = 'student-grade-graph',
-            figure = {
-            'data':total,
-            'layout': go.Layout(  
-                    autosize=False,     
-                    hovermode='closest',  
-                    dragmode='select',     
-                    title= grade.title,
-                    xaxis = dict(title = '考试', showline = True),
-                    yaxis = dict(title = '分数', showline = True),
-                    legend=dict(
-                        font=dict(
-                            size=10,
-                        ),
-                        yanchor='top',
-                        xanchor='left',
-                    ),
-                    margin=dict(l=100,r=100,b=200,t=80),
-                    
-            )
-            },
-            style = {'align':'center','width':'100%','margin-left': '10%','margin-right': '10%'},
-        )
-    
 
 class Grade:
     def __init__(self, query_res):
@@ -91,6 +49,8 @@ class Grade:
 
             self.separate_by_subject()
             self.info_each_subject()
+
+            self.draw_all_lines()
 
     def gen_layout(self):
         layout = [
@@ -126,9 +86,59 @@ class Grade:
             
             html.Div(
                 id = 'grade-graph',
+                style = {'align':'center','width':'100%'}
             ),
         ]
         return layout
+
+    def draw_all_lines(self):
+        graph_cache = {}
+        score_type = ['score','z_score','t_score','r_score']
+        data = self.grade_line_graph(self.subjects,score_type)
+        for i in self.subjects:
+            cur_subject = data[i]
+            temp = {}
+            for j in score_type:
+                cur_type = cur_subject[j]
+                temp[j] = draw_line(i,j,cur_type)
+            graph_cache[i] = temp
+        self.graph_cache = graph_cache
+
+    def draw_line_total(self,subject_selected,type_selected):
+        total = []
+        if type_selected == 0:
+            for subject in subject_selected:
+                total.append(self.graph_cache[subject]['score'])
+        elif type_selected != []:
+            for subject in subject_selected:
+                for type_ in type_selected:
+                    total.append(self.graph_cache[subject][type_])
+        else:
+            total = []
+        return dcc.Graph(
+                id = 'student-grade-graph',
+                figure = {
+                'data':total,
+                'layout': go.Layout(  
+                        autosize=True,     
+                        hovermode='closest',  
+                        dragmode='select',     
+                        title= self.title,
+                        xaxis = dict(title = '考试', showline = True),
+                        yaxis = dict(title = '分数', showline = True),
+                        legend=dict(
+                            font=dict(
+                                size=10,
+                            ),
+                            yanchor='top',
+                            xanchor='left',
+                        ),
+                        margin=dict(l=100,r=100,b=200,t=80),
+
+                )
+                },
+                style = {'align':'center','width':'100%'},
+            )
 
     def separate_by_exam(self):
         df = self.data

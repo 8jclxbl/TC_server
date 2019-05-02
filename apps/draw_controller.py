@@ -95,7 +95,7 @@ def controller_graph(data_p,stu_id):
             figure = {
             'data':total,
             'layout': go.Layout(  
-                    autosize=False,     
+                    #autosize=False,     
                     hovermode='closest',  
                     dragmode='select',     
                     title='学生{0}考勤记录统计'.format(stu_id),

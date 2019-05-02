@@ -67,7 +67,7 @@ def consumption_bar_uds(sumed):
             figure = {
                 'data':total,
                 'layout': go.Layout(  
-                    autosize=False,     
+                    #autosize=False,     
                     hovermode='closest',  
                     dragmode='select',
                     plot_bgcolor="#191A1A",

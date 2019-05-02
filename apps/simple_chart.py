@@ -17,7 +17,8 @@ def simple_table(query_res):
         #表头
         [html.Tr([html.Th(index) for index in indexs])] + 
         #内容
-        [html.Tr([html.Td(value) for value in values])]
+        #html.Td如果输入的值为int0的话不会显示
+        [html.Tr([html.Td(str(value)) for value in values])]
     ) 
 
 def dash_table(head_val,value_val,tag_id):
