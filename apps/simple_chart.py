@@ -21,7 +21,7 @@ def simple_table(query_res):
         [html.Tr([html.Td(str(value)) for value in values])]
     ) 
 
-def dash_table(head_val,value_val,tab_id):
+def dash_table(head_val,value_val,tab_id,title_name = ''):
     return dcc.Graph(
         id = tab_id,
         figure = {
@@ -40,9 +40,10 @@ def dash_table(head_val,value_val,tab_id):
                     align = ['left'] * 5,
                     font = {'color':'white'},
                     )
-                )
-            ]
-
+                )],
+            'layout':go.Layout(
+                    title = title_name,
+                ),
         },
     )
 

@@ -3,10 +3,8 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.subject import get_all_calsses,CLASS_TERMS,get_all_grade_by_class_id,class_grade_process
+from models.subject import get_all_calsses,CLASS_TERMS,CURRENT_THIRD,get_all_grade_by_class_id,class_grade_process,get_7_3,get_7_3_by_df,gen_all_table
 from apps.simple_chart import dash_table
-
-class_grade = None
 
 subject_layout = html.Div([
     dcc.Dropdown(
@@ -16,7 +14,14 @@ subject_layout = html.Div([
     ),
     html.Div(id = 'sa-select-class'),
     html.Div(id = 'sa-select-subject'),
-    html.Div(id = 'sa-class-grade')
+    html.Div(id = 'sa-class-grade'),
+
+    dcc.Dropdown(
+        id = 'sa-third-class-selector',
+        options = [{'label':i,'value':i} for i in CURRENT_THIRD],
+        value =CURRENT_THIRD[0]
+    ),
+    html.Div(id = 'sa-7-3-show')
 ])
 
 @app.callback(
@@ -37,19 +42,31 @@ def select_term(term):
 
 @app.callback(
     Output('sa-class-grade','children'),
-    [Input('sa-class-selector', 'value')]
+    [Input('sa-class-selector', 'value')],
+    [State('sa-term-selector', 'value')]
 )
-def select_subject(class_):
+def select_subject(class_,term):
     class_grade = get_all_grade_by_class_id(class_)
+    if class_grade.empty:return '缺失此班学生的考试数据'
     res = class_grade_process(class_grade)
     res = res[['subject','exam','max','min']]
     head = ['科目','考试','最高分','最低分']
-    return dash_table(head,res.T,'calss-grade-statis-table')
+    return dash_table(head,res.T,'calss-grade-statis-table',term + '学期' + str(class_) + '班成绩统计')
     
-   
-
 
 """
+@app.callback(
+    Output('sa-7-3-show','children'),
+    [Input('sa-third-class-selector','value')]
+)
+def select_third_class(class_):
+    class_grade = get_all_grade_by_class_id(class_)
+    info = get_7_3_by_df(class_grade,class_)
+    info = info[['student_id','student_name','class_id','subject']]
+    head = ['学号','姓名','班级id','科目']
+    return dash_table(head,info.T,'class-7-3-table',str(class_))
+
+
 @app.callback(
     Output('sa-class-grade','children'),
     [Input('sa-class-selector', 'value')]
