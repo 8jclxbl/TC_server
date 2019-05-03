@@ -1,5 +1,5 @@
 from app import db
-from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType
+from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,SubjectSelect
 from models.student import get_all_subject,SUBJECTS
 import pandas as pd
 
@@ -7,6 +7,8 @@ import pandas as pd
 GENERE_SOCRE = [285,287,297,291,303,305]
 NEED_PROCESS = [301,302,303]
 CURRENT_THIRD = [i for i in range(916,926)]
+ELETIVE_CLASS = ['政治','历史','地理','物理','化学','生物','技术']
+
 def get_all_calsses_raw():
     info = db.session.query(Class_).all()
 
@@ -118,6 +120,23 @@ def class_grade_process(df):
     res = {'subject':subjects_,'exam':exam_id,'max':maxs,'min':mins}
     return pd.DataFrame(res)
 
+def sql_73(cla_id = None):
+    if not cla_id:
+        info = db.session.query(SubjectSelect).all()
+    else:
+        info = db.session.query(SubjectSelect).filter_by(class_id = cla_id).all()
+    student_ids = []
+    student_names = []
+    class_ids = []
+    subject_names = []
+    for i in info:
+        student_ids.append(i.student_id)
+        student_names.append(i.student_name)
+        class_ids.append(i.class_id)
+        subject_names.append(i.subjects)
+
+    data = {'student_id':student_ids,'student_name':student_names,'class_id':class_ids,'subjects':subject_names}
+    return pd.DataFrame(data)
 def get_7_3(cla_id):
     students = get_all_student_by_class_id_raw(cla_id)
     ids = students['student_id']
@@ -177,12 +196,3 @@ def get_7_3_by_df(df,cla_id):
 
     data = {'student_id':student_ids,'student_name':student_names,'class_id':class_ids,'subject':subjects}
     return pd.DataFrame(data)
-
-def gen_all_table():
-    temp = []
-    for i in CURRENT_THIRD:
-        temp.append(get_7_3(i))
-        print(i)
-    res = pd.concat(temp)
-    res.to_csv('all_7_3.csv',encoding = 'utf-8')
-    print('over')

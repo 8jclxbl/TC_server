@@ -66,8 +66,7 @@ def consumption_bar_uds(sumed):
             id = 'consumption-graph-by-year-month',
             figure = {
                 'data':total,
-                'layout': go.Layout(  
-                    #autosize=False,     
+                'layout': go.Layout(    
                     hovermode='closest',  
                     dragmode='select',
                     plot_bgcolor="#191A1A",

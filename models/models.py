@@ -191,3 +191,12 @@ class ExamRes(db.Model):
     t_score = db.Column(db.Float)
     r_score = db.Column(db.Float)
 
+
+class SubjectSelect(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    student_id = db.Column(db.Integer)
+    student_name = db.Column(db.String(16))
+    class_id = db.Column(db.Integer)
+    subjects = db.Column(db.String(64))
+    
+    
