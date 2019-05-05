@@ -12,34 +12,35 @@ ma = None
 mass_layout = html.Div([
     html.Div(id = 'ma-total-selector', children = [
         html.Div(id = 'ma-select-term', children = [
-            html.H3(children = '请选择学期:'),
-            dcc.Dropdown(
-                id = 'ma-term-selector',
-                options = [{'label':i,'value':i} for i in CLASS_TERMS],
-                value =CLASS_TERMS[0],
-            )],
-        style = {'display':'inline-block','margin-left':'20px','margin-right':'20px','width':'30%'},    
-        ),
-        html.Div(id = 'ma-select-grade',style = {'display':'inline-block','margin-left':'20px','margin-right':'20px','width':'30%'},),
-        ],
-        style = {'margin-left':'20px','margin-right':'20px','margin-top':'20px'},
+            html.H3(children = '请选择学期:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+            html.Div(children = [
+                dcc.Dropdown(
+                    id = 'ma-term-selector',
+                    options = [{'label':i,'value':i} for i in CLASS_TERMS],
+                    value =CLASS_TERMS[0],
+                    )
+                ],style = {'display':'inline-block','width':'40%'})
+            ]),
+        html.Div(id = 'ma-select-grade'),
+        ],className = 'one-row-con'
     ),
     
     html.Div(id = 'ma-means-show', children = [
-        html.Div(id = 'ma-select-exam'),
-        html.Div(id = 'ma-select-subject',),
+        html.Div(children = [
+            html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+        ]),
         html.Div(id = 'ma-class-grade'),
-    ]),
+    ],className = 'one-row-con'),
     
-    html.Div(id = 'ma-inner-class',children = [
-        html.Div(id = 'ma-class-selector',style = {'display':'inline-block','margin-left':'20px','margin-right':'20px','width':'30%'}),
-        html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin-left':'20px','margin-right':'20px','width':'30%'}),
-    ]),
-    html.Div(id = 'ma-inner-class-show',children = [
-        html.Div(id = 'ma-class-grade-rank',style = {'display':'inline-block','margin-left':'20px','margin-right':'20px','width':'40%'}),
-        html.Div(id = 'ma-class-grade-static',style = {'display':'inline-block','margin-left':'20px','margin-right':'20px','width':'40%'}),
-    ]),
-    
+    html.Div(id = 'ma-last-row',children = [
+        html.Div(id = 'ma-inner-class',children = [
+            html.Div(id = 'ma-class-selector',style = {'display':'inline-block','margin':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin':'10px','width':'40%'}),
+        ],className = 'son-row-wrap'),
+        html.Div(id = 'ma-class-grade-rank',className = 'left-column'),
+        html.Div(id = 'ma-class-grade-static',className = 'right-column'),
+    ],className = 'one-row-wrap'),
 ])
 
 @app.callback(
@@ -51,12 +52,15 @@ def ma_select_term(term):
     global ma
     ma = Mass(data) 
     grades = ma.get_grades()
-    return [html.H3('请选择年级:'),
-    dcc.Dropdown(
-            id = 'ma-grade-selector',
-            options = [{'label':i,'value':i} for i in grades],
-            value = grades[0]
-    )]
+    return [html.H3('请选择年级:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+        html.Div(children = [
+             dcc.Dropdown(
+                id = 'ma-grade-selector',
+                options = [{'label':i,'value':i} for i in grades],
+                value = grades[0],
+            )
+        ], style = {'display':'inline-block','width':'40%'})
+   ]
 
 @app.callback(
     Output('ma-select-exam','children'),

@@ -20,48 +20,51 @@ subject_layout = html.Div([
                 options = [{'label':i,'value':i} for i in CLASS_TERMS],
                 value =CLASS_TERMS[0],
             ),
-            ],style = {'display':'inline-block','width':'40%'}
+            ],style = {'display':'inline-block','width':'30%','margin-left':'10px','margin-right':'10px'}
         ),
-        html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'40%'}),
-    ],style = {'padding-up':'20px'}),
+        html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'30%','margin-left':'10px','margin-right':'10px'}),
+    ],className = 'one-row-con'),
     
-    
-    html.Div(id = 'sa-select-subject'),
-    html.Div(id = 'sa-class-grade'),
+    html.Div(id = 'sa-class-grade',className = 'one-row'),
 
     html.Div(id = 'total-73-statics', children = [
         html.Div(id = 'sa-73-show-up', children = [
-            html.Div(id = 'sa-73-pie-total',style = {'display':'inline-block'}),
-            html.Div(id = 'sa-73-bar-total',style = {'display':'inline-block'}),
-           
+            html.Div(id = 'sa-73-pie-total',className = 'left-column'),
+            html.Div(id = 'sa-73-bar-total',className = 'right-column'),
         ],
-        style = {'display':'block'}
+        className = 'one-row-wrap'
         ),
 
         html.Div(id = 'sa-73-show-down',children = [
             html.Div(children = [
-                dcc.Dropdown(
+                html.Div(children = [
+                    dcc.Dropdown(
                     id = 'sa-third-class-selector',
                     options = [{'label':v,'value':k} for k,v in THIRD_GRADE.items()],
                     value = 921,
+                    style = {'margin-top':'10px','margin-right':'10px','margin-left':'10px'}
                 ),
+            ],className = 'one-row-con'),
                 html.Div(id = 'sa-73-bar-class'),
             ],
-            style = {'display':'inline-block','width':'40%'}
+            className = 'left-column'
             ),
             
             html.Div(id = 'sa-73-bar-subjecs-container',children = [
-                dcc.Dropdown(
+                html.Div(children = [
+                    dcc.Dropdown(
                     id = 'sa-subjects-selector',
                     options = [{'label':i,'value':i} for i in es.combines],
-                    value =es.combines[0]
+                    value =es.combines[0],
+                    style = {'margin-top':'10px','margin-right':'10px','margin-left':'10px'}
                 ),
+                ],className = 'one-row-con'),
                 html.Div(id = 'sa-73-bar-subjects'),
                 ],
-            style = {'display':'inline-block','width':'40%'}
+            className = 'right-column'
             ),
         ],
-        style = {'display':'block'}
+        className = 'one-row-wrap'
         )
     ])
     

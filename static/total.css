@@ -119,6 +119,54 @@
   }
   
   
+  .one-row{
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 10px;
+    margin-bottom: 10px; 
+    padding-top: 5px;
+    text-align:center;
+    background: #fff;
+  }
+
+  .one-row-con{
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 10px;
+    margin-bottom: 10px; 
+    padding-top: 5px;
+    background: #fff;
+  }
+  .one-row-wrap{
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 10px;
+    margin-bottom: 10px; 
+  }
+
+  .son-row-wrap{
+    background: #fff;
+  }
+
+  .left-column{
+    float: left;
+    width:48%;
+    margin-right: 0.5%;
+    margin-top: 10px;
+    margin-bottom: 10px; 
+    text-align:left;
+    background: #fff;
+  }
+
+  .right-column{
+    float: right;
+    width:48%;
+    margin-left: 0.5%;
+    margin-top: 10px;
+    margin-bottom: 10px; 
+    text-align:left;
+    background: #fff;
+  }
   /* Base Styles
   –––––––––––––––––––––––––––––––––––––––––––––––––– */
   /* NOTE
@@ -131,7 +179,9 @@
     line-height: 1.6;
     font-weight: 400;
     font-family: "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color: rgb(50, 50, 50); }
+    color: rgb(50, 50, 50); 
+    background: #ddd;
+  }
   
   
   /* Typography

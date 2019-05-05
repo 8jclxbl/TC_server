@@ -8,7 +8,7 @@ from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.draw_controller_statics import controller_statics_total,controller_statics
 from apps.draw_grade import Grade
-from apps.simple_chart import simple_table,dash_table
+from apps.simple_chart import simple_table,dash_table,text_return
 
 
 colors = {     
@@ -21,63 +21,65 @@ student_layout = [
         html.H4(
             id = 'student-id-indicator',
             children = '请输入所要查询的学号: ',
-            style = {'display': 'inline-block','margin-left':'20px','margin-right':'20px'}),
+            style = {'display': 'inline-block','margin-right':'10px'}),
         dcc.Input(
             id='input-student-id', 
             type='text', 
             value='13012',
-            style = {'display': 'inline-block','margin-left':'20px','margin-right':'20px'}),
+            style = {'display': 'inline-block','margin-left':'10px','margin-right':'10px'}),
         html.Button(
             children = '提交', 
             id='student-id-submmit',
             n_clicks = 0,
-            style={"height": "34","background": "#119DFF","border": "1px solid #119DFF","color": "white",'margin-left':'20px','margin-right':'20px'}), 
+            style={"height": "34","background": "#119DFF","border": "1px solid #119DFF","color": "white",'margin-left':'10px','margin-right':'10px'}), 
         html.Div(id = 'student-info'),
-        html.Div(id = 'student-grade'),
-        html.Div(id = 'grade-lines')
-    ]),
+        ],
+        className = 'one-row',
+    ),
+    html.Div(id = 'student-grade',className = 'one-row'),
+    html.Div(id = 'grade-lines',className = 'one-row'),
     html.Div([
         html.Div(id = 'plot-conditions', children = [
-            dcc.Dropdown( 
-                id = 'aspect-selector',
-                options=[            
-                    {'label': '学生考勤情况', 'value': 'controller'},
-                    {'label': '学生考勤统计', 'value': 'controller-st'},             
-                    {'label': '学生消费情况', 'value': 'consumption'},             
-                   ],         
-                value='controller',  
-                style={'width':'400px','display': 'inline-block','margin-right':'20px'},
-                clearable=False,       
-            ), 
-
-            dcc.Dropdown( 
-                id = 'graph-table-selector',
-                options=[            
-                    {'label': '统计图', 'value': 'graph'},             
-                    {'label': '统计表', 'value': 'table'},             
-                ],         
-                value='graph', 
-                style={'width':'311px','display': 'inline-block','margin-right':'20px'},
-                clearable=False,         
-            ), 
-            
-            dcc.Dropdown( 
-                id = 'interval-selector',
-                options=[            
-                    {'label': '年数据', 'value': 'Year'},             
-                    {'label': '月数据', 'value': 'Month'},  
-                    {'label': '日数据', 'value': 'Day'},   
-                    {'label': '总数据', 'value': 'Total'}        
-                   ],         
-                value='Day',    
-                style={'width':'311px','display': 'inline-block','margin-right':'20px'},
-                clearable=False,     
-            ), 
-            
-        ]),
+            html.Div(id = 'stua-select-aspect',children = [
+                dcc.Dropdown( 
+                    id = 'aspect-selector',
+                    options=[            
+                        {'label': '学生考勤情况', 'value': 'controller'},
+                        {'label': '学生考勤统计', 'value': 'controller-st'},             
+                        {'label': '学生消费情况', 'value': 'consumption'},             
+                    ],         
+                    value='controller',  
+                    clearable=False,       
+                ),
+            ],style={'width':'30%','display': 'inline-block','margin-left':'10px','margin-right':'10px'}),
+            html.Div(id = 'stua-select-chart',children = [
+                dcc.Dropdown( 
+                    id = 'graph-table-selector',
+                    options=[            
+                        {'label': '统计图', 'value': 'graph'},             
+                        {'label': '统计表', 'value': 'table'},             
+                    ],         
+                    value='graph', 
+                    clearable=False,     
+                ),  
+            ],style={'width':'30%','display': 'inline-block','margin-left':'10px','margin-right':'10px'}),     
+            html.Div(id = 'stua-select-interval', children = [
+                dcc.Dropdown( 
+                    id = 'interval-selector',
+                    options=[            
+                        {'label': '年数据', 'value': 'Year'},             
+                        {'label': '月数据', 'value': 'Month'},  
+                        {'label': '日数据', 'value': 'Day'},   
+                        {'label': '总数据', 'value': 'Total'}        
+                    ],         
+                    value='Day',    
+                    clearable=False,     
+                ),
+            ],style={'width':'30%','display': 'inline-block','margin-left':'10px','margin-right':'10px'},), 
+        ],
+        className = 'one-row-con'),
     ]),
-    html.Div(id = 'student-show' ),
-    html.Div(id = 'controller-pies'),
+    html.Div(id = 'student-show', className = 'one-row'),
 ]
 #注意此处的参数位置和名称无关，只和Input的位置
 @app.callback(
@@ -117,7 +119,7 @@ def select_student(n_clicks,value):
 )
 def student_grade(n_clicks,id):
     grade = grade_query_res(id)['data']
-    if grade.empty:return '缺失该学生的考试数据'
+    if grade.empty:return text_return('缺失该学生的考试数据')
     header = ['考试名称','科目','分数','Z值','T值','等第']
     grade = grade[['exam_name','subject','score','z_score','t_score','r_score']]
     return dash_table(header,grade.T,'student-grade-table')
@@ -130,20 +132,20 @@ gd = Grade(0)
 )
 def student_grade_graph_layout(n_clicks,id):
     grade = grade_query_res(id)
-    if grade['data'].empty:return '缺失该学生的考试数据'
+    if grade['data'].empty:return text_return('缺失该学生的考试数据')
     global gd
     gd = Grade(grade)
     return gd.gen_layout()
 
 @app.callback(
     Output('grade-graph', 'children'),
-    [Input('grade-subject-selector','value'),Input('score-class-selector','value'),Input('grade-type-selector','value')]
+    [Input('grade-subject-selector','value'),Input('score-class-selector','value'),Input('grade-type-selector','value'),Input('score-exam-type-selector','value')]
 )
-def student_grade_graph(subjects,score_type,score_types):
+def student_grade_graph(subjects,score_type,score_types,is_nor_exam):
     if score_type == 'origin':
-        return gd.draw_line_total(subjects,0)
+        return gd.draw_line_total(subjects,0,is_nor_exam)
     else:
-        return gd.draw_line_total(subjects,score_types)
+        return gd.draw_line_total(subjects,score_types,is_nor_exam)
 
 cs = None
 @app.callback(
@@ -155,39 +157,39 @@ def aspect_selector(aspect,graph_table,intervel,stu_id):
     if aspect == 'controller':
         query_res = controller_info_by_student_id(stu_id)
         #The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
-        if query_res['data'].empty:return '缺失该学生的考勤数据'
+        if query_res['data'].empty:return text_return('缺失该学生的考勤数据')
         return controller_total(query_res,graph_table,stu_id)
     elif aspect == 'consumption':
         query_res = consumption_by_student_id(stu_id)
-        if query_res['data'].empty:return '缺失该学生的消费数据'
+        if query_res['data'].empty:return text_return('缺失该学生的消费数据')
         return consumption_total(query_res,intervel,graph_table)
     else:
         query_res = controller_info_by_student_id(stu_id)
-        if query_res['data'].empty:return '缺失该学生的考勤数据'
+        if query_res['data'].empty:return text_return('缺失该学生的考勤数据')
         global cs
         cs = controller_statics(query_res)
         return cs.gen_layout()
 
 
 @app.callback(
-    Output('interval-selector','style'),
+    Output('stua-select-interval','style'),
     [Input('aspect-selector','value')]
 )
 def interval_lantent(aspect):
     if aspect != 'consumption' :
        return {'display':'None'}
     else:
-        return {'width':'311px','display':'inline-block','margin-right':'20px'}
+        return {'width':'30%','display':'inline-block','margin-left':'10px','margin-right':'10px'}
 
 @app.callback(
-    Output('graph-table-selector','style'),
+    Output('stua-select-chart','style'),
     [Input('aspect-selector','value')]
 )
 def graph_table_lantent(aspect):
     if aspect == 'controller-st' :
        return {'display':'None'}
     else:
-        return {'width':'311px','display':'inline-block','margin-right':'20px'}
+        return {'width':'30%','display':'inline-block','margin-left':'10px','margin-right':'10px'}
 
 
 @app.callback(

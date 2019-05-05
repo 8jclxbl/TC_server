@@ -20,10 +20,9 @@ def controller_statics_total(info,term,title):
             'layout':go.Layout(
                 title = title + '({0})'.format(term)
             )
-        }
+        },
+        style = {'margin-top':'10px'} 
     )
-    
-
 
 class controller_statics:
     def __init__(self,query_res):
@@ -43,11 +42,16 @@ class controller_statics:
         self.title = '学生{0}考勤总体状况统计'.format(self.id)
 
     def gen_layout(self):
-        layout = [dcc.Dropdown(
-            id = 'term-selector',
-            options = [{'label':i,'value':i} for i in self.terms],
-            value = self.terms[0],
-            clearable = False
+        layout = [
+            html.Div(id = 'select-term', children = [
+                dcc.Dropdown(
+                    id = 'term-selector',
+                    options = [{'label':i,'value':i} for i in self.terms],
+                    value = self.terms[0],
+                    clearable = False
+                ),
+            ],
+            style = {'width':'30%','margin-left':'10px','margin-left':'10px'}
             ),
             html.Div(
                 id = 'controller-statics',

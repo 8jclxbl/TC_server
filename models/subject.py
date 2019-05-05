@@ -3,8 +3,7 @@ from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consu
 from models.student import get_all_subject,SUBJECTS
 import pandas as pd
 
-#平时成绩的考试id
-GENERE_SOCRE = [285,287,297,291,303,305]
+
 #需要处理的三次考试，用于计算7选三
 NEED_PROCESS = [301,302,303]
 #当前高三的id
