@@ -3,7 +3,7 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.subject import get_all_calsses,CLASS_TERMS,CURRENT_THIRD,get_all_grade_by_class_id,class_grade_process,get_7_3,sql_73
+from models.subject import get_all_calsses,CLASS_TERMS,get_all_grade_by_class_id,class_grade_process,get_7_3,sql_73,get_class_name
 from apps.simple_chart import dash_table
 from apps.draw_eletive_subject import EletiveSubject
 
@@ -13,21 +13,23 @@ info = sql_73()
 es = EletiveSubject(info)
 
 subject_layout = html.Div([
-    dcc.Dropdown(
-        id = 'sa-term-selector',
-        options = [{'label':i,'value':i} for i in CLASS_TERMS],
-        value =CLASS_TERMS[0]
-    ),
-    html.Div(id = 'sa-select-class'),
+    html.Div(id= 'sa-class-term-select', children = [
+        html.Div(id = 'sa-select-term',children = [
+                dcc.Dropdown(
+                id = 'sa-term-selector',
+                options = [{'label':i,'value':i} for i in CLASS_TERMS],
+                value =CLASS_TERMS[0],
+            ),
+            ],style = {'display':'inline-block','width':'40%'}
+        ),
+        html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'40%'}),
+    ],style = {'padding-up':'20px'}),
+    
+    
     html.Div(id = 'sa-select-subject'),
     html.Div(id = 'sa-class-grade'),
 
     html.Div(id = 'total-73-statics', children = [
-            dcc.Dropdown(
-            id = 'sa-third-class-selector',
-            options = [{'label':i,'value':i} for i in CURRENT_THIRD],
-            value =CURRENT_THIRD[0]
-        ),
         html.Div(id = 'sa-73-show-up', children = [
             html.Div(id = 'sa-73-pie-total',style = {'display':'inline-block'}),
             html.Div(id = 'sa-73-bar-total',style = {'display':'inline-block'}),
@@ -37,7 +39,17 @@ subject_layout = html.Div([
         ),
 
         html.Div(id = 'sa-73-show-down',children = [
-            html.Div(id = 'sa-73-bar-class',style = {'display':'inline-block'}),
+            html.Div(children = [
+                dcc.Dropdown(
+                    id = 'sa-third-class-selector',
+                    options = [{'label':v,'value':k} for k,v in THIRD_GRADE.items()],
+                    value = 921,
+                ),
+                html.Div(id = 'sa-73-bar-class'),
+            ],
+            style = {'display':'inline-block','width':'40%'}
+            ),
+            
             html.Div(id = 'sa-73-bar-subjecs-container',children = [
                 dcc.Dropdown(
                     id = 'sa-subjects-selector',
@@ -46,7 +58,7 @@ subject_layout = html.Div([
                 ),
                 html.Div(id = 'sa-73-bar-subjects'),
                 ],
-            style = {'display':'inline-block','width':'50%'}
+            style = {'display':'inline-block','width':'40%'}
             ),
         ],
         style = {'display':'block'}
@@ -68,6 +80,7 @@ def select_term(term):
     return dcc.Dropdown(
             id = 'sa-class-selector',
             options = [{'label':j,'value':i} for i,j in zip(ids,names)],
+            value = ids[0],
         )
 
 
@@ -82,9 +95,7 @@ def select_subject(class_,term):
     res = class_grade_process(class_grade)
     res = res[['subject','exam','max','min']]
     head = ['科目','考试','最高分','最低分']
-    return dash_table(head,res.T,'calss-grade-statis-table',term + '学期' + str(class_) + '班成绩统计')
-
-
+    return dash_table(head,res.T,'calss-grade-statis-table',term + '学期' + get_class_name(class_) + '班成绩统计')
 
 
 @app.callback(

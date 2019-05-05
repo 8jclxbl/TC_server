@@ -186,6 +186,7 @@ class ExamRes(db.Model):
     exam_id = db.Column(db.Integer)
     subject_id = db.Column(db.Integer)
     student_id = db.Column(db.Integer)
+    class_id = db.Column(db.Integer)
     score = db.Column(db.Float)
     z_score = db.Column(db.Float)
     t_score = db.Column(db.Float)

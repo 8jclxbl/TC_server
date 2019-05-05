@@ -47,4 +47,36 @@ def dash_table(head_val,value_val,tab_id,title_name = ''):
         },
     )
 
+def dash_bar(head_val,value_val,x_title,y_title,tab_id,title_name = ''):
+    total = [
+            go.Bar(
+                x = head_val,
+                y = value_val,
+            )
+        ]
+
+    return dcc.Graph(
+            id = tab_id,
+            figure = {
+                'data':total,
+                'layout': go.Layout(    
+                    hovermode='closest',  
+                    dragmode='select',
+                    plot_bgcolor="#191A1A",
+
+                    title=title_name,
+                    xaxis = dict(title = x_title, showline = True, tickangle = 75),
+                    yaxis = dict(title = y_title, showline = True),
+                    margin=dict(l=40,r=40,b=140,t=80),
+                )
+            },
+               
+        )
+
+def dash_DropDown(id_,option_label,option_value,default_value):
+    return dcc.Dropdown(
+        id = id_,
+        options = [{'label':i,'value':j} for i,j in zip(option_label,option_value)],
+        value = default_value
+    )
     

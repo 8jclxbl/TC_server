@@ -5,6 +5,7 @@ from app import app
 
 from apps.student_page import student_layout
 from apps.subject_page import subject_layout
+from apps.mass_page import mass_layout
 
 colors = {     
     'background': '#111111',     
@@ -69,5 +70,7 @@ def main_func_selector(value):
         return student_layout
     elif value  == 'subject_analysis':
         return subject_layout
+    elif value ==  'mass_analysis':
+        return mass_layout
     else:
         return sub_layout

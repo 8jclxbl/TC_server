@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 import pandas as pd
 
 from dash.dependencies import Input,Output
-from models.subject import sql_73
+from models.subject import sql_73,get_class_name
 from app import app
 
 class EletiveSubject:
@@ -58,7 +58,7 @@ class EletiveSubject:
         data = self.statics_by_class(cla_id)
         index = data.index
         value = data.values
-        return self.draw_bar(index,value,'class-bar-'+str(cla_id),str(cla_id))
+        return self.draw_bar(index,value,'class-bar-'+str(cla_id),get_class_name(cla_id) + '班七选三分布')
 
     def draw_by_one_subject(self):
         data = self.statics_by_one_subject()

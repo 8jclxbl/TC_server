@@ -11,7 +11,7 @@ def get_student_info_by_student_id(stu_id):
     class_info = db.session.query(Class_).filter_by(id = student.class_id).first()
     index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','政治面貌','班级','班级编号','班级学期','是否住校','是否退学','寝室号']
     zhusu = '是' if student.zhusu else '否'
-    tuixue = '是' if student.zhusu else '否'
+    tuixue = '是' if student.leave_school else '否'
     if not student.zhusu:qinshihao = '无'
     else: qinshihao = student.qinshihao
     value = [stu_id,student.name,student.sex,student.nation,student.born_year,student.native,student.residence,
