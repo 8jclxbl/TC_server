@@ -34,6 +34,42 @@
 
 /* Grid
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+.custom-tabs-container {
+  width: 100%;
+  }
+  .custom-tabs {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background-color: #f9f9f9;
+  padding: 0px 24px;
+  }
+  .custom-tab {
+  color:#586069;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  border-top: 3px solid transparent !important;
+  border-left: 0px !important;
+  border-right: 0px !important;
+  border-bottom: 0px !important;
+  background-color: #fafbfc;
+  padding: 12px !important;
+  font-family: "system-ui";
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  }
+  .custom-tab--selected {
+  font-size: 20px;
+  font-weight: bolder;
+  box-shadow: 1px 1px 0px white;
+  border-left: 1px solid lightgrey !important;
+  border-right: 1px solid lightgrey !important;
+  border-top: 3px solid #03A9F4 !important;
+  
+  }
+
+
 .container {
     position: relative;
     width: 100%;
@@ -142,6 +178,7 @@
     margin-right: 10%;
     margin-top: 10px;
     margin-bottom: 10px; 
+    text-align:center;
   }
 
   .son-row-wrap{
@@ -154,7 +191,7 @@
     margin-right: 0.5%;
     margin-top: 10px;
     margin-bottom: 10px; 
-    text-align:left;
+    text-align:center;
     background: #fff;
   }
 
@@ -164,7 +201,7 @@
     margin-left: 0.5%;
     margin-top: 10px;
     margin-bottom: 10px; 
-    text-align:left;
+    text-align:center;
     background: #fff;
   }
   /* Base Styles

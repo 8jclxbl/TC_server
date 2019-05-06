@@ -30,7 +30,7 @@ mass_layout = html.Div([
             html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
             html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
         ]),
-        html.Div(id = 'ma-class-grade'),
+        html.Div(id = 'ma-class-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],style = {'text-align':'center'}),
     ],className = 'one-row-con'),
     
     html.Div(id = 'ma-last-row',children = [
@@ -38,8 +38,8 @@ mass_layout = html.Div([
             html.Div(id = 'ma-class-selector',style = {'display':'inline-block','margin':'10px','width':'40%'}),
             html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin':'10px','width':'40%'}),
         ],className = 'son-row-wrap'),
-        html.Div(id = 'ma-class-grade-rank',className = 'left-column'),
-        html.Div(id = 'ma-class-grade-static',className = 'right-column'),
+        html.Div(id = 'ma-class-grade-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'left-column'),
+        html.Div(id = 'ma-class-grade-static',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'right-column'),
     ],className = 'one-row-wrap'),
 ])
 
@@ -81,7 +81,7 @@ def ma_select_grade(grade):
     [Input('ma-exam-selector','value')],
     [State('ma-grade-selector','value')]
 )
-def ma_select_subject(exam,grade):
+def ma_gen_subject_select(exam,grade):
     cla_id = ma.get_one_class_by_grade(grade)
     cla_info = ClassInfo(cla_id)
     subjects = cla_info.get_exam_subjects(exam)
@@ -97,7 +97,7 @@ def ma_select_subject(exam,grade):
     [Input('ma-subject-selector','value')],
     [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
 )
-def ma_select_exam(subject,grade,exam):
+def ma_select_subject(subject,grade,exam):
     res = ma.get_mean_by_grade_exam(grade,exam,subject)
     res = res.sort_values('mean',ascending = False)
     res = res[['id','name','mean']]
@@ -109,7 +109,7 @@ def ma_select_exam(subject,grade,exam):
     Output('ma-class-selector','children'),
     [Input('ma-grade-selector','value')],
 )
-def ma_select_exam(grade):
+def ma_gen_class_select(grade):
     class_id = ma.get_class_by_grade_dict(grade)
     ids = list(class_id.keys())
     return dcc.Dropdown(
@@ -140,7 +140,7 @@ def ma_select_subject_innerclass(exam,grade):
     [Input('ma-class-selector','value'),Input('ma-subject-selector-innerclass','value')],
     [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
 )
-def ma_select_exam(class_,subject,grade,exam):
+def ma_gen_rank(class_,subject,grade,exam):
     res = ma.get_rank_by_grade_exam(class_,grade,exam,subject)
     if res.empty:return '此班级此次考试数据缺失'
     class_name = ma.get_class_name(class_)
@@ -154,7 +154,7 @@ def ma_select_exam(class_,subject,grade,exam):
     [Input('ma-class-selector','value'),Input('ma-subject-selector-innerclass','value')],
     [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
 )
-def ma_select_exam(class_,subject,grade,exam):
+def ma_gen_ditribution(class_,subject,grade,exam):
     res = ma.get_partition_by_grade_exam(class_,grade,exam,subject)
     if not res:return '此班级此次考试数据缺失'
     class_name = ma.get_class_name(class_)

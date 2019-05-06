@@ -10,12 +10,14 @@ from app import app
 TYPE_CLASS = {'arrive_late':[100000,100100,100200,100300,9900100,9900300],'leaving':[200200]}
 
 def controller_statics_total(info,term,title):
+
     return dcc.Graph(
         id = 'controller-statics-pie',
         figure = {
             'data':[go.Pie(
                 labels = ['出勤','迟到早退','请假'],
                 values = info,
+                
             )],
             'layout':go.Layout(
                 title = title + '({0})'.format(term)
