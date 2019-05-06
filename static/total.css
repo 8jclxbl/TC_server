@@ -60,14 +60,13 @@
   justify-content: center;
   }
   .custom-tab--selected {
-  color: white !important;
+  color: black !important;
   font-size: 20px;
   font-weight: bolder;
   box-shadow: 1px 1px 0px white;
   border-left: 1px solid lightgrey !important;
   border-right: 1px solid lightgrey !important;
-  border-top: 3px solid lightgrey !important;
-  background-color: rgb(39, 86, 158) !important;
+  border-top: 3px solid rgb(0, 183, 255) !important;
   }
 
 

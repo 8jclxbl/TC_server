@@ -46,7 +46,7 @@ def open_grade_sep(query_res):
 def get_a_class(query_res,grade_):
     grade = open_grade_get(query_res)
     data = query_res.copy()
-    data['grade'] = grade
+    data.insert(0,'grade',grade)
     #暂存各年级数据的字典
     grade_class = {}
     #将数据整合成字典结构{年级{班级id：班级名称}}
@@ -58,7 +58,7 @@ def get_a_class(query_res,grade_):
 def open_part_by_grade(query_res):
     grade = open_grade_get(query_res)
     data = query_res.copy()
-    data['grade'] = grade
+    data.insert(0,'grade',grade)
     #暂存各年级数据的字典
     grade_class = {}
     #将数据整合成字典结构{年级{班级id：班级名称}}

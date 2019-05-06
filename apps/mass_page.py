@@ -4,7 +4,7 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from models.subject import get_classes_by_term,CLASS_TERMS,EXAMS,get_all_grade_by_class_id,get_class_name
-from apps.draw_mass import Mass,ClassInfo,static_header_trans
+from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class
 from apps.simple_chart import dash_table,dash_bar,find_nothing
 
 ma = None
@@ -53,9 +53,7 @@ mass_layout = html.Div([
 )
 def ma_select_term(term):
     data = get_classes_by_term(term)
-    global ma
-    ma = Mass(data) 
-    grades = ma.get_grades()
+    grades = open_grade_sep(data)
     return [html.H3('请选择年级:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
         html.Div(children = [
              dcc.Dropdown(
@@ -68,9 +66,13 @@ def ma_select_term(term):
 
 @app.callback(
     Output('ma-select-exam','children'),
-    [Input('ma-grade-selector','value')]
+    [Input('ma-grade-selector','value')],
+    [State('ma-term-selector','value')],
 )
-def ma_select_grade(grade):
+def ma_select_grade(grade,term):
+    data = get_classes_by_term(term)
+    global ma
+    ma = Mass(data) 
     cla_id = ma.get_one_class_by_grade(grade)
     cla_info = ClassInfo(cla_id)
     exams = cla_info.get_exam()
@@ -130,9 +132,12 @@ def ma_select_subject(subject,grade,exam):
 @app.callback(
     Output('ma-select-class','children'),
     [Input('ma-grade-selector','value')],
+    [State('ma-term-selector','value')]
 )
-def ma_gen_class_select(grade):
-    class_id = ma.get_class_by_grade_dict(grade)
+def ma_gen_class_select(grade,term):
+    data = get_classes_by_term(term)
+    grade_class = open_part_by_grade(data)
+    class_id = grade_class[grade]
     ids = list(class_id.keys())
     return dcc.Dropdown(
             id = 'ma-class-selector',
@@ -143,10 +148,11 @@ def ma_gen_class_select(grade):
 @app.callback(
     Output('ma-select-subject-innerclass','children'),
     [Input('ma-exam-selector','value')],
-    [State('ma-grade-selector','value')]
+    [State('ma-grade-selector','value'),State('ma-term-selector','value')]
 )
-def ma_select_subject_innerclass(exam,grade):
-    cla_id = ma.get_one_class_by_grade(grade)
+def ma_select_subject_innerclass(exam,grade,term):
+    data = get_classes_by_term(term)
+    cla_id = get_a_class(data,grade)
     cla_info = ClassInfo(cla_id)
     subjects = cla_info.get_exam_subjects(exam)
     subjects.append('总')
