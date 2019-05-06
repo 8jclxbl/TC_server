@@ -4,7 +4,7 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from models.subject import get_classes_by_term,CLASS_TERMS,EXAMS,get_all_grade_by_class_id,get_class_name
-from apps.draw_mass import Mass,ClassInfo
+from apps.draw_mass import Mass,ClassInfo,static_header_trans
 from apps.simple_chart import dash_table,dash_bar,find_nothing
 
 ma = None
@@ -140,7 +140,6 @@ def ma_gen_class_select(grade):
             value = ids[0]
     )
 
-
 @app.callback(
     Output('ma-select-subject-innerclass','children'),
     [Input('ma-exam-selector','value')],
@@ -180,11 +179,10 @@ def ma_gen_ditribution(class_,subject,grade,exam):
     class_info = ClassInfo(class_)
     res =class_info.static_grade(exam,subject)
     if not res:return find_nothing('此班级此次考试数据缺失')
-    class_name = ma.get_class_name(class_)
-    head = list(res.keys())
-    value = list(res.values())
+    class_name = get_class_name(class_)
+    header,value = static_header_trans(res,exam)
     x_t = '分数段'
     y_t = '人数'
     title = '{0}{1}班{2}成绩分布'.format(EXAMS[exam],class_name,subject)
     id_ = 'ma-grade-bar-{0}'.format(class_)
-    return dash_bar(head,value,x_t,y_t,id_,title)
+    return dash_bar(header,value,x_t,y_t,id_,title)
