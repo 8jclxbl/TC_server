@@ -25,7 +25,7 @@ def find_nothing(content):
     return html.Div(
             id = 'cannot-find',
             children = [
-                html.Img(src = './static/search_error.png',style = {'width':'150px','height':'150px'}),
+                html.Img(src = './static/search-error.png',style = {'width':'150px','height':'150px'}),
                 html.H5(content)
             ])
 

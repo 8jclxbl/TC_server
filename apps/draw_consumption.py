@@ -26,16 +26,28 @@ def delete_selected_data_series(data,val):
 
 #按月和年份划分
 def consumption_data_seperate(data, sep):
+    #data 格式为字典，其中的'data' 对应的是pandas.DataFrame
+    #seq 是字符串，取值为'Total'，'Day'，'Month'，'Year'，分别对应，原始消费数据，按日划分，按月划分，按年划分
     info = data['data']
     
+    #最后输出的sumed是一个pandas.Series格式的数据，值为金额，index为聚合后的时间
     if sep == 'Total':      
+        #输出原始数据时，金额不需要处理
         sumed = info['money']
         sumed.index = info['date'] + info['time']
     else:
+        #将日期列的数据转化为datetime格式，便于后面的处理
         info['date'] = pd.to_datetime(info['date'])
+        #选中Data列，基于sep来采样，
+        # resample的参数只有一个字母，其意义和对应的意义sep一致，
+        # 如sep为Day时，resample的参数为D，标识按照日跨度来重采样，最后根据采样结果求和
         sumed = info.set_index('date').resample(sep[0])['money'].sum()
+        #部分时间区间的消费为0，直接删掉
         sumed = delete_selected_data_series(sumed,0)
+        #由于金额时浮点数，所以需要舍入，取两位小数
         sumed = round(sumed,2)
+
+        #根据sep组合时间区间
         if sep == 'Day':
             sumed.index = [str(i.year) +'-'+ str(i.month) + '-' + str(i.day) for i in sumed.index]
         elif sep == 'Month':
@@ -43,6 +55,7 @@ def consumption_data_seperate(data, sep):
         elif sep == 'Year':
             sumed.index = [i.year for i in sumed.index]
 
+    #用于填写表格标题，将sep转化为对应的汉语意义
     interval = title_table[sep]
     
     return {'data':sumed,'title_part':interval}

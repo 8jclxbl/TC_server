@@ -31,6 +31,44 @@ def static_header_trans(static_res,exam_id):
         value.append(static_res[i])
     return [header,value]
 
+def open_grade_get(query_res):
+    temp = query_res['name'].values
+    res_temp = []
+    for i in temp:
+            #利用正则表达式获取当前的年级
+        res_temp.append(re.search(r'\u9ad8.{1}',i).group())
+    return res_temp
+
+def open_grade_sep(query_res):
+    temp = open_grade_get(query_res)
+    return list(set(temp))   
+
+def get_a_class(query_res,grade_):
+    grade = open_grade_get(query_res)
+    data = query_res.copy()
+    data['grade'] = grade
+    #暂存各年级数据的字典
+    grade_class = {}
+    #将数据整合成字典结构{年级{班级id：班级名称}}
+    for i in data.values:
+        if i[0] == grade_:
+            return i[1]
+    else:return 0
+
+def open_part_by_grade(query_res):
+    grade = open_grade_get(query_res)
+    data = query_res.copy()
+    data['grade'] = grade
+    #暂存各年级数据的字典
+    grade_class = {}
+    #将数据整合成字典结构{年级{班级id：班级名称}}
+    for i in data.values:
+        if i[0] not in grade_class:
+            grade_class[i[0]] = {i[1]:i[3]}
+        else:
+            grade_class[i[0]].update({i[1]:i[3]})
+    return grade_class
+
 class Mass:
     #组织班级数据
     def __init__(self, query_res):
@@ -126,8 +164,7 @@ class ClassInfo:
         #这里的grade均是成绩的意思
         #获取成绩
         self.get_grade()
-        #获取本版所有学生
-        self.get_students()
+        
 
     #根据班级id获取班级的所有学生
     def get_students(self):
@@ -166,6 +203,8 @@ class ClassInfo:
 
     #计算本次考试的班内排名
     def rank_grade(self,exam_id,subject):
+        #获取本版所有学生
+        self.get_students()
         #注意，很多时候这样获取值，可能知识得到指定的pd.DataFrame对象的一个view
         #此时，改变对象的值可能引起原始的值的变化，为了避免这种情况触发的warning
         #这里直接指定数据是原始对象的一个copy
