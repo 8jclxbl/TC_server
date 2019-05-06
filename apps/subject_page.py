@@ -22,9 +22,9 @@ subject_layout = html.Div([
                 options = [{'label':i,'value':i} for i in CLASS_TERMS],
                 value =CLASS_TERMS[0],
             ),
-            ],style = {'display':'inline-block','width':'25%','margin-left':'10px','margin-right':'10px'}
+            ],style = {'display':'inline-block','width':'25%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'}
         ),
-        html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'25%','margin-left':'10px','margin-right':'10px'}),
+        html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'25%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'}),
     ],className = 'one-row-con'),
     
     html.Div(id = 'sa-class-grade',className = 'one-row'),

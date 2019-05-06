@@ -86,43 +86,12 @@ class Mass:
             grade_class_objs = self.get_all_class_objs_by_grade(grade)
         else:
             grade_class_objs = self.class_obj[grade]
+            
         for k,v in grade_class_objs.items():
             classes_m[k] = v.mean_grade(exam_id,subject)
         
         classes_mean = [round(classes_m[i],2) for i in classes_ids]
         return pd.DataFrame({'id':classes_ids,'name':classes_names,'mean':classes_mean})
-
-    def get_rank_by_grade_exam(self,class_,grade,exam_id,subject):
-        
-        if grade not in self.class_obj:
-            grade_class_objs = self.get_all_class_objs_by_grade(grade)
-        else:
-            grade_class_objs = self.class_obj[grade]
-
-        if class_ not in grade_class_objs:
-            class_info = ClassInfo(class_)
-            self.class_obj[grade][class_] = class_info
-        else:
-            class_info = grade_class_objs[class_]
-        
-        return class_info.rank_grade(exam_id,subject)
-
-    def get_partition_by_grade_exam(self,class_,grade,exam_id,subject):
-        
-        if grade not in self.class_obj:
-            grade_class_objs = self.get_all_class_objs_by_grade(grade)
-        else:
-            grade_class_objs = self.class_obj[grade]
-        
-        if class_ not in grade_class_objs:
-            class_info = ClassInfo(class_)
-            self.class_obj[grade][class_] = class_info
-        else:
-            class_info = grade_class_objs[class_]
-
-        return class_info.static_grade(exam_id,subject)
-
-    
 
 class ClassInfo:
     def __init__(self,cla_id):
@@ -161,7 +130,7 @@ class ClassInfo:
         return total_grade['score'].mean()
 
     def rank_grade(self,exam_id,subject):
-        data = self.get_exam_grade(exam_id)
+        data = self.get_exam_grade(exam_id).copy()
 
         if subject != '总':
             data = data.loc[data['subject'] == subject]
@@ -176,7 +145,7 @@ class ClassInfo:
             except_['rank'] = temp
             return pd.concat([data,except_])
         else:
-            data.loc[data['score'] < 0,'score'] = 0
+            data.loc[data.score < 0,'score'] = 0
             total = data[['student_id','name','score']].groupby('student_id').sum()
             total = total.sort_values('score',ascending = False)
 
@@ -190,7 +159,7 @@ class ClassInfo:
             return result
 
     def static_grade(self,exam_id,subject):
-        data = self.get_exam_grade(exam_id)
+        data = self.get_exam_grade(exam_id).copy()
         if data.empty:return None
         partition = {}
         if subject != '总':
@@ -209,12 +178,13 @@ class ClassInfo:
                     partition[i] += 1
 
         else:
-            data.loc[data['score'] < 0,'score'] = 0
+            data.loc[data.score < 0,'score'] = 0
             total = data[['student_id','name','score']].groupby('student_id').sum()
             total = total.sort_values('score',ascending = False)
 
             scores = [i[0] for i in total.values]
 
+        if len(scores) == 0: return None
         scores = sorted(scores,reverse = True)
         st = (scores[0] // 10) * 10
        

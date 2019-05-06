@@ -8,7 +8,7 @@ from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.draw_controller_statics import controller_statics_total,controller_statics
 from apps.draw_grade import Grade
-from apps.simple_chart import simple_table,dash_table,text_return
+from apps.simple_chart import simple_table,dash_table,find_nothing
 
 
 colors = {     
@@ -117,56 +117,55 @@ def select_student(n_clicks,value):
     [Input('student-id-submmit','n_clicks')],
     [State('input-student-id', 'value')]
 )
-def student_grade(n_clicks,id):
-    grade = grade_query_res(id)['data']
-    if grade.empty:return text_return('缺失该学生的考试数据')
+def student_grade(n_clicks,stu_id):
+    grade = grade_query_res(stu_id)['data']
+    if grade.empty:return find_nothing('缺失该学生的考试数据')
     header = ['考试名称','科目','分数','Z值','T值','等第']
     grade = grade[['exam_name','subject','score','z_score','t_score','r_score']]
     return dash_table(header,grade.T,'student-grade-table')
 
-gd = Grade(0)
 @app.callback(
     Output('grade-lines', 'children'),
     [Input('student-id-submmit','n_clicks')],
     [State('input-student-id', 'value')]
 )
-def student_grade_graph_layout(n_clicks,id):
-    grade = grade_query_res(id)
-    if grade['data'].empty:return text_return('缺失该学生的考试数据')
-    global gd
+def student_grade_graph_layout(n_clicks,stu_id):
+    grade = grade_query_res(stu_id)
+    if grade['data'].empty:return find_nothing('缺失该学生的考试数据')
     gd = Grade(grade)
     return gd.gen_layout()
 
 @app.callback(
     Output('grade-graph', 'children'),
-    [Input('grade-subject-selector','value'),Input('score-class-selector','value'),Input('grade-type-selector','value'),Input('score-exam-type-selector','value')]
+    [Input('grade-subject-selector','value'),Input('score-class-selector','value'),Input('grade-type-selector','value'),Input('score-exam-type-selector','value')],
+    [State('input-student-id', 'value')]
 )
-def student_grade_graph(subjects,score_type,score_types,is_nor_exam):
+def student_grade_graph(subjects,score_type,score_types,is_nor_exam,stu_id):
+    grade = grade_query_res(stu_id)
+    if grade['data'].empty:return find_nothing('缺失该学生的考试数据')
+    gd = Grade(grade)
     if score_type == 'origin':
         return gd.draw_line_total(subjects,0,is_nor_exam)
     else:
         return gd.draw_line_total(subjects,score_types,is_nor_exam)
 
-cs = None
 @app.callback(
     Output('student-show','children'),
-    [Input('aspect-selector','value'),Input('graph-table-selector','value'),Input('interval-selector','value')],
-    [State('input-student-id', 'value')]
+    [Input('aspect-selector','value'),Input('graph-table-selector','value'),Input('interval-selector','value'),Input('input-student-id', 'value')],
 )
 def aspect_selector(aspect,graph_table,intervel,stu_id):
     if aspect == 'controller':
         query_res = controller_info_by_student_id(stu_id)
         #The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
-        if query_res['data'].empty:return text_return('缺失该学生的考勤数据')
+        if query_res['data'].empty:return find_nothing('缺失该学生的考勤数据')
         return controller_total(query_res,graph_table,stu_id)
     elif aspect == 'consumption':
         query_res = consumption_by_student_id(stu_id)
-        if query_res['data'].empty:return text_return('缺失该学生的消费数据')
+        if query_res['data'].empty:return find_nothing('缺失该学生的消费数据')
         return consumption_total(query_res,intervel,graph_table)
     else:
         query_res = controller_info_by_student_id(stu_id)
-        if query_res['data'].empty:return text_return('缺失该学生的考勤数据')
-        global cs
+        if query_res['data'].empty:return find_nothing('缺失该学生的考勤数据')
         cs = controller_statics(query_res)
         return cs.gen_layout()
 
@@ -194,9 +193,12 @@ def graph_table_lantent(aspect):
 
 @app.callback(
     Output('controller-statics','children'),
-    [Input('term-selector','value')]
+    [Input('term-selector','value'),Input('input-student-id', 'value')]
 )
-def term_selector(term):
+def term_selector(term,stu_id):
+    query_res = controller_info_by_student_id(stu_id)
+    if query_res['data'].empty:return find_nothing('缺失该学生的考勤数据')
+    cs = controller_statics(query_res)
     info = cs.pie_data(term)
     title = cs.title
     table_data = {'index':['出勤','迟到早退','请假'],'value':info}

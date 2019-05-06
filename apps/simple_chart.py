@@ -21,6 +21,14 @@ def simple_table(query_res):
         [html.Tr([html.Td(str(value)) for value in values])]
     ) 
 
+def find_nothing(content):
+    return html.Div(
+            id = 'cannot-find',
+            children = [
+                html.Img(src = './static/search_error.png',style = {'width':'150px','height':'150px'}),
+                html.H5(content)
+            ])
+
 def text_return(content):
     return html.H3(children = content,style = {'top':' 50%','transform':' translateY(-50%)'})
 
