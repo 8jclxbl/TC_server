@@ -44,6 +44,7 @@ def get_all_subject():
     sub_dic = {}
     for i in subjects:
         sub_dic[i.id] = i.name
+        
     return sub_dic
 
 
@@ -120,8 +121,8 @@ SUBJECTS = get_all_subject()
 #EXAMS = get_all_exam_type()
 GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考'}
 
-def get_student_grades_by_student_id(id):
-    info = db.session.query(ExamRes).filter_by(student_id = id).order_by(ExamRes.test_id).all()
+def get_student_grades_by_student_id(stu_id):
+    info = db.session.query(ExamRes).filter_by(student_id = stu_id).order_by(ExamRes.test_id).all()
     
     Test_ids    = []
     Exam_ids    = []

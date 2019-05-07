@@ -134,27 +134,3 @@ def select_third_class(class_):
 )
 def select_subject_combine(subjects):
     return es.draw_by_subjects(subjects)
-
-"""
-@app.callback(
-    Output('sa-7-3-show','children'),
-    [Input('sa-third-class-selector','value')]
-)
-def select_third_class(class_):
-    class_grade = get_all_grade_by_class_id(class_)
-    info = get_7_3_by_df(class_grade,class_)
-    info = info[['student_id','student_name','class_id','subject']]
-    head = ['学号','姓名','班级id','科目']
-    return dash_table(head,info.T,'class-7-3-table',str(class_))
-
-
-@app.callback(
-    Output('sa-class-grade','children'),
-    [Input('sa-class-selector', 'value')]
-)
-def select_class(class_):
-    df = get_all_grade_by_class_id(class_)
-    head = ['学号','姓名','考试编号','学科','分数','Z值','T值','等第']
-    df = df[['student_id','name','exam_id','subject','score','z_score','t_score','r_score']]
-    return dash_table(head,df.T,'class_grade_table')
-"""

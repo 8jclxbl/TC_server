@@ -3,7 +3,7 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.subject import get_classes_by_term,CLASS_TERMS,EXAMS,get_all_grade_by_class_id,get_class_name
+from models.subject import get_classes_by_term,CLASS_TERMS,EXAMS,get_class_name
 from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class
 from apps.simple_chart import dash_table,dash_bar,find_nothing
 

@@ -5,13 +5,20 @@ from apps.simple_chart import dash_table
 
 
 from app import app
-from models.subject import get_all_grade_by_class_id,get_all_dict_by_class_id
+from models.subject import get_all_grade_by_class_id,get_all_dict_by_class_id,get_grade_by_class_id_sql
+from models.student import SUBJECTS
 
 import pandas as pd
 import re
 
 GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考'}
 GENERE_EXAM_ID = [285,287,291,297,303,305]
+
+def get_all_grades():
+    total_grades = pd.read_csv('./static/examres.csv')
+    return total_grades
+
+TOTAL_GRADE = get_all_grades()
 
 def static_header_trans(static_res,exam_id):
     if exam_id in GENERE_EXAM_ID:step = 4
@@ -169,10 +176,18 @@ class ClassInfo:
     #根据班级id获取班级的所有学生
     def get_students(self):
         self.students = get_all_dict_by_class_id(self.id)
+        
 
     #根据班级id获取本班的所有考试的成绩
     def get_grade(self):
-        self.all_grade = get_all_grade_by_class_id(self.id)
+        #self.all_grade = get_all_grade_by_class_id(self.id)
+        #self.all_grade = get_grade_by_class_id_sql(self.id)
+        all_grade = TOTAL_GRADE.loc[TOTAL_GRADE['class_id'] == self.id].copy()
+        subject = SUBJECTS
+        subject[-1] = '缺失科目信息'
+        all_grade['subject'] = [subject[i] for i in all_grade.subject_id.values]
+        all_grade = all_grade[['student_id','exam_id','subject','score','z_score','t_score','r_score']]
+        self.all_grade = all_grade
 
     #获取本班的所有考试
     def get_exam(self):
@@ -213,6 +228,8 @@ class ClassInfo:
         #对于非总分数据，计算排名时只需要把异常的考试状态排在最后面即可
         if subject != '总':
             data = data.loc[data['subject'] == subject]
+            names = [self.students[i] for i in data.student_id.values]
+            data['name'] = names
 
             normal = data.loc[data['score'] >= 0]
             normal = normal.sort_values('score',ascending = False)
@@ -220,8 +237,8 @@ class ClassInfo:
             normal['rank'] = normal.index
 
             except_ = data.loc[data['score'] < 0].copy()
-            temp = except_.values
-            temp = [GRADETYPE[i[4]] for i in temp]
+            temp = except_.score.values
+            temp = [GRADETYPE[i] for i in temp]
             except_['rank'] = temp
             return pd.concat([normal,except_])
         else:
@@ -229,12 +246,12 @@ class ClassInfo:
 
             #如果前面不指定copy,此处的赋值操作会一直warning
             data.loc[data.score < 0,'score'] = 0
-            total = data[['student_id','name','score']].groupby('student_id').sum()
+            total = data[['student_id','score']].groupby('student_id').sum()
             total = total.sort_values('score',ascending = False)
 
             student_ids = total.index
             names = [self.students[i] for i in student_ids]
-            scores = [round(i[0],2) for i in total.values]
+            scores = [round(i,2) for i in total.score.values]
 
             result = pd.DataFrame({'student_id':student_ids,'name':names,'score':scores})
             result['rank'] = range(1,len(result) + 1)
@@ -261,9 +278,9 @@ class ClassInfo:
 
         else:
             data.loc[data.score < 0,'score'] = 0
-            total = data[['student_id','name','score']].groupby('student_id').sum()
+            total = data[['student_id','score']].groupby('student_id').sum()
             total = total.sort_values('score',ascending = False)
-            scores = [i[0] for i in total.values]
+            scores = [i for i in total.score.values]
 
         if len(scores) == 0: return None
         scores = sorted(scores,reverse = True)

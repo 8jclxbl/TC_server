@@ -107,11 +107,11 @@ def get_all_dict_by_class_id(cla_id):
 
 #根据班级id获取班级成绩
 def get_all_grade_by_class_id(cla_id):
-    students = get_all_dict_by_class_id(cla_id)
+    #students = get_all_dict_by_class_id(cla_id)
     info = db.session.query(ExamRes).filter_by(class_id = cla_id).all()
 
     exam_ids = []
-    student_names = []
+    #student_names = []
     subjects = []
     scores = []
     z_scores = []
@@ -121,7 +121,7 @@ def get_all_grade_by_class_id(cla_id):
      
     for i in info:
         student_ids.append(i.student_id)
-        student_names.append(students[i.student_id])
+        #student_names.append(students[i.student_id])
         exam_ids.append(i.exam_id)
         subjects.append(SUBJECTS[i.subject_id] if i.subject_id > 0 else '缺失科目信息')
         scores.append(i.score)
@@ -129,9 +129,22 @@ def get_all_grade_by_class_id(cla_id):
         t_scores.append(i.t_score)
         r_scores.append(i.r_score)
 
-    data = {'student_id':student_ids,'name':student_names,'exam_id':exam_ids,'subject':subjects,
+    #data = {'student_id':student_ids,'name':student_names,'exam_id':exam_ids,'subject':subjects,
+            #'score':scores,'z_score':z_scores,'t_score':t_scores,'r_score':r_scores}
+
+    data = {'student_id':student_ids,'exam_id':exam_ids,'subject':subjects,
             'score':scores,'z_score':z_scores,'t_score':t_scores,'r_score':r_scores}
     return pd.DataFrame(data)
+
+def get_grade_by_class_id_sql(cla_id):
+    session = db.session
+    sql_ = session.query(ExamRes).filter_by(class_id = cla_id).statement
+    info = pd.read_sql_query(sql_,session.bind)
+    subject = SUBJECTS
+    subject[-1] = '缺失科目信息'
+    info['subject'] = [subject[i] for i in info.subject_id.values]
+    info = info[['student_id','exam_id','subject','score','z_score','t_score','r_score']]
+    return info
 
 #获取一个班级所有考试的最高分和最低分
 def class_grade_process(df):
