@@ -3,12 +3,8 @@ import dash_core_components as dcc
 import plotly.graph_objs as go 
 from apps.simple_chart import dash_table
 
+from models.globaltotal import CONTROLLER_COLOR
 from app import app
-
-CONTROLLER_COLOR = {100000:'#1A237E',100100:'#303F9F',100200:'#3F51B5',100300:'#7986CB',
-                    200000:'#4A148C',200100:'#7B1FA2',200200:'#9C27B0',
-                    300000:'#b71c1c',300100:'#d32f2f',300200:'#f44336',
-                    9900100:'#1B5E20',9900200:'#388E3C',9900300:'#4CAF50',9900400:'#558B2F',9900500:'#7CB342'}
 
 def controller_total(query_res,ctype,stu_id):
     data = query_res['data']

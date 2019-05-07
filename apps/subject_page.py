@@ -3,12 +3,11 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.subject import get_all_calsses,CLASS_TERMS,get_all_grade_by_class_id,class_grade_process,get_7_3,sql_73,get_class_name
+from models.globaltotal import CLASS_TERMS,THIRD_GRADE
+from models.subject import get_all_calsses,get_all_grade_by_class_id,class_grade_process,get_7_3,sql_73,get_class_name
 from apps.simple_chart import dash_table
 from apps.draw_eletive_subject import EletiveSubject
 
-THIRD_GRADE = {916: '高三(02)',917: '高三(03)',918: '高三(04)',919: '高三(07)',920: '高三(08)',
-               921: '高三(01)',922: '高三(05)',923: '高三(09)',924: '高三(06)',925: '高三(10)'}
 info = sql_73()
 es = EletiveSubject(info)
 
@@ -27,7 +26,7 @@ subject_layout = html.Div([
         html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'25%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'}),
     ],className = 'one-row-con'),
     
-    html.Div(id = 'sa-class-grade',className = 'one-row'),
+    html.Div(id = 'sa-class-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
 
     html.Div(id = 'sa-73-title',children = [html.H5('2018-2019高三年级七选三状况统计')],className = 'one-row'),
     html.Div(id = 'total-73-statics', children = [

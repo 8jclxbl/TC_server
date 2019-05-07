@@ -7,7 +7,7 @@ from dash.dependencies import Input,Output
 from models.student import get_study_days_by_start_year
 from app import app
 
-TYPE_CLASS = {'arrive_late':[100000,100100,100200,100300,9900100,9900300],'leaving':[200200]}
+type_class = {'arrive_late':[100000,100100,100200,100300,9900100,9900300],'leaving':[200200]}
 
 def controller_statics_total(info,term,title):
 
@@ -109,8 +109,8 @@ class controller_statics:
         leaving = 0
         normal = self.days[term]
         for i in cur_data.keys():
-            if i in TYPE_CLASS['arrive_late']:arr_late += len(cur_data[i].values)
-            if i in TYPE_CLASS['leaving']:leaving += len(cur_data[i].values)
+            if i in type_class['arrive_late']:arr_late += len(cur_data[i].values)
+            if i in type_class['leaving']:leaving += len(cur_data[i].values)
         normal = normal - arr_late - leaving
         return [normal,arr_late,leaving] 
         

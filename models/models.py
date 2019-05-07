@@ -200,4 +200,15 @@ class SubjectSelect(db.Model):
     class_id = db.Column(db.Integer)
     subjects = db.Column(db.String(64))
     
+
+class ConsumptionPredict(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    student_id = db.Column(db.Integer)
+    money = db.Column(db.Integer)
     
+
+class RankPredict(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    student_id = db.Column(db.Integer)
+    subject_id = db.Column(db.Integer)
+    r_score = db.Column(db.Float)

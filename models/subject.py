@@ -1,15 +1,8 @@
 from app import db
 from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,SubjectSelect
-from models.student import get_all_subject,SUBJECTS
+from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE
 import pandas as pd
 
-
-#需要处理的三次考试，用于计算7选三
-NEED_PROCESS = [301,302,303]
-#当前高三的id
-CURRENT_THIRD = [i for i in range(916,926)]
-#七选三的备选课程
-ELETIVE_CLASS = ['政治','历史','地理','物理','化学','生物','技术']
 
 #获取所有的班级，返回字典结构
 def get_all_calsses_raw():
@@ -50,14 +43,6 @@ def get_classes_by_term(term):
     data = {'id':class_ids,'term':class_terms,'name':class_names}
     return pd.DataFrame(data)
 
-#获取所有的有班级的学期
-def get_terms_of_all_class():
-    data = get_all_calsses_raw()
-    return sorted(list(set(data['term'])))
-
-
-CLASS_TERMS = get_terms_of_all_class()
-
 #根据班级id获取所有的学生，返回字典结构
 def get_all_student_by_class_id_raw(cla_id):
     cla_id = int(cla_id)
@@ -76,19 +61,12 @@ def get_all_student_by_class_id_raw(cla_id):
     data = {'student_id':student_ids,'student_name':student_names}
     return data
 
-#获取所有的考试名称
-def get_exam_name():
-    exams = db.session.query(Exam).all()
-    exam_table = {}
-    for i in exams:
-        exam_table[i.id] = i.name.strip()
-    return exam_table
 
-EXAMS = get_exam_name()
 
 #根据班级id
 def get_all_student_by_class_id(cla_id):
     return pd.DataFrame(get_all_student_by_class_id_raw(cla_id))
+
 
 #根据班级id获取班级学生和姓名的对照字典
 def get_all_dict_by_class_id(cla_id):
@@ -97,13 +75,17 @@ def get_all_dict_by_class_id(cla_id):
     if not info:
         info = db.session.query(GradStudent).filter_by(class_id = cla_id).all()
         if not info: return None
-
     student = {}
-
     for i in info:
         student[i.id] = i.name
-
     return student
+def get_all_grade_by_class_id_total(cla_id):
+    cla_id = int(cla_id)
+    data = TOTAL_GRADE.loc[TOTAL_GRADE['class_id'] == cla_id].copy()
+    subjects = [SUBJECTS[i] for i in data.subject_id.values]
+    data['subject'] = subjects
+
+    return data[['student_id','exam_id','subject','score','z_score','t_score','r_score']]
 
 #根据班级id获取班级成绩
 def get_all_grade_by_class_id(cla_id):

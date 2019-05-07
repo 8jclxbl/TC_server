@@ -3,10 +3,12 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.subject import get_classes_by_term,CLASS_TERMS,EXAMS,get_class_name
-from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class
+from models.globaltotal import CLASS_TERMS,EXAMS
+from models.subject import get_classes_by_term,get_class_name
+from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class,dash_compare_bar
 from apps.simple_chart import dash_table,dash_bar,find_nothing
 
+SCORE_TYPE = {'score':'原始分','t_score':'离均值'}
 ma = None
 
 mass_layout = html.Div([
@@ -35,11 +37,19 @@ mass_layout = html.Div([
     ],className = 'one-row'),
 
     html.Div(id = 'ma-class-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
+    html.Div(id = 'ma-distribute-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
     
     html.Div(id = 'ma-last-row',children = [
         html.Div(id = 'ma-inner-class',children = [
-            html.Div(id = 'ma-select-class',style = {'display':'inline-block','margin':'10px','width':'40%'}),
-            html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-class',style = {'display':'inline-block','margin':'10px','width':'30%'}),
+            html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin':'10px','width':'30%'}),
+            html.Div(id = 'ma-select-score-type',style = {'display':'inline-block','margin':'10px','width':'30%'},children = [
+                dcc.Dropdown(
+                    id = 'ma-score-type-selector',
+                    options = [{'label':'原始分','value':'score'},{'label':'离均值','value':'t_score'}],
+                    value ='score',
+                    )
+            ]),
         ],className = 'son-row-wrap'),
 
         html.Div(id = 'ma-class-grade-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'left-column'),
@@ -128,6 +138,18 @@ def ma_select_subject(subject,grade,exam):
     header = ['班级编号','班级名称',subject + '均分']
     return dash_table(header,res.T,'class-mean-by-exam-table',EXAMS[exam] + grade + '班级{0}平均分排名'.format(subject))
 
+@app.callback(
+    Output('ma-distribute-compare','children'),
+    [Input('ma-subject-selector','value')],
+    [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
+)
+def ma_gen_distribute_compare(subject,grade,exam):
+    if not subject or not exam:
+        return find_nothing('此学期当前年级无考试记录')
+            
+    res = ma.total_distribute_compare(grade,exam,subject)
+    return dash_compare_bar(res,'成绩区间','人数','ma-distribute-compare-bar','{0}{1}{2}成绩分布比较'.format(EXAMS[exam],grade,subject))
+
 
 @app.callback(
     Output('ma-select-class','children'),
@@ -164,31 +186,31 @@ def ma_select_subject_innerclass(exam,grade,term):
 
 @app.callback(
     Output('ma-class-grade-rank','children'),
-    [Input('ma-class-selector','value'),Input('ma-subject-selector-innerclass','value')],
+    [Input('ma-class-selector','value'),Input('ma-subject-selector-innerclass','value'),Input('ma-score-type-selector','value')],
     [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
 )
-def ma_gen_rank(class_,subject,grade,exam):
+def ma_gen_rank(class_,subject,score_type,grade,exam):
     class_info = ClassInfo(class_)
-    res =class_info.rank_grade(exam,subject)
+    res =class_info.rank_grade(exam,subject,score_type)
     if res.empty:return find_nothing('此班级此次考试数据缺失')
     class_name = get_class_name(class_)
-    res = res[['student_id','name','score','rank']]
+    res = res[['student_id','name',score_type,'rank']]
     header = ['学号','姓名','分数','排名']
-    return dash_table(header,res.T,'class-rank-by-exam-table','{0}{1}班{2}排名'.format(EXAMS[exam],class_name,subject))
+    return dash_table(header,res.T,'class-rank-by-exam-table','{0}{1}班{2}{3}排名'.format(EXAMS[exam],class_name,subject,SCORE_TYPE[score_type]))
 
 @app.callback(
     Output('ma-class-grade-static','children'),
-    [Input('ma-class-selector','value'),Input('ma-subject-selector-innerclass','value')],
+    [Input('ma-class-selector','value'),Input('ma-subject-selector-innerclass','value'),Input('ma-score-type-selector','value')],
     [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
 )
-def ma_gen_ditribution(class_,subject,grade,exam):
+def ma_gen_ditribution(class_,subject,score_type,grade,exam):
     class_info = ClassInfo(class_)
-    res =class_info.static_grade(exam,subject)
+    res =class_info.static_grade(exam,subject,score_type)
     if not res:return find_nothing('此班级此次考试数据缺失')
     class_name = get_class_name(class_)
     header,value = static_header_trans(res,exam)
     x_t = '分数段'
     y_t = '人数'
-    title = '{0}{1}班{2}成绩分布'.format(EXAMS[exam],class_name,subject)
+    title = '{0}{1}班{2}{3}分布'.format(EXAMS[exam],class_name,subject,SCORE_TYPE[score_type])
     id_ = 'ma-grade-bar-{0}'.format(class_)
     return dash_bar(header,value,x_t,y_t,id_,title)

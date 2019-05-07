@@ -10,3 +10,4 @@ app = dash.Dash(server = server,external_stylesheets=external_stylesheets)
 app.config.suppress_callback_exceptions = True
 server.config.from_object('config')
 db = SQLAlchemy(server)
+session = db.session

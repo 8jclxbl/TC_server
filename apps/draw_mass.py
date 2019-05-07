@@ -5,20 +5,12 @@ from apps.simple_chart import dash_table
 
 
 from app import app
-from models.subject import get_all_grade_by_class_id,get_all_dict_by_class_id,get_grade_by_class_id_sql
-from models.student import SUBJECTS
+from models.subject import get_all_dict_by_class_id,get_all_grade_by_class_id_total
+from models.globaltotal import SUBJECTS,GRADETYPE,GENERE_EXAM_ID
 
 import pandas as pd
 import re
 
-GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考'}
-GENERE_EXAM_ID = [285,287,291,297,303,305]
-
-def get_all_grades():
-    total_grades = pd.read_csv('./static/examres.csv')
-    return total_grades
-
-TOTAL_GRADE = get_all_grades()
 
 def static_header_trans(static_res,exam_id):
     if exam_id in GENERE_EXAM_ID:step = 4
@@ -163,6 +155,47 @@ class Mass:
         #生成一个pd.dataframe对象便于画图
         return pd.DataFrame({'id':classes_ids,'name':classes_names,'mean':classes_mean})
 
+    def total_distribute_compare(self,grade,exam_id,subject):
+        classes = self.grade_class[grade]
+
+        #获取当前年级的所有班级id和名称
+        classes_ids = list(classes.keys())
+
+        #记录当前班级当前学科的均分
+        classes_d = {}
+
+        #若并未生成当前年级的成绩对象，则生成，否则直接使用
+        if grade not in self.class_obj:
+            grade_class_objs = self.get_all_class_objs_by_grade(grade)
+        else:
+            grade_class_objs = self.class_obj[grade]
+
+        #利用对应的年级对象生成所有的均值数据
+        for k,v in grade_class_objs.items():
+            classes_d[k] = v.static_grade(exam_id,subject)
+        
+        total_part = []
+        for i in classes_ids:
+            cur = classes_d[i]
+            if not cur: continue
+            total_part += list(cur.keys())
+        total_part = list(set(total_part))
+
+        class_distribute = {}
+        for i in classes_ids:
+            temp = {}
+            cur = classes_d[i]
+            if not cur:continue
+            for j in total_part:
+                if j in cur:
+                    temp[j] = cur[j]
+                else:
+                    temp[j] = 0
+            class_distribute[classes[i]] = temp
+
+        #生成一个pd.dataframe对象便于画图
+        return {'data':class_distribute,'exam':exam_id}
+
 #班级信息
 class ClassInfo:
     def __init__(self,cla_id):
@@ -182,12 +215,7 @@ class ClassInfo:
     def get_grade(self):
         #self.all_grade = get_all_grade_by_class_id(self.id)
         #self.all_grade = get_grade_by_class_id_sql(self.id)
-        all_grade = TOTAL_GRADE.loc[TOTAL_GRADE['class_id'] == self.id].copy()
-        subject = SUBJECTS
-        subject[-1] = '缺失科目信息'
-        all_grade['subject'] = [subject[i] for i in all_grade.subject_id.values]
-        all_grade = all_grade[['student_id','exam_id','subject','score','z_score','t_score','r_score']]
-        self.all_grade = all_grade
+        self.all_grade = get_all_grade_by_class_id_total(self.id)
 
     #获取本班的所有考试
     def get_exam(self):
@@ -217,7 +245,7 @@ class ClassInfo:
         return total_grade['score'].mean()
 
     #计算本次考试的班内排名
-    def rank_grade(self,exam_id,subject):
+    def rank_grade(self,exam_id,subject,score_type = 'score'):
         #获取本版所有学生
         self.get_students()
         #注意，很多时候这样获取值，可能知识得到指定的pd.DataFrame对象的一个view
@@ -231,12 +259,12 @@ class ClassInfo:
             names = [self.students[i] for i in data.student_id.values]
             data['name'] = names
 
-            normal = data.loc[data['score'] >= 0]
-            normal = normal.sort_values('score',ascending = False)
+            normal = data.loc[data[score_type] >= 0]
+            normal = normal.sort_values(score_type,ascending = False)
             normal.index = range(1,len(normal) + 1)
             normal['rank'] = normal.index
 
-            except_ = data.loc[data['score'] < 0].copy()
+            except_ = data.loc[data[score_type] < 0].copy()
             temp = except_.score.values
             temp = [GRADETYPE[i] for i in temp]
             except_['rank'] = temp
@@ -245,31 +273,31 @@ class ClassInfo:
             #由于要计算总分，为了避免异常状态的影响，均记为0
 
             #如果前面不指定copy,此处的赋值操作会一直warning
-            data.loc[data.score < 0,'score'] = 0
-            total = data[['student_id','score']].groupby('student_id').sum()
-            total = total.sort_values('score',ascending = False)
+            data.loc[data.score < 0,score_type] = 0
+            total = data[['student_id',score_type]].groupby('student_id').sum()
+            total = total.sort_values(score_type,ascending = False)
 
             student_ids = total.index
             names = [self.students[i] for i in student_ids]
-            scores = [round(i,2) for i in total.score.values]
+            scores = [round(i,2) for i in total[score_type].values]
 
-            result = pd.DataFrame({'student_id':student_ids,'name':names,'score':scores})
+            result = pd.DataFrame({'student_id':student_ids,'name':names,score_type:scores})
             result['rank'] = range(1,len(result) + 1)
 
             return result
 
-    def static_grade(self,exam_id,subject):
+    def static_grade(self,exam_id,subject,score_type = 'score'):
         #分数统计，和排名差不多
         data = self.get_exam_grade(exam_id)
         if data.empty:return None
         partition = {}
         if subject != '总':
             data = data.loc[data['subject'] == subject]
-            normal = data.loc[data['score'] >= 0]
-            except_ = data.loc[data['score'] < 0]
+            normal = data.loc[data[score_type] >= 0]
+            except_ = data.loc[data[score_type] < 0]
 
-            scores = normal['score'].values
-            except_score = except_['score'].values
+            scores = normal[score_type].values
+            except_score = except_[score_type].values
             for i in except_score:
                 if i not in partition:
                     partition[i] = 1
@@ -277,10 +305,10 @@ class ClassInfo:
                     partition[i] += 1
 
         else:
-            data.loc[data.score < 0,'score'] = 0
-            total = data[['student_id','score']].groupby('student_id').sum()
-            total = total.sort_values('score',ascending = False)
-            scores = [i for i in total.score.values]
+            data.loc[data.score < 0,score_type] = 0
+            total = data[['student_id',score_type]].groupby('student_id').sum()
+            total = total.sort_values(score_type,ascending = False)
+            scores = [i for i in total[score_type].values]
 
         if len(scores) == 0: return None
         scores = sorted(scores,reverse = True)
@@ -312,3 +340,34 @@ class ClassInfo:
         return partition
 
 
+def dash_compare_bar(res,x_title,y_title,tab_id,title_name = ''):
+    total = []
+    data = res['data']
+    exam_id = res['exam']
+    for k,v in data.items():
+        v = static_header_trans(v,exam_id)
+        total.append(
+                go.Bar(
+                    x = v[0],
+                    y = v[1],
+                    name = k,
+                )
+            )
+
+    return dcc.Graph(
+            id = tab_id,
+            figure = {
+                'data':total,
+                'layout': go.Layout(    
+                    hovermode='closest',  
+                    dragmode='select',
+                    plot_bgcolor="#191A1A",
+
+                    title=title_name,
+                    xaxis = dict(title = x_title, showline = True, tickangle = 75),
+                    yaxis = dict(title = y_title, showline = True),
+                    margin=dict(l=40,r=40,b=140,t=80),
+                )
+            },
+               
+        )

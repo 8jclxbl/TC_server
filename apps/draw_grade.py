@@ -6,14 +6,8 @@ from apps.simple_chart import dash_table
 import pandas as pd
 from app import app
 
-
-SUBJECT_COLOR = {'语文':'#b71c1c','数学':'#0D47A1','英语':'#FFEB3B','物理':'#4A148C','化学':'#AB47BC',
-                 '生物':'#880E4F','历史':'#ef5350','地理':'#F06292','体育':'#1B5E20','音乐':'#4CAF50',
-                 '美术':'#009688','信息技术':'#006064','政治':'#FF6F00','科学':'#00796B','通用技术':'#26C6DA',
-                 '英语选修9':'#F9A825','1B模块总分':'#4E342E','英语2':'#FFF59D','技术':'#00838F','此次考试科目数据缺失':'#212121'}
-SOCRE_TYPE_COLOR = {'score':'#303952','z_score':'#596275','t_score':'#786fa6','r_score':'#574b90'}
-GENERE_ID = [285,287,291,297,303,305]
-
+from models.globaltotal import GENERE_EXAM_ID,SUBJECT_COLOR,SOCRE_TYPE_COLOR
+from models.student import get_predict_rank
 
 #data_structure {subject_name:{type:{exam:score}}}
 
@@ -36,35 +30,32 @@ def draw_line(subject_name,type_name,data):
 
 class Grade:
     def __init__(self, query_res):
-        if not query_res:
-            self.isNone = True
-        else:
-            self.isNone = False
-            self.student_id = query_res['id']
-            self.title = '学生{0}成绩'.format(self.student_id)
-            self.data = query_res['data']
-            self.other_types = {'Z值':'z_score','T值':'t_score','等第':'r_score'}
-            self.separate_by_exam()
-            self.separate_exam_genere()
-            self.info_each_exam()
-            
-            self.separate_by_subject()
-            self.info_each_subject()
-
-            self.draw_all_lines()
+        self.student_id = query_res['id']
+        self.title = '学生{0}成绩'.format(self.student_id)
+        self.data = query_res['data']
+        self.other_types = {'Z值':'z_score','T值':'t_score','等第':'r_score'}
+        self.separate_by_exam()
+        self.separate_exam_genere()
+        self.info_each_exam()
+        
+        self.separate_by_subject()
+        self.info_each_subject()
+        self.predict_rank = get_predict_rank(self.student_id)
+        #self.draw_all_lines()
 
     def gen_layout(self):
         layout = [
             html.Div(id = 'select-subject',children = [
                 html.H4(children = '要显示的科目:',style = {'display':'inline-block','margin-right':'20px'}),
-                dcc.Dropdown(
+                html.Div(children = [
+                    dcc.Dropdown(
                     id = 'grade-subject-selector',
                     options = [{'label':i,'value':i} for i in self.subjects],
                     value = list(self.subjects),
                     clearable = False,
-                    multi=True,
-                    style = {'display':'inline-block','margin-right':'20px'},
-            )],style = {'display':'block'}),
+                    multi=True,)
+                ],style = {'display':'inline-block','width':'70%'}),
+            ]),
             html.Div(id = 'select-score-class',children = [
                 html.Div(id = 'score-aspect-select',children = [
                     html.H4(children = '请选择评价方式:',style = {'display':'inline-block','margin-right':'20px'}),
@@ -104,7 +95,6 @@ class Grade:
             
             html.Div(
                 id = 'grade-graph',
-                #style = {'align':'center','width':'100%'}
                 className = 'one-row',
             ),
         ]
@@ -186,7 +176,7 @@ class Grade:
         generes = {}
         length = len(self.exams)
         for i in range(length):
-            if self.exam_ids[i] in GENERE_ID:
+            if self.exam_ids[i] in GENERE_EXAM_ID:
                 generes[self.exam_ids[i]] = self.exams[i]
             else:
                 exams[self.exam_ids[i]] = self.exams[i]
@@ -254,6 +244,9 @@ class Grade:
             if exam_name[i] in exam_set:
                 en.append(exam_name[i])
                 sc.append(score[i])
+        if subject in self.predict_rank and score_type == 'r_score':
+            en.append('下次考试等第预测')
+            sc.append(self.predict_rank[subject])
 
         return {'head':en,'score':sc}
 

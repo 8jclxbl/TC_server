@@ -4,17 +4,12 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id,grade_query_res
+
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.draw_controller_statics import controller_statics_total,controller_statics
 from apps.draw_grade import Grade
 from apps.simple_chart import simple_table,dash_table,find_nothing
-
-
-colors = {     
-    'background': '#111111',     
-    'text': '#7FDBFF' 
-}
 
 student_layout = [
     html.Div(id = 'student-id',children = [
@@ -144,6 +139,7 @@ def student_grade_graph(subjects,score_type,score_types,is_nor_exam,stu_id):
     grade = grade_query_res(stu_id)
     if grade['data'].empty:return find_nothing('缺失该学生的考试数据')
     gd = Grade(grade)
+    gd.draw_all_lines()
     if score_type == 'origin':
         return gd.draw_line_total(subjects,0,is_nor_exam)
     else:

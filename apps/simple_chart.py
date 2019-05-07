@@ -32,6 +32,46 @@ def find_nothing(content):
 def text_return(content):
     return html.H3(children = content,style = {'top':' 50%','transform':' translateY(-50%)'})
 
+def dash_table_predict(head_val,value_val,tab_id,title_name = '',predict = None):
+    if predict:
+        length = len(value_val[0])
+        
+        value_val[0] = list(value_val[0])
+        value_val[1] = list(value_val[1])
+        value_val[0].append(predict[0] + '消费预测')
+        value_val[1].append(predict[1] * -1)
+        
+        lcolor_ = ['white'] * (length + 1)
+        color_ = ['#177cb0'] * length
+        color_.append('red')
+    else:
+        color_ = '#177cb0'
+        lcolor_ = 'white'
+    return dcc.Graph(
+        id = tab_id,
+        figure = {
+            'data':[go.Table(
+                header = dict(
+                        values = ['<b>{0}</b>'.format(i) for i in head_val],
+                        line = dict(color='white'),
+                        fill = dict(color='#003472'),
+                        align = ['left'] * 5,
+                        font = {'color':'white'},
+                        ),
+                cells = dict(
+                    values = value_val,
+                    line = dict(color=[lcolor_]),
+                    fill = dict(color=[color_]),
+                    align = ['left'] * 5,
+                    font = {'color':'white'},
+                    )
+                )],
+            'layout':go.Layout(
+                    title = title_name,
+                ),
+        },
+    )
+
 def dash_table(head_val,value_val,tab_id,title_name = ''):
     return dcc.Graph(
         id = tab_id,
@@ -83,6 +123,7 @@ def dash_bar(head_val,value_val,x_title,y_title,tab_id,title_name = ''):
             },
                
         )
+
 
 def dash_DropDown(id_,option_label,option_value,default_value):
     return dcc.Dropdown(
