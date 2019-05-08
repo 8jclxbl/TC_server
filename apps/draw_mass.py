@@ -12,13 +12,20 @@ import pandas as pd
 import re
 
 
-def static_header_trans(static_res,exam_id):
-    if exam_id in GENERE_EXAM_ID:step = 4
-    else:step = 9
+def static_header_trans(static_res,exam_id,score_type = 'score'):
     head = static_res.keys()
     head = sorted(head)
     header = []
     value = []
+    if score_type == 'div':
+        for i in head:
+            header.append('{0}-{1}'.format(i,i+10))
+            value.append(static_res[i])
+        return [header,value]
+
+    if exam_id in GENERE_EXAM_ID:step = 4
+    else:step = 9
+    
     for i in head:
         if i > 0:
             if step == 4 and i == 10:header.append('10-15')
@@ -259,6 +266,12 @@ class ClassInfo:
             names = [self.students[i] for i in data.student_id.values]
             data['name'] = names
 
+            if score_type == 'div':
+                data = data.sort_values(score_type,ascending = False)
+                data['rank'] = range(1,len(data) + 1)
+                data['scores'] = [round(i,2) for i in data[score_type].values]
+                return data
+
             normal = data.loc[data[score_type] >= 0]
             normal = normal.sort_values(score_type,ascending = False)
             normal.index = range(1,len(normal) + 1)
@@ -273,7 +286,10 @@ class ClassInfo:
             #由于要计算总分，为了避免异常状态的影响，均记为0
 
             #如果前面不指定copy,此处的赋值操作会一直warning
-            data.loc[data.score < 0,score_type] = 0
+
+            if score_type != 'div':
+                data.loc[data.score < 0,score_type] = 0
+
             total = data[['student_id',score_type]].groupby('student_id').sum()
             total = total.sort_values(score_type,ascending = False)
 

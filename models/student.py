@@ -2,7 +2,7 @@ from app import db,session
 from models.models import CurStudent,GradStudent,ControllerInfo,Consumption,Class_,Lesson,Teacher,StudyDays,ExamType,ConsumptionPredict,RankPredict
 import pandas as pd
 
-from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,EXAMS
+from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS
 
 
 #简单的信息单行表同一返回以下结构的字典
@@ -135,6 +135,10 @@ def get_student_grades_by_student_id(stu_id):
     Zscores     = []
     Tscores     = []
     Rscores     = []
+    Means       = []
+    Divs        = []
+    G_ranks      = []
+    C_ranks      = []
 
     for i in data.values: 
         #if i[2] < 0:continue
@@ -147,11 +151,35 @@ def get_student_grades_by_student_id(stu_id):
         Zscores.append(round(i[7],2) if i[7] != -6 else '考试状态异常')
         Tscores.append(round(i[8],2) if i[8] != -6 else '考试状态异常')
         Rscores.append(round(i[9],2) if i[9] != -6 else '考试状态异常')
-    
+        Means.append(round(i[10],2) if i[10] != -1 else  '考试状态异常')
+        Divs.append(round(i[11],2) if i[11] != -100 else '考试状态异常')
+        G_ranks.append(round(i[12],2) if i[12] != -1 else '考试状态异常')
+        C_ranks.append(round(i[13],2) if i[13] != -1 else '考试状态异常')
+
+
     data = {'test_id':Test_ids,'exam_id':Exam_ids,'exam_name':Exam_names,'subject_id':Subject_ids,'subject':Subjects,
-        'score':Scores,'z_score':Zscores,'t_score':Tscores,'r_score':Rscores}
+        'score':Scores,'z_score':Zscores,'t_score':Tscores,'r_score':Rscores,'mean':Means,'div':Divs,'Grank':G_ranks,'Crank':C_ranks}
 
     return pd.DataFrame(data)
+
+def get_student_totals_by_student_id(stu_id):
+    data = TOTAL_TOTALS.loc[TOTAL_TOTALS['stu_id'] == int(stu_id)].copy()
+    exams = []
+    totals = []
+    divs = []
+    g_ranks = []
+    c_ranks = []
+
+    for i in data.values:
+        exams.append(EXAMS[i[1]])
+        totals.append(i[2])
+        divs.append(round(i[7],2))
+        g_ranks.append(i[5])
+        c_ranks.append(i[8])
+
+    data = {'exam_name':exams,'total':totals,'div':divs,'Grank':g_ranks,'Crank':c_ranks}
+    return pd.DataFrame(data)
+
 """
 def get_student_grades_by_student_id(stu_id):
     info = db.session.query(ExamRes).filter_by(student_id = stu_id).order_by(ExamRes.test_id).all()
@@ -190,4 +218,7 @@ def get_student_grades_by_student_id(stu_id):
 """
 def grade_query_res(stu_id):
     return {'id':stu_id,'data':get_student_grades_by_student_id(stu_id)}
+
+def total_query_res(stu_id):
+    return {'id':stu_id,'data':get_student_totals_by_student_id(stu_id)}
 

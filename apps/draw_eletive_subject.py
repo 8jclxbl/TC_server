@@ -42,7 +42,7 @@ class EletiveSubject:
                 'layout': go.Layout(  
                     hovermode='closest',  
                     dragmode='select',
-                    plot_bgcolor="#191A1A",
+                    plot_bgcolor="#dfe6e9",
 
                     title= title_,
                     xaxis = dict(title = x_title, showline = True, tickangle = 75),

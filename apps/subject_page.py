@@ -4,8 +4,8 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from models.globaltotal import CLASS_TERMS,THIRD_GRADE
-from models.subject import get_all_calsses,get_all_grade_by_class_id,class_grade_process,get_7_3,sql_73,get_class_name
-from apps.simple_chart import dash_table
+from models.subject import get_all_calsses,get_all_grade_by_class_id,class_grade_process,get_7_3,sql_73,get_class_name,get_all_grade_by_class_id_total
+from apps.simple_chart import dash_table,dash_min_max_line
 from apps.draw_eletive_subject import EletiveSubject
 
 info = sql_73()
@@ -32,9 +32,12 @@ subject_layout = html.Div([
 
     ],className = 'one-row-con'),
     
-    html.Div(id = 'sa-class-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
+    html.Div(id = 'sa-class-grade-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
 
-    html.Div(id = 'sa-73-title',children = [html.H5('2018-2019高三年级七选三状况统计')],className = 'one-row'),
+    #html.Div(id = 'sa-select-subject',className = 'one-row'),
+    #html.Div(id = 'sa-class-grade-graph',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
+
+    html.Div(id = 'sa-73-title',children = [html.H6('2018-2019高三年级七选三状况统计')],className = 'one-row'),
     html.Div(id = 'total-73-statics', children = [
         html.Div(id = 'sa-73-show-up', children = [
             html.Div(id = 'sa-73-pie-total',className = 'left-column'),
@@ -99,17 +102,52 @@ def select_term(term):
 
 
 @app.callback(
-    Output('sa-class-grade','children'),
+    Output('sa-class-grade-table','children'),
     [Input('sa-class-selector', 'value')],
     [State('sa-term-selector', 'value')]
 )
-def select_subject(class_,term):
-    class_grade = get_all_grade_by_class_id(class_)
+def grade_max_min_table(class_,term):
+    class_grade = get_all_grade_by_class_id_total(class_)
     if class_grade.empty:return '缺失此班学生的考试数据'
     res = class_grade_process(class_grade)
     res = res[['subject','exam','max','min']]
     head = ['科目','考试','最高分','最低分']
     return dash_table(head,res.T,'calss-grade-statis-table',term + '学期' + get_class_name(class_) + '班成绩统计')
+
+    
+"""
+@app.callback(
+    Output('sa-class-grade-graph','children'),
+    [Input('sa-class-selector', 'value')],
+    [State('sa-subject-selector','value')]
+)
+def grade_max_min_graph(class_,subject):
+    class_grade = get_all_grade_by_class_id_total(class_)
+    if class_grade.empty:return '缺失此班学生的考试数据'
+    res = class_grade_process(class_grade)
+    data = res.loc[res['subject'] == subject]
+    return dash_min_max_line(data,'考试名称','分数','sa-max-min-lines','{0}班{1}最高最低分分布'.format(class_,subject))
+
+
+@app.callback(
+    Output('sa-select-subject','children'),
+    [Input('sa-class-selector', 'value')],
+)
+def class_grade_subjects(class_):
+    class_grade = get_all_grade_by_class_id_total(class_)
+    if class_grade.empty:return '缺失此班学生的考试数据'
+    res = class_grade_process(class_grade)
+    subjects = list(set(res.subject.values))
+
+    return html.Div(
+            dcc.Dropdown(
+                id = 'sa-subject-selector',
+                options = [{'label':i,'value':i} for i in subjects],
+                value = subjects[0]
+            ),
+        )
+"""
+
 
 
 @app.callback(

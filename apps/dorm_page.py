@@ -62,7 +62,7 @@ def get_student_of_dorm(sushe_id,cla_id):
     index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','政治面貌','班级','班级编号','班级学期','是否住校','是否退学','寝室号']
     for i in students:
         data.append(get_student_info_by_student_id(i)['value'])
-    return dash_table(index,transpose(data),'dm-dorm-student-info','寝室{0}学生数据'.format(sushe_id),300)
+    return dash_table(index,transpose(data),'dm-dorm-student-info','寝室{0}学生数据'.format(sushe_id),300,columnwidth_=[1,1,1,1,1,3,1,1,1,1,1,1,1,1])
     
 @app.callback(
     Output('ma-consumption-compare','children'),

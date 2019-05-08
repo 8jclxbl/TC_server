@@ -87,7 +87,10 @@ def dash_table_predict(head_val,value_val,tab_id,title_name = '',predict = None)
         },
     )
 
-def dash_table(head_val,value_val,tab_id,title_name = '',height_ = 450):
+def dash_table(head_val,value_val,tab_id,title_name = '',height_ = 450,columnwidth_ = None):
+    cols = len(head_val)
+    if not columnwidth_: columnwidth_ = [1] * cols 
+
     return dcc.Graph(
         id = tab_id,
         figure = {
@@ -96,21 +99,22 @@ def dash_table(head_val,value_val,tab_id,title_name = '',height_ = 450):
                         values = ['<b>{0}</b>'.format(i) for i in head_val],
                         line = dict(color='white'),
                         fill = dict(color='#003472'),
-                        #align = ['left'] * 5,
+                        align=['center']*10,
                         font = {'color':'white'},
                         ),
                 cells = dict(
                     values = value_val,
                     line = dict(color='white'),
                     fill = dict(color='#177cb0'),
-                    #align = ['left'] * 5,
+                    align=['center']*10,
                     font = {'color':'white'},
                     ),
+                columnwidth = columnwidth_,
                 )],
             'layout':go.Layout(
                     height = height_,
                     title = title_name,
-                    margin = dict(b = 25,pad = 0)
+                    margin = dict(b = 25,pad = 0),
                 ),
         },
     )
@@ -149,3 +153,62 @@ def dash_DropDown(id_,option_label,option_value,default_value):
         value = default_value
     )
     
+def dash_min_max_line(data,x_title,y_title,id_,title_name = ''):
+    data = data.sort_values('exam_id')
+    max_data = data['max']
+    min_data = data['min']
+    exams = data['exam']
+
+    trace1 = go.Scatter(
+        x = exams,
+        y = max_data,
+        name = '最高分',
+        mode = 'lines+markers',
+        marker = dict(
+            symbol='circle',
+            size = 15, 
+            #color = color_value,
+            #colorscale='Viridis',
+            showscale=False,
+            )
+    )
+
+
+    trace2 = go.Scatter(
+        x = exams,
+        y = min_data,
+        name = '最低分',
+        mode = 'lines+markers',
+        marker = dict(
+            symbol='circle',
+            size = 15, 
+            #color = color_value,
+            #colorscale='Viridis',
+            showscale=False,
+            )
+    )
+    total = [trace1,trace2]
+    return dcc.Graph(
+            id = id_,
+            figure = {
+            'data':total,
+            'layout': go.Layout(  
+                    #autosize=False,     
+                    hovermode='closest',  
+                    dragmode='select',     
+                    title=title_name,
+                    xaxis = dict(title = x_title, showline = True),
+                    yaxis = dict(title = y_title, showline = True),
+                    legend=dict(
+                        font=dict(
+                            size=10,
+                        ),
+                        yanchor='top',
+                        xanchor='left',
+                    ),
+                    margin=dict(l=140,r=40,b=50,t=80),
+                    
+            )
+            },
+            style = {'align':'center','width':'80%','margin-left': '10%','margin-right': '10%'},
+        )

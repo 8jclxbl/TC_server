@@ -4,7 +4,7 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from models.student import controller_info_by_student_id,consumption_by_student_id,get_student_info_by_student_id,get_grad_student_info_by_student_id,get_teachers_by_class_id,grade_query_res
-
+from models.student import total_query_res
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
 from apps.draw_controller_statics import controller_statics_total,controller_statics
@@ -13,7 +13,7 @@ from apps.simple_chart import simple_table,dash_table,find_nothing
 
 student_layout = [
     html.Div(id = 'student-id',children = [
-        html.H4(
+        html.H6(
             id = 'student-id-indicator',
             children = '请输入所要查询的学号: ',
             style = {'display': 'inline-block','margin-right':'10px'}),
@@ -31,6 +31,7 @@ student_layout = [
         ],
         className = 'one-row',
     ),
+    html.Div(id = 'student-total-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
     html.Div(id = 'student-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
     html.Div(id = 'grade-lines',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
 
@@ -126,6 +127,20 @@ def select_student(n_clicks,value):
     except ValueError:
         return "学号应该是纯数字"
 
+
+
+@app.callback(
+    Output('student-total-rank', 'children'),
+    [Input('student-id-submmit','n_clicks')],
+    [State('input-student-id', 'value')]
+)
+def student_total_grade(n_clicks,stu_id):
+    grade = total_query_res(stu_id)['data']
+    if grade.empty:return find_nothing('缺失该学生的考试数据')
+    header = ['考试名称','总分','离均值','年级排名','班级排名']
+    grade = grade[['exam_name','total','div','Grank','Crank']]
+    return dash_table(header,grade.T,'student-total-table','学生{0}历次考试总分统计表'.format(stu_id))
+
 @app.callback(
     Output('student-grade', 'children'),
     [Input('student-id-submmit','n_clicks')],
@@ -134,9 +149,9 @@ def select_student(n_clicks,value):
 def student_grade(n_clicks,stu_id):
     grade = grade_query_res(stu_id)['data']
     if grade.empty:return find_nothing('缺失该学生的考试数据')
-    header = ['考试名称','科目','分数','Z值','T值','等第']
-    grade = grade[['exam_name','subject','score','z_score','t_score','r_score']]
-    return dash_table(header,grade.T,'student-grade-table','学生{0}历次考试成绩统计表'.format(stu_id))
+    header = ['考试名称','科目','分数','Z值','T值','等第','离均值','年级排名','班级排名']
+    grade = grade[['exam_name','subject','score','z_score','t_score','r_score','div','Grank','Crank']]
+    return dash_table(header,grade.T,'student-grade-table','学生{0}历次考试成绩统计表'.format(stu_id),columnwidth_=[3,1,1,1,1,1,1,1,1])
 
 @app.callback(
     Output('grade-lines', 'children'),

@@ -36,6 +36,9 @@ def get_all_grades():
     total_grades = pd.read_csv('./static/examres.csv')
     return total_grades
 
+def get_all_totals():
+    total = pd.read_csv('./static/total_gc_rank.csv')
+    return total
 def get_class_has_dorm():
     info = session.query(Sushe.class_id).order_by(Sushe.class_id).all()
     info = [i[0] for i in info]
@@ -70,6 +73,7 @@ EXAMS = get_exam_name()
 GENERE_EXAM_ID = [285,287,291,297,303,305]
 
 TOTAL_GRADE = get_all_grades()
+TOTAL_TOTALS = get_all_totals()
 
 CLASS_HAS_DORM = get_class_has_dorm()
 

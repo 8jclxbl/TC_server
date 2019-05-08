@@ -79,13 +79,14 @@ def get_all_dict_by_class_id(cla_id):
     for i in info:
         student[i.id] = i.name
     return student
+
 def get_all_grade_by_class_id_total(cla_id):
     cla_id = int(cla_id)
     data = TOTAL_GRADE.loc[TOTAL_GRADE['class_id'] == cla_id].copy()
     subjects = [SUBJECTS[i] for i in data.subject_id.values]
     data['subject'] = subjects
 
-    return data[['student_id','exam_id','subject','score','z_score','t_score','r_score']]
+    return data[['student_id','exam_id','subject','score','z_score','t_score','r_score','div']]
 
 #根据班级id获取班级成绩
 def get_all_grade_by_class_id(cla_id):
@@ -148,11 +149,12 @@ def class_grade_process(df):
 
         for k in max_.keys():
             subjects_.append(i)
-            exam_id.append(EXAMS[k])
+            exam_id.append(k)
+            exam_name.append(EXAMS[k])
             maxs.append(data.loc[max_[k]]['score'])
             mins.append(data.loc[min_[k]]['score'])
 
-    res = {'subject':subjects_,'exam':exam_id,'max':maxs,'min':mins}
+    res = {'subject':subjects_,'exam':exam_name,'exam_id':exam_id,'max':maxs,'min':mins}
     return pd.DataFrame(res)
 
 #基于之前获取的7选三表，直接读取七选三数据

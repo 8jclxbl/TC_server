@@ -47,12 +47,12 @@ class Grade:
     def gen_layout(self):
         layout = [
             html.Div(id = 'select-subject',children = [
-                html.H4(children = '要显示的科目:',style = {'display':'inline-block','margin-right':'20px'}),
+                html.H6(children = '要显示的科目:',style = {'display':'inline-block','margin-right':'20px'}),
                 html.Div(children = [
                     dcc.Dropdown(
                     id = 'grade-subject-selector',
                     options = [{'label':i,'value':i} for i in self.subjects],
-                    value = ['语文','数学'],
+                    value = ['语文','数学','英语'],
                     clearable = False,
                     multi=True,
                     )
@@ -60,7 +60,7 @@ class Grade:
             ]),
             html.Div(id = 'select-score-class',children = [
                 html.Div(id = 'score-aspect-select',children = [
-                    html.H4(children = '请选择评价方式:',style = {'display':'inline-block','margin-right':'20px'}),
+                    html.H6(children = '请选择评价方式:',style = {'display':'inline-block','margin-right':'20px'}),
                     dcc.RadioItems(
                         id = 'score-class-selector',
                         options = [
@@ -81,7 +81,7 @@ class Grade:
                 ],style = {'display':'inline-block'}),
                 
             html.Div(id = 'score-select-exam-type', children = [
-                html.H4(children = '请选择成绩类型:',style = {'display':'inline-block','margin-right':'20px'}),
+                html.H6(children = '请选择成绩类型:',style = {'display':'inline-block','margin-right':'20px'}),
                 dcc.RadioItems(
                     id = 'score-exam-type-selector',
                     options = [
