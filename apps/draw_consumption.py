@@ -31,7 +31,7 @@ def consumption_data_seperate(data, sep):
     #data 格式为字典，其中的'data' 对应的是pandas.DataFrame
     #seq 是字符串，取值为'Total'，'Day'，'Month'，'Year'，分别对应，原始消费数据，按日划分，按月划分，按年划分
     info = data['data']
-    predict_money = get_predict_consumption(data['id'])
+    predict = get_predict_consumption(data['id'])
 
     #用于填写表格标题，将sep转化为对应的汉语意义
     interval = title_table[sep]
@@ -66,7 +66,7 @@ def consumption_data_seperate(data, sep):
                 last_month = int(last_.month) + 1
             last_index = str(last_year) + '-' +str(last_month) 
             sumed.index = [str(i.year) +'-'+ str(i.month) for i in sumed.index]
-            return {'data':sumed,'title_part':interval,'predict':[last_index,predict_money]}
+            return {'data':sumed,'title_part':interval,'predict':[last_index,predict[0],predict[1]]}
             
         elif sep == 'Year':
             sumed.index = [i.year for i in sumed.index]
@@ -93,10 +93,21 @@ def consumption_bar_uds(sumed):
     ]
     if interval == '月':
         predict = sumed['predict']
+        warning = predict[-1]
+
+        if warning == 1:
+            color_ = '#d50000'
+            text_ = '消费水平异常升高'
+        elif warning == 2:
+            color_ = '#00c853'
+            text_ = '消费水平不变'
+        else:
+            color_ = '#880e4f'
+            text_ = '消费水平异常降低'
         total.append(
             go.Bar(x = [predict[0]],y = [-predict[1]],
-                   text = ['该生下月消费预测'],
-                   marker = dict(color = 'red'),name = '预测')
+                   text = ['该生下月消费预测,' + text_],
+                   marker = dict(color = color_),name = '预测')
             )
 
     return dcc.Graph(
@@ -106,9 +117,57 @@ def consumption_bar_uds(sumed):
                 'layout': go.Layout(    
                     hovermode='closest',  
                     dragmode='select',
-                    plot_bgcolor="#191A1A",
-
+                    plot_bgcolor="#dfe6e9",
                     title='学生{0}消费统计'.format(interval),
+                    xaxis = dict(title = '时间', showline = True, tickangle = 75),
+                    yaxis = dict(title = '花费', showline = True),
+                    margin=dict(l=40,r=40,b=140,t=80),
+                )
+            },
+            style = {'align':'center','width':'80%','margin-left': '10%','margin-right': '10%'},
+        )
+
+#{student_id{data,predict}}
+def consumption_bar_dorm_month_compare(sumed,dorm_id):
+    total = []
+    for k,v in sumed.items():
+        data = v['data']
+        total.append(
+            go.Bar(
+                x = data.index,
+                y = data.values * - 1,
+                name = '学生{0}消费'.format(k),
+            )
+        )
+    
+        predict = v['predict']
+        warning = predict[-1]
+
+        if warning == 1:
+            color_ = '#d50000'
+            text_ = '消费水平异常升高'
+        elif warning == 2:
+            color_ = '#00c853'
+            text_ = '消费水平不变'
+        else:
+            color_ = '#880e4f'
+            text_ = '消费水平异常降低'
+        total.append(
+            go.Bar(x = [predict[0]],y = [-predict[1]],
+                    text = ['该生下月消费预测,' + text_],
+                    marker = dict(color = color_),name = '学生{0}预测'.format(k))
+            )
+
+    return dcc.Graph(
+            id = 'consumption-graph-by-year-month',
+            figure = {
+                'data':total,
+                'layout': go.Layout(    
+                    hovermode='closest',  
+                    dragmode='select',
+                    plot_bgcolor="#dfe6e9",
+
+                    title='{0}宿舍学生月消费统计'.format(dorm_id),
                     xaxis = dict(title = '时间', showline = True, tickangle = 75),
                     yaxis = dict(title = '花费', showline = True),
                     margin=dict(l=40,r=40,b=140,t=80),

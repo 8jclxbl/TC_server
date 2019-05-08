@@ -92,8 +92,10 @@ def consumption_by_student_id(stu_id):
 # {id:student_id,data:[columns[date,time,money]],text:total_info}
 
 def get_predict_consumption(stu_id):
-    info = session.query(ConsumptionPredict.money).filter_by(student_id = stu_id).first()
-    return info[0]
+    info = session.query(ConsumptionPredict).filter_by(student_id = stu_id).first()
+    money = info.money
+    warning = info.consumption_mode
+    return [money,warning]
 
 def get_predict_rank(stu_id):
     info = session.query(RankPredict).filter_by(student_id = stu_id).all()

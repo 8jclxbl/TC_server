@@ -6,6 +6,7 @@ from app import app
 from apps.student_page import student_layout
 from apps.subject_page import subject_layout
 from apps.mass_page import mass_layout
+from apps.dorm_page import dorm_layout
 
 
 total_layout = html.Div([
@@ -23,6 +24,7 @@ total_layout = html.Div([
         dcc.Tab(label = '学生域数据分析', value = 'student_analysis',className='custom-tab',selected_className='custom-tab--selected'),
         dcc.Tab(label = '课程域数据分析', value = 'subject_analysis',className='custom-tab',selected_className='custom-tab--selected'),
         dcc.Tab(label = '群体域数据分析', value = 'mass_analysis',className='custom-tab',selected_className='custom-tab--selected'),
+        dcc.Tab(label = '宿舍域数据分析', value = 'dorm_analysis',className='custom-tab',selected_className='custom-tab--selected'),
     ]),
     html.Div(id = 'sub-div')
     
@@ -54,3 +56,5 @@ def main_func_selector(value):
         return subject_layout
     elif value ==  'mass_analysis':
         return mass_layout
+    elif value == 'dorm_analysis':
+        return dorm_layout

@@ -24,7 +24,7 @@ def draw_line(subject_name,type_name,data):
             color = SUBJECT_COLOR[subject_name],
         ),
         line = dict(
-            color = SOCRE_TYPE_COLOR[type_name],
+            color = SUBJECT_COLOR[subject_name],
         )
     )
 
@@ -51,9 +51,10 @@ class Grade:
                     dcc.Dropdown(
                     id = 'grade-subject-selector',
                     options = [{'label':i,'value':i} for i in self.subjects],
-                    value = list(self.subjects),
+                    value = self.subjects,
                     clearable = False,
-                    multi=True,)
+                    multi=True,
+                    )
                 ],style = {'display':'inline-block','width':'70%'}),
             ]),
             html.Div(id = 'select-score-class',children = [

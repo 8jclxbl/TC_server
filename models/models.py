@@ -205,6 +205,7 @@ class ConsumptionPredict(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     student_id = db.Column(db.Integer)
     money = db.Column(db.Integer)
+    consumption_mode = db.Column(db.Integer)
     
 
 class RankPredict(db.Model):
@@ -212,3 +213,10 @@ class RankPredict(db.Model):
     student_id = db.Column(db.Integer)
     subject_id = db.Column(db.Integer)
     r_score = db.Column(db.Float)
+
+class Sushe(db.Model):
+    student_id = db.Column(db.Integer, primary_key = True)
+    student_name = db.Column(db.String(16))
+    student_sex =  db.Column(db.String(8))
+    class_id = db.Column(db.Integer)
+    sushe_id = db.Column(db.Integer)

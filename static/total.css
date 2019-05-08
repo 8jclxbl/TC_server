@@ -188,6 +188,7 @@
   .left-column{
     float: left;
     width:48%;
+    height:100%;
     margin-right: 0.5%;
     margin-top: 10px;
     margin-bottom: 10px; 

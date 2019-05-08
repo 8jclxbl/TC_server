@@ -13,17 +13,23 @@ es = EletiveSubject(info)
 
 subject_layout = html.Div([
     html.Div(id= 'sa-class-term-select', children = [
-        html.Div(id = 'sa-select-title',children = [html.H5('请选择要统计的班级及其所处学期：')],
-                    style = {'display':'inline-block','width':'30%','margin-left':'10px','margin-right':'10px'}),
-        html.Div(id = 'sa-select-term',children = [
-                dcc.Dropdown(
-                id = 'sa-term-selector',
-                options = [{'label':i,'value':i} for i in CLASS_TERMS],
-                value =CLASS_TERMS[0],
-            ),
-            ],style = {'display':'inline-block','width':'25%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'}
-        ),
-        html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'25%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'}),
+        html.Div(id = 'sa-select-term-container',children = [
+            html.Div(id = 'sa-select-term-title',children = [html.H6('请选择要统计的学期：')],
+                    style = {'display':'inline-block','width':'40%','margin-left':'10px'}),
+            html.Div(id = 'sa-select-term',children = [
+                    dcc.Dropdown(
+                    id = 'sa-term-selector',
+                    options = [{'label':i,'value':i} for i in CLASS_TERMS],
+                    value =CLASS_TERMS[0],
+                ),],style = {'display':'inline-block','width':'30%','margin':'auto','vertical-align':'middle'}),
+        ],style = {'display':'inline-block','width':'45%'}),
+        
+        html.Div(id = 'sa-select-class-container',children = [
+            html.Div(id = 'sa-select-term-title',children = [html.H6('请选择要统计的班级：')],
+                    style = {'display':'inline-block','width':'40%','margin-left':'10px'}),
+            html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'30%','margin':'auto','vertical-align':'middle'})
+        ],style = {'display':'inline-block','width':'45%','vertical-align':'middle'}),
+
     ],className = 'one-row-con'),
     
     html.Div(id = 'sa-class-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
@@ -40,7 +46,7 @@ subject_layout = html.Div([
         html.Div(id = 'sa-73-show-down',children = [
             html.Div(children = [
                 html.Div(children = [
-                    html.Div(html.Label('请选择统计的班级：'),style = {'font-size':'20px','display':'inline-block','width':'35%','margin-left':'10px','margin-right':'10px'}),
+                    html.Div(html.H6('请选择统计的班级：'),style = {'display':'inline-block','width':'35%','margin-left':'10px','margin-right':'10px'}),
                     html.Div(dcc.Dropdown(
                         id = 'sa-third-class-selector',
                         options = [{'label':v,'value':k} for k,v in THIRD_GRADE.items()],
@@ -56,7 +62,7 @@ subject_layout = html.Div([
             
             html.Div(id = 'sa-73-bar-subjecs-container',children = [
                 html.Div(children = [
-                    html.Div(html.Label('请选择统计的组合：'),style = {'font-size':'20px','display':'inline-block','width':'35%','margin-left':'10px','margin-right':'10px'}),
+                    html.Div(html.H6('请选择统计的组合：'),style = {'display':'inline-block','width':'35%','margin-left':'10px','margin-right':'10px'}),
                     html.Div(dcc.Dropdown(
                         id = 'sa-subjects-selector',
                         options = [{'label':i,'value':i} for i in es.combines],

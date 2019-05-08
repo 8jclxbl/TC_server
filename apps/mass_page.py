@@ -134,9 +134,10 @@ def ma_select_subject(subject,grade,exam):
             
     res = ma.get_mean_by_grade_exam(grade,exam,subject)
     res = res.sort_values('mean',ascending = False)
-    res = res[['id','name','mean']]
-    header = ['班级编号','班级名称',subject + '均分']
-    return dash_table(header,res.T,'class-mean-by-exam-table',EXAMS[exam] + grade + '班级{0}平均分排名'.format(subject))
+    res['rank'] = range(1,len(res['mean'].values)+1)
+    res = res[['id','name','mean','rank']]
+    header = ['班级编号','班级名称',subject + '均分','排名']
+    return dash_table(header,res.T,'class-mean-by-exam-table',EXAMS[exam] + grade + '班级{0}平均分排名'.format(subject),300)
 
 @app.callback(
     Output('ma-distribute-compare','children'),

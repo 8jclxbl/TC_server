@@ -1,5 +1,5 @@
 from app import db,session
-from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType
+from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,Sushe
 import pandas as pd
 
 #获取全部的科目信息
@@ -36,6 +36,18 @@ def get_all_grades():
     total_grades = pd.read_csv('./static/examres.csv')
     return total_grades
 
+def get_class_has_dorm():
+    info = session.query(Sushe.class_id).order_by(Sushe.class_id).all()
+    info = [i[0] for i in info]
+    return list(set(info))
+
+def get_class_table():
+    info = session.query(Class_.id,Class_.name).all()
+    dic = {}
+    for i in info:
+        dic[i[0]] = i[1]
+    return dic
+
 SUBJECTS = get_all_subject()
 #EXAMS = get_all_exam_type()
 GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考',-6:'缺失数据'}
@@ -51,11 +63,15 @@ ELETIVE_CLASS = ['政治','历史','地理','物理','化学','生物','技术']
 
 CLASS_TERMS = get_terms_of_all_class()
 
+CLASS_TABLE = get_class_table()
+
 EXAMS = get_exam_name()
 
 GENERE_EXAM_ID = [285,287,291,297,303,305]
 
 TOTAL_GRADE = get_all_grades()
+
+CLASS_HAS_DORM = get_class_has_dorm()
 
 THIRD_GRADE = {916: '高三(02)',917: '高三(03)',918: '高三(04)',919: '高三(07)',920: '高三(08)',
                921: '高三(01)',922: '高三(05)',923: '高三(09)',924: '高三(06)',925: '高三(10)'}
@@ -77,7 +93,7 @@ TRADITION_COLOR_MAP = ['#70f3ff','#44cef6','#3eede7','#1685a9','#177cb0','#06527
                        '#f35336','#dc3023','#ff3300','#cb3a56','#ef7a82','#ff0097','#c32136','#be002f','#c91f37', '#bf242a','#c3272b','#9d2933','#bce672','#c9dd22','#bddd22','#0eb83a',
                        '#0aa344','#16a951','#21a675','#057748','#0c8918','#00e500','#40de5a','#00e079','#00e09e','#3de1ad','#2add9c','#2edfa3','#7fecad','#a4e2c6','#7bcfa6','#1bd1a5']
 
-CONTROLLER_COLOR = {100000:'#1A237E',100100:'#303F9F',100200:'#3F51B5',100300:'#7986CB',
-                    200000:'#4A148C',200100:'#7B1FA2',200200:'#9C27B0',
-                    300000:'#b71c1c',300100:'#d32f2f',300200:'#f44336',
-                    9900100:'#1B5E20',9900200:'#388E3C',9900300:'#4CAF50',9900400:'#558B2F',9900500:'#7CB342'}
+CONTROLLER_COLOR = {100000:'#4db6ac',100100:'#004d40',100200:'#64ffda',100300:'#006064',
+                    200000:'#ff7043',200100:'#bf360c',200200:'#dd2c00',
+                    300000:'#ffd600',300100:'#fff176',300200:'#eeff41',
+                    9900100:'#d50000',9900200:'#ff8a80',9900300:'#e57373',9900400:'#c51162',9900500:'#ec407a'}

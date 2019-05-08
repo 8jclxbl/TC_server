@@ -361,7 +361,7 @@ def dash_compare_bar(res,x_title,y_title,tab_id,title_name = ''):
                 'layout': go.Layout(    
                     hovermode='closest',  
                     dragmode='select',
-                    plot_bgcolor="#191A1A",
+                    plot_bgcolor="#dfe6e9",
 
                     title=title_name,
                     xaxis = dict(title = x_title, showline = True, tickangle = 75),

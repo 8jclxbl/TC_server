@@ -77,9 +77,9 @@ def sub_scatter_bytype(name,color_value,x,y,text):
         text = text,
         marker = dict(
             symbol='circle',
-            size = 8, 
+            size = 15, 
             color = color_value,
-            colorscale='Viridis',
+            #colorscale='Viridis',
             showscale=False,
             )
         )
