@@ -297,7 +297,7 @@ class ClassInfo:
             except_ = data.loc[data[score_type] < 0]
 
             scores = normal[score_type].values
-            except_score = except_[score_type].values
+            except_score = except_.score.values
             for i in except_score:
                 if i not in partition:
                     partition[i] = 1

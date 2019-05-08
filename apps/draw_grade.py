@@ -25,7 +25,8 @@ def draw_line(subject_name,type_name,data):
         ),
         line = dict(
             color = SUBJECT_COLOR[subject_name],
-        )
+        ),
+        connectgaps=True
     )
 
 class Grade:
@@ -51,7 +52,7 @@ class Grade:
                     dcc.Dropdown(
                     id = 'grade-subject-selector',
                     options = [{'label':i,'value':i} for i in self.subjects],
-                    value = self.subjects,
+                    value = ['语文','数学'],
                     clearable = False,
                     multi=True,
                     )
@@ -232,19 +233,24 @@ class Grade:
     #获取某一门课各次考试的成绩
     def line_data_by_subject(self,subject,score_type,is_normal_exam):
         if is_normal_exam:
-            exam_set = self.nor_exam.values()
+            exam_set = self.nor_exam
         else:
-            exam_set = self.gen_exam.values()
+            exam_set = self.gen_exam
         df = self.grade_sep_by_subject[subject]
-        exam_name = df['exam_name'].values
+
+        exam_ids = df['exam_id'].values
         score = df[score_type].values
+
+        exam_dic = {i:j for i,j in zip(exam_ids,score)}
+        exam_set_sorted = sorted(list(exam_set.keys()))
 
         en = []
         sc = []
-        for i in range(len(exam_name)):
-            if exam_name[i] in exam_set:
-                en.append(exam_name[i])
-                sc.append(score[i])
+        for i in exam_set_sorted:
+            en.append(exam_set[i])
+            if i in exam_ids:
+                sc.append(exam_dic[i])
+            else:sc.append(None)
         if subject in self.predict_rank and score_type == 'r_score':
             en.append('下次考试等第预测')
             sc.append(self.predict_rank[subject])

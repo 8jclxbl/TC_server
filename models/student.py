@@ -143,16 +143,15 @@ def get_student_grades_by_student_id(stu_id):
         Exam_names.append(EXAMS[i[1]])
         Subjects.append(SUBJECTS[i[2]])
         Subject_ids.append(i[2])
-        Scores.append(i[5] if i[5] >= 0 else GRADETYPE[int(i[5])])
-        Zscores.append(round(i[6],2) if i[6] != -6 else '考试状态异常')
-        Tscores.append(round(i[7],2) if i[7] != -6 else '考试状态异常')
-        Rscores.append(round(i[8],2) if i[8] != -6 else '考试状态异常')
+        Scores.append(i[6] if i[6] >= 0 else GRADETYPE[int(i[6])])
+        Zscores.append(round(i[7],2) if i[7] != -6 else '考试状态异常')
+        Tscores.append(round(i[8],2) if i[8] != -6 else '考试状态异常')
+        Rscores.append(round(i[9],2) if i[9] != -6 else '考试状态异常')
     
     data = {'test_id':Test_ids,'exam_id':Exam_ids,'exam_name':Exam_names,'subject_id':Subject_ids,'subject':Subjects,
         'score':Scores,'z_score':Zscores,'t_score':Tscores,'r_score':Rscores}
 
     return pd.DataFrame(data)
-
 """
 def get_student_grades_by_student_id(stu_id):
     info = db.session.query(ExamRes).filter_by(student_id = stu_id).order_by(ExamRes.test_id).all()

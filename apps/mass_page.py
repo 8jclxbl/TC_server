@@ -8,7 +8,7 @@ from models.subject import get_classes_by_term,get_class_name
 from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class,dash_compare_bar
 from apps.simple_chart import dash_table,dash_bar,find_nothing
 
-SCORE_TYPE = {'score':'原始分','t_score':'离均值'}
+SCORE_TYPE = {'score':'原始分','t_score':'标准分'}
 ma = None
 
 mass_layout = html.Div([
@@ -27,8 +27,6 @@ mass_layout = html.Div([
         ],className = 'one-row-con'
     ),
     
-    
-
     html.Div(id = 'ma-means-show', children = [
         html.Div(children = [
             html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
@@ -46,7 +44,7 @@ mass_layout = html.Div([
             html.Div(id = 'ma-select-score-type',style = {'display':'inline-block','margin':'10px','width':'30%'},children = [
                 dcc.Dropdown(
                     id = 'ma-score-type-selector',
-                    options = [{'label':'原始分','value':'score'},{'label':'离均值','value':'t_score'}],
+                    options = [{'label':'原始分','value':'score'},{'label':'标准分','value':'t_score'}],
                     value ='score',
                     )
             ]),

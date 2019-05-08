@@ -50,7 +50,7 @@ def get_class_table():
 
 SUBJECTS = get_all_subject()
 #EXAMS = get_all_exam_type()
-GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考',-6:'缺失数据'}
+GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考',-6:'缺考,作弊,免考'}
 
 CONTROLLER_TABLE = get_all_controller()
 

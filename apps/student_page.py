@@ -20,7 +20,7 @@ student_layout = [
         dcc.Input(
             id='input-student-id', 
             type='text', 
-            value='14567',
+            value='14012',
             style = {'display': 'inline-block','margin-left':'10px','margin-right':'10px'}),
         html.Button(
             children = '提交', 
