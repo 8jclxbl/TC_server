@@ -47,7 +47,7 @@ class EletiveSubject:
                     title= title_,
                     xaxis = dict(title = x_title, showline = True, tickangle = 75),
                     yaxis = dict(title = y_title, showline = True),
-                    margin=dict(l=40,r=40,b=140,t=80),
+                    margin=dict(l=50,r=20,b=140,t=80),
                 )
             },
         )

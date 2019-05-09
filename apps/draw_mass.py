@@ -269,11 +269,12 @@ class ClassInfo:
             if score_type == 'div':
                 data = data.sort_values(score_type,ascending = False)
                 data['rank'] = range(1,len(data) + 1)
-                data['scores'] = [round(i,2) for i in data[score_type].values]
+                data[score_type] = [round(i,2) for i in data[score_type].values]
                 return data
 
             normal = data.loc[data[score_type] >= 0]
             normal = normal.sort_values(score_type,ascending = False)
+            normal[score_type] = [round(i,2) for i in normal[score_type].values]
             normal.index = range(1,len(normal) + 1)
             normal['rank'] = normal.index
 

@@ -166,13 +166,12 @@ def dash_min_max_line(data,x_title,y_title,id_,title_name = ''):
         mode = 'lines+markers',
         marker = dict(
             symbol='circle',
-            size = 15, 
+            size = 10, 
             #color = color_value,
             #colorscale='Viridis',
             showscale=False,
             )
     )
-
 
     trace2 = go.Scatter(
         x = exams,
@@ -181,7 +180,7 @@ def dash_min_max_line(data,x_title,y_title,id_,title_name = ''):
         mode = 'lines+markers',
         marker = dict(
             symbol='circle',
-            size = 15, 
+            size = 10, 
             #color = color_value,
             #colorscale='Viridis',
             showscale=False,
@@ -193,7 +192,7 @@ def dash_min_max_line(data,x_title,y_title,id_,title_name = ''):
             figure = {
             'data':total,
             'layout': go.Layout(  
-                    #autosize=False,     
+                    autosize=True,     
                     hovermode='closest',  
                     dragmode='select',     
                     title=title_name,
@@ -206,7 +205,7 @@ def dash_min_max_line(data,x_title,y_title,id_,title_name = ''):
                         yanchor='top',
                         xanchor='left',
                     ),
-                    margin=dict(l=140,r=40,b=50,t=80),
+                    margin=dict(l=40,r=40,b=150,t=80),
                     
             )
             },
