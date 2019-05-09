@@ -154,7 +154,21 @@
   
   }
   
-  
+
+  .sj-div{ text-indent:2em; font-size:18px;}
+  .sj-p{ text-indent:2em; font-size:18px}
+ 
+
+  .text-container{
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 10px;
+    margin-bottom: 10px; 
+    padding-top: 5px;
+    text-align:left;
+    background: #fff;
+  }
+
   .one-row{
     margin-left: 10%;
     margin-right: 10%;

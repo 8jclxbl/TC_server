@@ -7,6 +7,7 @@ from apps.student_page import student_layout
 from apps.subject_page import subject_layout
 from apps.mass_page import mass_layout
 from apps.dorm_page import dorm_layout
+from apps.welcome_page import welcome_layout
 
 
 total_layout = html.Div([
@@ -30,18 +31,6 @@ total_layout = html.Div([
     
 ])
 
-
-welcome_layout = [
-    html.Div(id = 'welcome-div',children = [
-    dcc.Markdown("""
-# Welcome
----
-忽然之间克哈的霓虹为我在闪烁
----
-![welcome](./static/welcome.jpg "欢迎使用")
-"""),
-],className = 'one-row')
-]
 
 @app.callback(
     Output('sub-div','children'),
