@@ -24,7 +24,7 @@ welcome_layout = [
                         '本作品基于python的',
                         html.A(id = 'dash-url',children = ['plot.ly'],href = 'https://plot.ly/',target = '_blank'),
                         '的dash框架实现。图表中自带了很多基础的控件，可以对图表进行拖拽选择',
-                        '指定区域的大小缩放，具体的特色功能详见提交的控件特色功能文档。',
+                        '指定区域的大小缩放，鼠标悬停显示所处位置的数据点或数据块的具体信息，具体的特色功能详见一起提交的作品说明。',
                         ],className = 'sj-p'
                     ),
                     
