@@ -12,29 +12,27 @@ info = sql_73()
 es = EletiveSubject(info)
 
 subject_layout = html.Div([
+    html.Div(id = 'sa-class-grade-title',children = [html.H4('班级历史得分趋势',style = {'font-weight':'bold'})],className = 'one-row'),
     html.Div(id= 'sa-class-term-select', children = [
         html.Div(id = 'sa-select-term-container',children = [
-            html.Div(id = 'sa-select-term-title',children = [html.H6('请选择要统计的学期：')],
-                    style = {'display':'inline-block','width':'40%','margin-left':'10px'}),
+            html.H6('请选择要统计的学期：',style = {'display':'inline-block','margin-left':'10px'}),
             html.Div(id = 'sa-select-term',children = [
                     dcc.Dropdown(
                     id = 'sa-term-selector',
                     options = [{'label':i,'value':i} for i in CLASS_TERMS],
                     value =CLASS_TERMS[0],
-                ),],style = {'display':'inline-block','width':'30%','margin':'auto','vertical-align':'middle'}),
-        ],style = {'display':'inline-block','width':'45%'}),
+                )],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'}),
+        ],style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
         
         html.Div(id = 'sa-select-class-container',children = [
-            html.Div(id = 'sa-select-term-title',children = [html.H6('请选择要统计的班级：')],
-                    style = {'display':'inline-block','width':'40%','margin-left':'10px'}),
-            html.Div(id = 'sa-select-class',style = {'display':'inline-block','width':'30%','margin':'auto','vertical-align':'middle'})
-        ],style = {'display':'inline-block','width':'45%','vertical-align':'middle'}),
-
-    ],className = 'one-row-con'),
+            html.H6('请选择要统计的班级：',style = {'display':'inline-block','margin-left':'10px'}),
+            html.Div(id = 'sa-select-class', style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
+        ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+    ],className = 'one-row'),
     
     html.Div(id = 'sa-class-grade-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
     html.Div(id = 'sa-select-subject-container',children = [
-        html.Div(id = 'sa-select-subject-title',children = html.H6('单学科最高最低分趋势：'),style = {'display':'inline-block','width':'40%','margin-left':'10px'}),
+        html.Div(id = 'sa-select-subject-title',children = html.H6('请选择课程：'),style = {'display':'inline-block','width':'40%','margin-left':'10px'}),
         html.Div(id = 'sa-select-subject',style = {'display':'inline-block','width':'30%','margin-left':'10px','vertical-align':'middle'})]
         ,className = 'one-row'),
     

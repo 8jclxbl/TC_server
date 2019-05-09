@@ -12,6 +12,7 @@ from apps.draw_grade import Grade
 from apps.simple_chart import simple_table,dash_table,find_nothing
 
 student_layout = [
+    html.Div(id = 'stu-info-title',children = [html.H4('学生基本信息',style = {'font-weight':'bold'})],className = 'one-row'),
     html.Div(id = 'student-id',children = [
         html.H6(
             id = 'student-id-indicator',
@@ -31,47 +32,50 @@ student_layout = [
         ],
         className = 'one-row',
     ),
+    html.Div(id = 'stu-grade-title',children = [html.H4('学生考试数据',style = {'font-weight':'bold'})],className = 'one-row'),
     html.Div(id = 'student-total-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
     html.Div(id = 'student-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
     html.Div(id = 'grade-lines',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
 
+    html.Div(id = 'stu-controller-title',children = [html.H4('学生考勤数据',style = {'font-weight':'bold'})],className = 'one-row'),
     html.Div(id = 'student-controller-total', children = [
-        html.Div(children = [
-            html.H6('学生考勤状况统计:',style = {'margin-left':'10px','margin-right':'10px'}),
-        ],style = {'width':'20%','display':'inline-block'}),
-        html.Div(id = 'controller-select-aspect',children = [
-            dcc.Dropdown( 
-                id = 'controller-aspect-selector',
-                options=[            
-                    {'label': '学生考勤情况', 'value': 'controller'},
-                    {'label': '学生考勤统计', 'value': 'controller-st'},                  
-                ],         
-                value='controller',  
-                clearable=False,       
-            ),
-        ],style = {'width':'30%','display':'inline-block'}),
-
-        html.Div(id = 'controller-select-chart',children = [
-            dcc.Dropdown( 
-                id = 'controller-graph-table-selector',
-                options=[            
-                        {'label': '统计图', 'value': 'graph'},             
-                        {'label': '统计表', 'value': 'table'},             
-                ],         
-                value='graph', 
-                clearable=False,     
+        html.H6('学生考勤状况统计:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+        html.Div(id = 'controller-selector-container',children = [
+            html.Div(id = 'controller-select-aspect',children = [
+                dcc.Dropdown( 
+                    id = 'controller-aspect-selector',
+                    options=[            
+                        {'label': '学生考勤情况', 'value': 'controller'},
+                        {'label': '学生考勤统计', 'value': 'controller-st'},                  
+                    ],         
+                    value='controller',  
+                    clearable=False,       
                 ),
-        ],style = {'width':'30%','display':'inline-block','margin-left':'10px'}),  
+                html.H6('(学生整体考勤情况或各学期出勤率)'),
+                ],style = {'width':'40%','display':'inline-block'}),
 
+            html.Div(id = 'controller-select-chart',children = [
+                dcc.Dropdown( 
+                    id = 'controller-graph-table-selector',
+                    options=[            
+                            {'label': '统计图', 'value': 'graph'},             
+                            {'label': '统计表', 'value': 'table'},             
+                    ],         
+                    value='graph', 
+                    clearable=False,     
+                ),
+                html.H6('(统计图或统计表)'),
+                ],style = {'width':'40%','display':'inline-block','margin-left':'10px'}),  
+        ],style = {'display':'inline-block','vertical-align':'middle','width':'50%'})
     ],className = 'one-row-con'),
 
     html.Div(id = 'student-controller-show', className = 'one-row'),
 
+    html.Div(id = 'stu-consumption-title',children = [html.H4('学生消费数据',style = {'font-weight':'bold'})],className = 'one-row'),
     html.Div(id = 'student-consumption-total',children = [
-        html.Div(children = [
-            html.H6('学生消费状况统计',style = {'margin-left':'10px','margin-right':'10px'})
-        ],style = {'width':'20%','display':'inline-block'}),
-        html.Div(id = 'consumption-select-chart',children = [
+        html.H6('学生消费状况统计:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+        html.Div(id = 'consumption-selector-container',children = [
+            html.Div(id = 'consumption-select-chart',children = [
             dcc.Dropdown( 
                 id = 'consumption-graph-table-selector',
                 options=[            
@@ -81,7 +85,8 @@ student_layout = [
                 value='graph', 
                 clearable=False,     
             ),  
-        ],style={'width':'30%','display': 'inline-block','margin-left':'10px','margin-right':'10px'}),     
+            html.H6('(统计图或统计表)'),
+            ],style={'width':'40%','display': 'inline-block','margin-left':'10px'}),     
         html.Div(id = 'stua-select-interval', children = [
             dcc.Dropdown( 
                 id = 'interval-selector',
@@ -94,7 +99,9 @@ student_layout = [
                 value='Day',    
                 clearable=False,     
             ),
-        ],style={'width':'30%','display': 'inline-block','margin-left':'10px','margin-right':'10px'},), 
+            html.H6('(年月日数据切换)'),
+            ],style={'width':'40%','display': 'inline-block','margin-left':'10px',},), 
+        ],style = {'display':'inline-block','vertical-align':'middle','width':'50%'}),  
     ],className = 'one-row-con'),
     html.Div(id = 'student-consumption-show', className = 'one-row'),
 ]

@@ -8,29 +8,36 @@ from models.subject import get_classes_by_term,get_class_name
 from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class,dash_compare_bar
 from apps.simple_chart import dash_table,dash_bar,find_nothing
 
-SCORE_TYPE = {'score':'原始分','t_score':'标准分','div':'离均值'}
+ScoreType = {'score':'原始分','t_score':'标准分','div':'离均值'}
 ma = None
 
 mass_layout = html.Div([
     html.Div(id = 'ma-total-selector', children = [
-        html.Div(id = 'ma-select-term', children = [
-            html.H6(children = '请选择学期:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-            html.Div(children = [
-                dcc.Dropdown(
-                    id = 'ma-term-selector',
-                    options = [{'label':i,'value':i} for i in CLASS_TERMS],
-                    value =CLASS_TERMS[0],
-                    )
-                ],style = {'display':'inline-block','width':'40%','vertical-align':'middle'})
-            ]),
-        html.Div(id = 'ma-select-grade'),
-        ],className = 'one-row-con'
-    ),
+        html.Div(children = [
+            html.Div(id = 'ma-select-term', children = [
+                html.H6(children = '请选择学期:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+                html.Div(children = [
+                    dcc.Dropdown(
+                        id = 'ma-term-selector',
+                        options = [{'label':i,'value':i} for i in CLASS_TERMS],
+                        value =CLASS_TERMS[0],
+                        )
+                    ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
+                ],style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-grade',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            ],className = 'son-row-wrap')
+        ],className = 'one-row'),
     
     html.Div(id = 'ma-means-show', children = [
         html.Div(children = [
-            html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
-            html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-exam-container',children = [
+                html.H6(children = '请选择考试:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+                html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'}),
+                ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-subject',children = [
+                html.H6(children = '请选择课程:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+                html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'}),
+            ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
         ], className = 'son-row-wrap'),
     ],className = 'one-row'),
 
@@ -39,14 +46,21 @@ mass_layout = html.Div([
     
     html.Div(id = 'ma-last-row',children = [
         html.Div(id = 'ma-inner-class',children = [
-            html.Div(id = 'ma-select-class',style = {'display':'inline-block','margin':'10px','width':'30%'}),
-            html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin':'10px','width':'30%'}),
+            html.Div(id = 'ma-select-class-container',children = [
+                    html.H6(children = '请选择班级:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+                    html.Div(id = 'ma-select-class',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
+                ],style = {'display':'inline-block','margin':'10px','width':'30%'}),
+            html.Div(id = 'ma-select-subject-innerclass-container',children = [
+                html.H6(children = '请选择课程:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+                html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
+            ],style = {'display':'inline-block','margin':'10px','width':'30%'}),
             html.Div(id = 'ma-select-score-type',style = {'display':'inline-block','margin':'10px','width':'30%'},children = [
-                dcc.Dropdown(
+                html.H6(children = '请选择分数类型:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+                html.Div(id = 'ma-select-score-type-container',children = [dcc.Dropdown(
                     id = 'ma-score-type-selector',
                     options = [{'label':'原始分','value':'score'},{'label':'标准分','value':'t_score'},{'label':'离均值','value':'div'}],
                     value ='score',
-                    )
+                )],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
             ]),
         ],className = 'son-row-wrap'),
 
@@ -63,13 +77,13 @@ def ma_select_term(term):
     data = get_classes_by_term(term)
     grades = open_grade_sep(data)
     return [html.H6('请选择年级:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-        html.Div(children = [
-             dcc.Dropdown(
-                id = 'ma-grade-selector',
-                options = [{'label':i,'value':i} for i in grades],
-                value = grades[0],
-            )
-        ], style = {'display':'inline-block','width':'40%','vertical-align':'middle'})
+                html.Div(children = [
+                    dcc.Dropdown(
+                        id = 'ma-grade-selector',
+                        options = [{'label':i,'value':i} for i in grades],
+                        value = grades[0],
+                    )
+        ], style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
    ]
 
 @app.callback(
@@ -195,7 +209,7 @@ def ma_gen_rank(class_,subject,score_type,grade,exam):
     class_name = get_class_name(class_)
     res = res[['student_id','name',score_type,'rank']]
     header = ['学号','姓名','分数','排名']
-    return dash_table(header,res.T,'class-rank-by-exam-table','{0}{1}班{2}{3}排名'.format(EXAMS[exam],class_name,subject,SCORE_TYPE[score_type]))
+    return dash_table(header,res.T,'class-rank-by-exam-table','{0}{1}班{2}{3}排名'.format(EXAMS[exam],class_name,subject,ScoreType[score_type]))
 
 @app.callback(
     Output('ma-class-grade-static','children'),
@@ -210,6 +224,6 @@ def ma_gen_ditribution(class_,subject,score_type,grade,exam):
     header,value = static_header_trans(res,exam,score_type)
     x_t = '分数段'
     y_t = '人数'
-    title = '{0}{1}班{2}{3}分布'.format(EXAMS[exam],class_name,subject,SCORE_TYPE[score_type])
+    title = '{0}{1}班{2}{3}分布'.format(EXAMS[exam],class_name,subject,ScoreType[score_type])
     id_ = 'ma-grade-bar-{0}'.format(class_)
     return dash_bar(header,value,x_t,y_t,id_,title)

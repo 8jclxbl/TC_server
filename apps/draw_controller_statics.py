@@ -45,16 +45,18 @@ class controller_statics:
 
     def gen_layout(self):
         layout = [
-            html.Div(id = 'select-term', children = [
-                dcc.Dropdown(
-                    id = 'term-selector',
-                    options = [{'label':i,'value':i} for i in self.terms],
-                    value = self.terms[0],
-                    clearable = False
-                ),
-            ],
-            style = {'width':'30%','margin-left':'10px','margin-left':'10px'}
-            ),
+            html.Div(id = 'controller-static-container',children = [
+                html.H6('请选择学期',style = {'display':'inline-block','margin-left':'10px','margin-left':'10px'}),
+                html.Div(id = 'select-term', children = [
+                    dcc.Dropdown(
+                        id = 'term-selector',
+                        options = [{'label':i,'value':i} for i in self.terms],
+                        value = self.terms[0],
+                        clearable = False
+                    ),
+                ],style = {'display':'inline-block','width':'30%','margin-left':'10px','margin-left':'10px','vertical-align':'middle'}),
+            ]),
+            
             html.Div(
                 id = 'controller-statics',
             ),

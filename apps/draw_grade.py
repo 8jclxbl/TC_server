@@ -9,15 +9,16 @@ from app import app
 from models.globaltotal import GENERE_EXAM_ID,SUBJECT_COLOR,SOCRE_TYPE_COLOR
 from models.student import get_predict_rank
 
+ScoreType = {'score':'分数','t_score':'T值','z_score':'Z值','r_score':'等第'}
 #data_structure {subject_name:{type:{exam:score}}}
 
 def draw_line(subject_name,type_name,data):
     return go.Scatter(
         x = data['head'],
         y = data['score'],
-        name = subject_name + ' ' + type_name,
+        name = subject_name + ' ' + ScoreType[type_name],
         mode = 'lines+markers',
-        text = ['{0}{1}{2}:{3}'.format(k,subject_name,type_name,v) for k,v in zip(data['head'],data['score'])],
+        text = ['{0}{1}{2}:{3}'.format(k,subject_name,ScoreType[type_name],v) for k,v in zip(data['head'],data['score'])],
         marker = dict(
             symbol='circle',
             size = 8, 

@@ -8,7 +8,7 @@ from app import app
 welcome_layout = [
     html.Div(id = 'preview',children = [
         html.Div(id = 'w-title-container',children = [
-            html.H3('数智教育”可视化大赛参赛作品'),
+            html.H3('“数智教育”数据可视化创新大赛作品'),
         ],style = {'text-align':'center'}),
         html.Div(id = 'w-team-name', children = [
             html.H5('参赛队伍名称：忽然之间克哈的霓虹为我在闪烁'),
