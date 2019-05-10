@@ -220,8 +220,6 @@ class ClassInfo:
 
     #根据班级id获取本班的所有考试的成绩
     def get_grade(self):
-        #self.all_grade = get_all_grade_by_class_id(self.id)
-        #self.all_grade = get_grade_by_class_id_sql(self.id)
         self.all_grade = get_all_grade_by_class_id_total(self.id)
 
     #获取本班的所有考试

@@ -1,9 +1,4 @@
 import dash_html_components as html 
-import dash_core_components as dcc
-from dash.dependencies import Input,Output,State
-from app import app
-
-
 
 welcome_layout = [
     html.Div(id = 'preview',children = [
@@ -66,7 +61,5 @@ welcome_layout = [
                         ],style = {'margin-left':'5%','margin-right':'5%','padding-bottom':'10%'}
             )
         ])
-    ],className = 'text-container'),
-
-    
+    ],className = 'text-container'), 
 ]

@@ -1,10 +1,10 @@
-from app import db,session
+from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,Sushe
 import pandas as pd
 
 #获取全部的科目信息
 def get_all_subject():
-    subjects = db.session.query(Subject).all()
+    subjects = session.query(Subject).all()
     sub_dic = {}
     for i in subjects:
         sub_dic[i.id] = i.name
@@ -12,7 +12,7 @@ def get_all_subject():
     return sub_dic
 
 def get_all_controller():
-    controllers = db.session.query(Controller).all()
+    controllers = session.query(Controller).all()
     controllers_table = {}
     for i in controllers:
         controllers_table[i.task_id] = i.name + ':' + i.task_name
@@ -20,7 +20,7 @@ def get_all_controller():
 
 #获取所有的考试名称
 def get_exam_name():
-    exams = db.session.query(Exam).all()
+    exams = session.query(Exam).all()
     exam_table = {}
     for i in exams:
         exam_table[i.id] = i.name.strip()

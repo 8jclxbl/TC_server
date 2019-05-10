@@ -1,4 +1,4 @@
-from app import db
+from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,SubjectSelect
 from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE
 import pandas as pd
@@ -6,7 +6,7 @@ import pandas as pd
 
 #获取所有的班级，返回字典结构
 def get_all_calsses_raw():
-    info = db.session.query(Class_).all()
+    info = session.query(Class_).all()
 
     class_ids = []
     class_terms = []
@@ -25,12 +25,8 @@ def get_all_calsses():
     data = get_all_calsses_raw()
     return pd.DataFrame(data)
 
-def get_class_name(cla_id):
-    info = db.session.query(Class_.name).filter_by(id = cla_id).first()
-    return info[0]
-
 def get_classes_by_term(term):
-    info = db.session.query(Class_).filter_by(term = term).all()
+    info = session.query(Class_).filter_by(term = term).all()
     class_ids = []
     class_terms = []
     class_names = []
@@ -46,9 +42,9 @@ def get_classes_by_term(term):
 #根据班级id获取所有的学生，返回字典结构
 def get_all_student_by_class_id_raw(cla_id):
     cla_id = int(cla_id)
-    info = db.session.query(CurStudent.id,CurStudent.name).filter_by(class_id = cla_id).all()
+    info = session.query(CurStudent.id,CurStudent.name).filter_by(class_id = cla_id).all()
     if not info:
-        info = db.session.query(GradStudent).filter_by(class_id = cla_id).all()
+        info = session.query(GradStudent).filter_by(class_id = cla_id).all()
         if not info: return None
 
     student_names = []
@@ -61,8 +57,6 @@ def get_all_student_by_class_id_raw(cla_id):
     data = {'student_id':student_ids,'student_name':student_names}
     return data
 
-
-
 #根据班级id
 def get_all_student_by_class_id(cla_id):
     return pd.DataFrame(get_all_student_by_class_id_raw(cla_id))
@@ -71,9 +65,9 @@ def get_all_student_by_class_id(cla_id):
 #根据班级id获取班级学生和姓名的对照字典
 def get_all_dict_by_class_id(cla_id):
     cla_id = int(cla_id)
-    info = db.session.query(CurStudent.id,CurStudent.name).filter_by(class_id = cla_id).all()
+    info = session.query(CurStudent.id,CurStudent.name).filter_by(class_id = cla_id).all()
     if not info:
-        info = db.session.query(GradStudent).filter_by(class_id = cla_id).all()
+        info = session.query(GradStudent).filter_by(class_id = cla_id).all()
         if not info: return None
     student = {}
     for i in info:
@@ -88,47 +82,6 @@ def get_all_grade_by_class_id_total(cla_id):
 
     return data[['student_id','exam_id','subject','score','z_score','t_score','r_score','div']]
 
-#根据班级id获取班级成绩
-def get_all_grade_by_class_id(cla_id):
-    #students = get_all_dict_by_class_id(cla_id)
-    info = db.session.query(ExamRes).filter_by(class_id = cla_id).all()
-
-    exam_ids = []
-    #student_names = []
-    subjects = []
-    scores = []
-    z_scores = []
-    t_scores = []
-    r_scores = []
-    student_ids = []
-     
-    for i in info:
-        student_ids.append(i.student_id)
-        #student_names.append(students[i.student_id])
-        exam_ids.append(i.exam_id)
-        subjects.append(SUBJECTS[i.subject_id] if i.subject_id > 0 else '缺失科目信息')
-        scores.append(i.score)
-        z_scores.append(i.z_score)
-        t_scores.append(i.t_score)
-        r_scores.append(i.r_score)
-
-    #data = {'student_id':student_ids,'name':student_names,'exam_id':exam_ids,'subject':subjects,
-            #'score':scores,'z_score':z_scores,'t_score':t_scores,'r_score':r_scores}
-
-    data = {'student_id':student_ids,'exam_id':exam_ids,'subject':subjects,
-            'score':scores,'z_score':z_scores,'t_score':t_scores,'r_score':r_scores}
-    return pd.DataFrame(data)
-
-def get_grade_by_class_id_sql(cla_id):
-    session = db.session
-    sql_ = session.query(ExamRes).filter_by(class_id = cla_id).statement
-    info = pd.read_sql_query(sql_,session.bind)
-    subject = SUBJECTS
-    subject[-1] = '缺失科目信息'
-    info['subject'] = [subject[i] for i in info.subject_id.values]
-    info = info[['student_id','exam_id','subject','score','z_score','t_score','r_score']]
-    return info
-
 #获取一个班级所有考试的最高分和最低分
 def class_grade_process(df):
     #考试的学科
@@ -140,7 +93,6 @@ def class_grade_process(df):
     maxs = []
     mins = []
 
-    
     for i in subjects:
         data = df.loc[(df['subject'] == i) & (df['score'] > 0)]
         group_by_exam = data.groupby('exam_id')
@@ -160,9 +112,9 @@ def class_grade_process(df):
 #基于之前获取的7选三表，直接读取七选三数据
 def sql_73(cla_id = None):
     if not cla_id:
-        info = db.session.query(SubjectSelect).all()
+        info = session.query(SubjectSelect).all()
     else:
-        info = db.session.query(SubjectSelect).filter_by(class_id = cla_id).all()
+        info = session.query(SubjectSelect).filter_by(class_id = cla_id).all()
     student_ids = []
     student_names = []
     class_ids = []
@@ -174,66 +126,4 @@ def sql_73(cla_id = None):
         subject_names.append(i.subjects)
 
     data = {'student_id':student_ids,'student_name':student_names,'class_id':class_ids,'subjects':subject_names}
-    return pd.DataFrame(data)
-
-#计算七选三数据
-def get_7_3(cla_id):
-    students = get_all_student_by_class_id_raw(cla_id)
-    ids = students['student_id']
-    names = students['student_name']
-    length = len(ids)
-
-    student_ids = []
-    class_ids = []
-    student_names = []
-    subjects = []
- 
-    for i in range(length):
-        student_ids.append(ids[i])
-        student_names.append(names[i])
-        class_ids.append(cla_id)
-
-        sub_temp = set()
-        for exam in NEED_PROCESS:
-            info = db.session.query(ExamRes.subject_id,ExamRes.score).filter_by(exam_id = exam, student_id = ids[i]).all()
-            sub_temp = sub_temp.union(set([i[0] for i in info if i[1] > 0]))
-        if len(sub_temp) == 7:
-            sub_temp = sub_temp.difference({1,2,3,59})
-        else:
-            sub_temp = sub_temp.difference({1,2,3})
-        subjects.append([SUBJECTS[i] for i in sub_temp])
-
-    data = {'student_id':student_ids,'student_name':student_names,'class_id':class_ids,'subject':subjects}
-    return pd.DataFrame(data)
-
-#计算七选三数据，较上面的函数快一些
-def get_7_3_by_df(df,cla_id):
-    partition_by_exam = {}
-    for exam in NEED_PROCESS:
-        partition_by_exam[exam] = df.loc[(df['exam_id'] == exam) & (df['score']> 0)][['student_id','name','subject']]
-    
-    students = partition_by_exam[exam][['student_id','name']].drop_duplicates().values
- 
-    student_ids = []
-    class_ids = []
-    student_names = []
-    subjects = []
-
-    for i in students:
-        student_ids.append(i[0])
-        student_names.append(i[-1])
-        class_ids.append(cla_id)
-        sub_temp = set()
-        for exam in NEED_PROCESS:
-            cur = partition_by_exam[exam]
-            subs = cur.loc[cur['student_id'] == i[0]]['subject'].values
-            sub_temp = sub_temp.union(set(subs))
-        if len(sub_temp) == 7:
-            sub_temp = sub_temp.difference({'语文','数学','英语','技术'})
-        elif len(sub_temp) == 6:
-            sub_temp = sub_temp.difference({'语文','数学','英语'})
-        if len(sub_temp) == 3:
-            subjects.append(list(sub_temp))
-
-    data = {'student_id':student_ids,'student_name':student_names,'class_id':class_ids,'subject':subjects}
     return pd.DataFrame(data)

@@ -159,7 +159,8 @@ def dash_DropDown(id_,title_,option_label,option_value,default_value):
             dcc.Dropdown(
                 id = id_,
                 options = [{'label':i,'value':j} for i,j in zip(option_label,option_value)],
-                value = default_value
+                value = default_value,
+                clearable = False,
             )
         ],style = {'display':'inline-block','width':'50%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'})        
     ]

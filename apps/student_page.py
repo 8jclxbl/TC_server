@@ -84,9 +84,10 @@ def select_student(n_clicks,value):
                 info = get_grad_student_info_by_student_id(stu_id)
                 is_grad = True
             except AttributeError:
-                return "此学生的部分信息有缺失"
+                return find_nothing("此学生的部分信息有缺失")
 
         student_infos = simple_table(info,'学生{0}基本信息'.format(stu_id))
+
         if is_grad:
             return [student_infos]
 
@@ -95,8 +96,7 @@ def select_student(n_clicks,value):
         student_teachers = simple_table(teachers,'学生{0}各科教师'.format(stu_id))
         return [student_infos,student_teachers]
     except ValueError:
-        return "学号应该是纯数字"
-
+        return find_nothing("学号应该是纯数字")
 
 
 @app.callback(
@@ -178,7 +178,7 @@ def consumption_selector(graph_table,intervel,stu_id):
 )
 def graph_table_lantent(aspect):
     if aspect == 'controller-st' :
-       return {'display':'None'}
+        return {'display':'None'}
     else:
         return {'width':'30%','display':'inline-block','margin-left':'10px','margin-right':'10px'}
 

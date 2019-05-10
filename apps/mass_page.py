@@ -3,8 +3,8 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.globaltotal import CLASS_TERMS,EXAMS
-from models.subject import get_classes_by_term,get_class_name
+from models.globaltotal import CLASS_TERMS,EXAMS,CLASS_TABLE
+from models.subject import get_classes_by_term
 from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class,dash_compare_bar
 from apps.simple_chart import dash_table,dash_bar,find_nothing,dash_DropDown
 
@@ -109,8 +109,7 @@ def ma_gen_subject_select(exam,grade):
     [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
 )
 def ma_select_subject(subject,grade,exam):
-    if not subject or not exam:
-        return find_nothing('此学期当前年级无考试记录')
+    if not subject or not exam:return find_nothing('此学期当前年级无考试记录')
             
     res = ma.get_mean_by_grade_exam(grade,exam,subject)
     res = res.sort_values('mean',ascending = False)
@@ -125,8 +124,7 @@ def ma_select_subject(subject,grade,exam):
     [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
 )
 def ma_gen_distribute_compare(subject,grade,exam):
-    if not subject or not exam:
-        return find_nothing('此学期当前年级无考试记录')
+    if not subject or not exam:return find_nothing('此学期当前年级无考试记录')
             
     res = ma.total_distribute_compare(grade,exam,subject)
     return dash_compare_bar(res,'成绩区间','人数','ma-distribute-compare-bar','{0}{1}{2}成绩分布比较'.format(EXAMS[exam],grade,subject))
@@ -171,10 +169,9 @@ def ma_gen_rank(class_,subject,score_type,grade,exam):
     class_info = ClassInfo(class_)
     res =class_info.rank_grade(exam,subject,score_type)
     if res.empty:return find_nothing('此班级此次考试数据缺失')
-    class_name = get_class_name(class_)
     res = res[['student_id','name',score_type,'rank']]
     header = ['学号','姓名','分数','排名']
-    return dash_table(header,res.T,'class-rank-by-exam-table','{0}{1}班{2}{3}排名'.format(EXAMS[exam],class_name,subject,ScoreType[score_type]))
+    return dash_table(header,res.T,'class-rank-by-exam-table','{0}{1}班{2}{3}排名'.format(EXAMS[exam],CLASS_TABLE[class_],subject,ScoreType[score_type]))
 
 @app.callback(
     Output('ma-class-grade-static','children'),
@@ -184,11 +181,13 @@ def ma_gen_rank(class_,subject,score_type,grade,exam):
 def ma_gen_ditribution(class_,subject,score_type,grade,exam):
     class_info = ClassInfo(class_)
     res =class_info.static_grade(exam,subject,score_type)
+
     if not res:return find_nothing('此班级此次考试数据缺失')
-    class_name = get_class_name(class_)
+
     header,value = static_header_trans(res,exam,score_type)
     x_t = '分数段'
     y_t = '人数'
-    title = '{0}{1}班{2}{3}分布'.format(EXAMS[exam],class_name,subject,ScoreType[score_type])
+    title = '{0}{1}班{2}{3}分布'.format(EXAMS[exam],CLASS_TABLE[class_],subject,ScoreType[score_type])
     id_ = 'ma-grade-bar-{0}'.format(class_)
+    
     return dash_bar(header,value,x_t,y_t,id_,title)

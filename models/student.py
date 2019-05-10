@@ -1,16 +1,16 @@
-from app import db,session
+from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Consumption,Class_,Lesson,Teacher,StudyDays,ExamType,ConsumptionPredict,RankPredict
 import pandas as pd
 
-from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS
+from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE
 
 
 #简单的信息单行表同一返回以下结构的字典
 #{'index'：表头信息，'value'：表中数据}
 #根据学生id来获取学生的所有信息
 def get_student_info_by_student_id(stu_id):
-    student = db.session.query(CurStudent).filter_by(id = stu_id).first()
-    class_info = db.session.query(Class_).filter_by(id = student.class_id).first()
+    student = session.query(CurStudent).filter_by(id = stu_id).first()
+    class_info = session.query(Class_).filter_by(id = student.class_id).first()
     index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','政治面貌','班级','班级编号','班级学期','是否住校','是否退学','寝室号']
     zhusu = '是' if student.zhusu else '否'
     tuixue = '是' if student.leave_school else '否'
@@ -21,30 +21,28 @@ def get_student_info_by_student_id(stu_id):
     return {'index':index, 'value':value}
 
 def get_grad_student_info_by_student_id(stu_id):
-    student = db.session.query(GradStudent).filter_by(id = stu_id).first()
-    class_info = db.session.query(Class_).filter_by(id = student.class_id).first()
+    student = session.query(GradStudent).filter_by(id = stu_id).first()
+    class_info = session.query(Class_).filter_by(id = student.class_id).first()
     index = ['学号','姓名','班级名称','班级编号','班级学期']
     value = [stu_id,student.name,class_info.name,student.class_id,class_info.term]
     return {'index':index, 'value':value}
 
 #根据班级编号来获取所有班级的任课教师
 def get_teachers_by_class_id(cla_id):
-    lessons = db.session.query(Lesson).filter_by(class_id = cla_id).all()
+    lessons = session.query(Lesson).filter_by(class_id = cla_id).all()
     subjects_table = SUBJECTS
 
     subjects = []
     teachers = []
     for i in lessons:
-        teacher = db.session.query(Teacher).filter_by(id = i.teacher_id).first()
+        teacher = session.query(Teacher).filter_by(id = i.teacher_id).first()
         subjects.append(subjects_table[i.subject_id])
         teachers.append(teacher.name)
     return {'index':subjects,'value':teachers}
 
-
-
 #基于学生id查询考勤信息, type: int
 def controller_info_by_student_id(stu_id):
-    infos = db.session.query(ControllerInfo).filter_by(student_id = stu_id).all()
+    infos = session.query(ControllerInfo).filter_by(student_id = stu_id).all()
     type_table = CONTROLLER_TABLE
     
     type_ids = []
@@ -57,10 +55,7 @@ def controller_info_by_student_id(stu_id):
         type_ids.append(i.type_id)
         dates.append(i.date_time)
         terms.append(i.Term)
-        if i.class_id != cur_class_id:
-            cla_info = db.session.query(Class_).filter_by(id = i.class_id).first()
-            cur_class_id = i.class_id
-        class_.append(cla_info.name)
+        class_.append(CLASS_TABLE[i.class_id])
             
 
     data = {'dates':dates,'types':type_ids,'terms':terms,'class':class_}
@@ -69,7 +64,7 @@ def controller_info_by_student_id(stu_id):
 
 #以pd.dataframe的格式来输出查询结果
 def consumption_by_student_id(stu_id):
-    infos = db.session.query(Consumption).filter_by(student_id = stu_id).all()
+    infos = session.query(Consumption).filter_by(student_id = stu_id).all()
 
     date = []
     time = []
@@ -111,32 +106,26 @@ def get_predict_rank(stu_id):
     return result
 
 def get_study_days_by_start_year(year):
-    info = db.session.query(StudyDays).filter_by(year = year).first()
+    info = session.query(StudyDays).filter_by(year = year).first()
     data = [info.term_one,info.term_two_first,info.term_two_second,info.term_two_trird]
     return data
 
-def get_all_exam_type():
-    info = db.session.query(ExamType).all()
-    exam_dic = {}
-    for i in info:
-        exam_dic[i.id] = i.name
-    return exam_dic   
 
 def get_student_grades_by_student_id(stu_id):
     data = TOTAL_GRADE.loc[TOTAL_GRADE['student_id'] == int(stu_id)].copy()
     data = data.sort_values('exam_id')
 
-    Test_ids    = []
-    Exam_ids    = []
-    Exam_names  = []
-    Subject_ids = []
-    Subjects    = []
-    Scores      = []
-    Zscores     = []
-    Tscores     = []
-    Rscores     = []
-    Means       = []
-    Divs        = []
+    Test_ids     = []
+    Exam_ids     = []
+    Exam_names   = []
+    Subject_ids  = []
+    Subjects     = []
+    Scores       = []
+    Zscores      = []
+    Tscores      = []
+    Rscores      = []
+    Means        = []
+    Divs         = []
     G_ranks      = []
     C_ranks      = []
 
@@ -180,42 +169,6 @@ def get_student_totals_by_student_id(stu_id):
     data = {'exam_name':exams,'total':totals,'div':divs,'Grank':g_ranks,'Crank':c_ranks}
     return pd.DataFrame(data)
 
-"""
-def get_student_grades_by_student_id(stu_id):
-    info = db.session.query(ExamRes).filter_by(student_id = stu_id).order_by(ExamRes.test_id).all()
-    
-    Test_ids    = []
-    Exam_ids    = []
-    Exam_names  = []
-    Subject_ids = []
-    Subjects    = []
-    Scores      = []
-    Zscores     = []
-    Tscores     = []
-    Rscores     = []
-
-    last_exam_id = -1
-
-    for i in info:
-        Test_ids.append(i.test_id)
-        Exam_ids.append(i.exam_id)
-
-        if i.exam_id != last_exam_id:
-            exam_info = db.session.query(Exam).filter_by(id = i.exam_id).first()
-            last_exam_id = i.exam_id
-        Exam_names.append(exam_info.name.strip())
-        Subjects.append(SUBJECTS[int(i.subject_id)] if i.subject_id > 0 else '此次考试科目数据缺失')
-        Subject_ids.append(int(i.subject_id))
-        Scores.append(i.score if i.score >= 0 else GRADETYPE[int(i.score)])
-        Zscores.append(i.z_score if i.z_score != -6 else '考试状态异常')
-        Tscores.append(i.t_score if i.t_score != -6 else '考试状态异常')
-        Rscores.append(i.r_score if i.r_score != -6 else '考试状态异常')
-
-    data = {'test_id':Test_ids,'exam_id':Exam_ids,'exam_name':Exam_names,'subject_id':Subject_ids,'subject':Subjects,
-        'score':Scores,'z_score':Zscores,'t_score':Tscores,'r_score':Rscores}
-
-    return pd.DataFrame(data)
-"""
 def grade_query_res(stu_id):
     return {'id':stu_id,'data':get_student_grades_by_student_id(stu_id)}
 

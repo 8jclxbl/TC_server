@@ -3,3 +3,4 @@ models/__pycache__/
 *.pyc
 config.py
 index.py
+.flaskenv

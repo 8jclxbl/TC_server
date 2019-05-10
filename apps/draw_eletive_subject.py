@@ -4,8 +4,7 @@ import plotly.graph_objs as go
 import pandas as pd
 
 from dash.dependencies import Input,Output
-from models.subject import get_class_name
-from models.globaltotal import PIE_COLOR_MAP
+from models.globaltotal import PIE_COLOR_MAP,CLASS_TABLE
 from app import app
 
 
@@ -62,7 +61,7 @@ class EletiveSubject:
         data = self.statics_by_class(cla_id)
         index = data.index
         value = data.values
-        return self.draw_bar(index,value,'class-bar-'+str(cla_id),'课程组合','人数',get_class_name(cla_id) + '班七选三分布')
+        return self.draw_bar(index,value,'class-bar-'+str(cla_id),'课程组合','人数',CLASS_TABLE[cla_id] + '班七选三分布')
 
     def draw_by_one_subject(self):
         data = self.statics_by_one_subject()
@@ -73,7 +72,7 @@ class EletiveSubject:
     def draw_by_subjects(self,subjects):
         data = self.statics_by_subjects(subjects)
         index = data.index
-        index = [get_class_name(i) + '班' for i in index]
+        index = [CLASS_TABLE[i] + '班' for i in index]
         value = data.values
         return self.draw_bar(index,value,'班级','人数','subjects-bar',subjects)
 

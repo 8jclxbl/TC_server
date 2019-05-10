@@ -3,9 +3,8 @@ import dash_core_components as dcc
 import plotly.graph_objs as go
 
 import pandas as pd 
-from app import app
-from apps.simple_chart import dash_table,dash_table_predict
 
+from apps.simple_chart import dash_table,dash_table_predict
 from models.student import get_predict_consumption
 
 title_table = {'Year':'年','Month':'月','Day':'日','Total':'总'}
@@ -58,12 +57,14 @@ def consumption_data_seperate(data, sep):
             sumed.index = [str(i.year) +'-'+ str(i.month) + '-' + str(i.day) for i in sumed.index]
         elif sep == 'Month':
             last_ = sumed.index[-1]
+
             if last_.month == 12:
                 last_month = 1
                 last_year = int(last_.year) + 1
             else:
                 last_year = int(last_.year)
                 last_month = int(last_.month) + 1
+
             last_index = str(last_year) + '-' +str(last_month) 
             sumed.index = [str(i.year) +'-'+ str(i.month) for i in sumed.index]
             return {'data':sumed,'title_part':interval,'predict':[last_index,predict[0],predict[1]]}
@@ -176,47 +177,4 @@ def consumption_bar_dorm_month_compare(sumed,dorm_id):
             style = {'align':'center','width':'80%','margin-left': '10%','margin-right': '10%'},
         )
 
-def consumption_line_chart(query_res):
-    data = query_res['data']
-    text = query_res['text']
-    x = data['date']
-    y = data['money']
-    
-    total = [consumption_graph(x,y,text)]
-    return dcc.Graph(
-            id = 'student-consumption',
-            figure = {
-                'data':total,
-                'layout': go.Layout(  
-                    autosize=False,     
-                    hovermode='closest',  
-                    dragmode='select',     
-                    title='学生{0}消费记录统计'.format(query_res['id']),
-                    xaxis = dict(title = '日期', showline = True),
-                    yaxis = dict(title = '时间', showline = True),
-                    legend=dict(
-                        font=dict(
-                            size=10,
-                        ),
-                        yanchor='top',
-                        xanchor='left',
-                    ),
-                    margin=dict(l=140,r=40,b=50,t=80),
-                )
-            }
-        )
-
-def consumption_graph(x,y,text):
-    return go.Scatter(
-        x = x,
-        y = y,
-        mode = 'lines+markers',
-        text = text,
-        marker = dict(
-            symbol='circle',
-            size = 8, 
-            colorscale='Viridis',
-            showscale=False,
-            )
-        )
 
