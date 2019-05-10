@@ -5,7 +5,7 @@ from app import app
 
 from models.globaltotal import CLASS_TERMS,THIRD_GRADE
 from models.subject import get_all_calsses,get_all_grade_by_class_id,class_grade_process,get_7_3,sql_73,get_class_name,get_all_grade_by_class_id_total
-from apps.simple_chart import dash_table,dash_min_max_line
+from apps.simple_chart import dash_table,dash_min_max_line,dash_DropDown
 from apps.draw_eletive_subject import EletiveSubject
 
 info = sql_73()
@@ -13,28 +13,20 @@ es = EletiveSubject(info)
 
 subject_layout = html.Div([
     html.Div(id = 'sa-class-grade-title',children = [html.H4('班级历史得分趋势',style = {'font-weight':'bold'})],className = 'one-row'),
+    
     html.Div(id= 'sa-class-term-select', children = [
-        html.Div(id = 'sa-select-term-container',children = [
-            html.H6('请选择要统计的学期：',style = {'display':'inline-block','margin-left':'10px'}),
-            html.Div(id = 'sa-select-term',children = [
-                    dcc.Dropdown(
-                    id = 'sa-term-selector',
-                    options = [{'label':i,'value':i} for i in CLASS_TERMS],
-                    value =CLASS_TERMS[0],
-                )],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'}),
-        ],style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+        html.Div(id = 'sa-select-term',children = dash_DropDown('sa-term-selector','请选择要统计的学期:',CLASS_TERMS,CLASS_TERMS,CLASS_TERMS[0]),
+        style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
         
         html.Div(id = 'sa-select-class-container',children = [
-            html.H6('请选择要统计的班级：',style = {'display':'inline-block','margin-left':'10px'}),
             html.Div(id = 'sa-select-class', style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
         ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
     ],className = 'one-row'),
     
     html.Div(id = 'sa-class-grade-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
+
     html.Div(id = 'sa-select-subject-container',children = [
-        html.Div(id = 'sa-select-subject-title',children = html.H6('请选择课程：'),style = {'display':'inline-block','width':'40%','margin-left':'10px'}),
-        html.Div(id = 'sa-select-subject',style = {'display':'inline-block','width':'30%','margin-left':'10px','vertical-align':'middle'})]
-        ,className = 'one-row'),
+        html.Div(id = 'sa-select-subject',style = {'display':'inline-block','width':'30%','margin-left':'10px','vertical-align':'middle'})],className = 'one-row'),
     
     html.Div(id = 'sa-class-grade-graph',className = 'one-row'),
 
@@ -49,31 +41,14 @@ subject_layout = html.Div([
 
         html.Div(id = 'sa-73-show-down',children = [
             html.Div(children = [
-                html.Div(children = [
-                    html.Div(html.H6('请选择统计的班级：'),style = {'display':'inline-block','width':'35%','margin-left':'10px','margin-right':'10px'}),
-                    html.Div(dcc.Dropdown(
-                        id = 'sa-third-class-selector',
-                        options = [{'label':v,'value':k} for k,v in THIRD_GRADE.items()],
-                        value = 921,
-                        style = {'margin-top':'10px','margin-right':'10px','margin-left':'10px'}
-                    ),style = {'display':'inline-block','width':'40%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'}
-                ),    
-            ],className = 'one-row-con'),
+                html.Div(id = 'sa-73-select-class', children = dash_DropDown('sa-third-class-selector','请选择统计的班级：',THIRD_GRADE.values(),THIRD_GRADE.keys(),list(THIRD_GRADE.keys())[0]),className = 'one-row-con'),
                 html.Div(id = 'sa-73-bar-class'),
             ],
             className = 'left-column'
             ),
             
             html.Div(id = 'sa-73-bar-subjecs-container',children = [
-                html.Div(children = [
-                    html.Div(html.H6('请选择统计的组合：'),style = {'display':'inline-block','width':'35%','margin-left':'10px','margin-right':'10px'}),
-                    html.Div(dcc.Dropdown(
-                        id = 'sa-subjects-selector',
-                        options = [{'label':i,'value':i} for i in es.combines],
-                        value =es.combines[0],
-                    ),style = {'display':'inline-block','width':'40%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'}
-                ),
-                ],className = 'one-row-con'),
+                html.Div(id = 'sa-third-select-combines',children = dash_DropDown('sa-subjects-selector','请选择统计的组合：',es.combines,es.combines,es.combines[0]),className = 'one-row-con'),
                 html.Div(id = 'sa-73-bar-subjects'),
                 ],
             className = 'right-column'
@@ -92,14 +67,9 @@ subject_layout = html.Div([
 def select_term(term):
     df = get_all_calsses()
     data = df.loc[df['term'] == term]
-    names = data['name'].values
     ids = data['id'].values
-    
-    return dcc.Dropdown(
-            id = 'sa-class-selector',
-            options = [{'label':j,'value':i} for i,j in zip(ids,names)],
-            value = ids[0],
-        )
+    names = data['name'].values
+    return dash_DropDown('sa-class-selector','请选择班级:',names,ids,ids[0])
 
 @app.callback(
     Output('sa-select-subject','children'),
@@ -109,11 +79,7 @@ def select_subject(class_):
     class_grade = get_all_grade_by_class_id_total(class_)
     if class_grade.empty:return '缺失此班学生的考试数据'
     subjects = class_grade['subject'].drop_duplicates().values  
-    return dcc.Dropdown(
-            id = 'sa-subject-selector',
-            options = [{'label':i,'value':i} for i in subjects],
-            value = subjects[0],
-        )
+    return dash_DropDown('sa-subject-selector','请选择课程:',subjects,subjects,subjects[0])
 
 @app.callback(
     Output('sa-class-grade-table','children'),

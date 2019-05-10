@@ -6,7 +6,7 @@ from app import app
 from models.globaltotal import CLASS_TERMS,EXAMS
 from models.subject import get_classes_by_term,get_class_name
 from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class,dash_compare_bar
-from apps.simple_chart import dash_table,dash_bar,find_nothing
+from apps.simple_chart import dash_table,dash_bar,find_nothing,dash_DropDown
 
 ScoreType = {'score':'原始分','t_score':'标准分','div':'离均值'}
 ma = None
@@ -14,30 +14,17 @@ ma = None
 mass_layout = html.Div([
     html.Div(id = 'ma-total-selector', children = [
         html.Div(children = [
-            html.Div(id = 'ma-select-term', children = [
-                html.H6(children = '请选择学期:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-                html.Div(children = [
-                    dcc.Dropdown(
-                        id = 'ma-term-selector',
-                        options = [{'label':i,'value':i} for i in CLASS_TERMS],
-                        value =CLASS_TERMS[0],
-                        )
-                    ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
-                ],style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-term', children = dash_DropDown('ma-term-selector','请选择学期:',CLASS_TERMS,CLASS_TERMS,CLASS_TERMS[0]),style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
             html.Div(id = 'ma-select-grade',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
             ],className = 'son-row-wrap')
         ],className = 'one-row'),
     
     html.Div(id = 'ma-means-show', children = [
         html.Div(children = [
-            html.Div(id = 'ma-select-exam-container',children = [
-                html.H6(children = '请选择考试:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-                html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'}),
-                ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
-            html.Div(id = 'ma-select-subject',children = [
-                html.H6(children = '请选择课程:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-                html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'}),
-            ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+
+            html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+
         ], className = 'son-row-wrap'),
     ],className = 'one-row'),
 
@@ -46,22 +33,11 @@ mass_layout = html.Div([
     
     html.Div(id = 'ma-last-row',children = [
         html.Div(id = 'ma-inner-class',children = [
-            html.Div(id = 'ma-select-class-container',children = [
-                    html.H6(children = '请选择班级:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-                    html.Div(id = 'ma-select-class',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
-                ],style = {'display':'inline-block','margin':'10px','width':'30%'}),
-            html.Div(id = 'ma-select-subject-innerclass-container',children = [
-                html.H6(children = '请选择课程:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-                html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
-            ],style = {'display':'inline-block','margin':'10px','width':'30%'}),
-            html.Div(id = 'ma-select-score-type',style = {'display':'inline-block','margin':'10px','width':'30%'},children = [
-                html.H6(children = '请选择分数类型:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-                html.Div(id = 'ma-select-score-type-container',children = [dcc.Dropdown(
-                    id = 'ma-score-type-selector',
-                    options = [{'label':'原始分','value':'score'},{'label':'标准分','value':'t_score'},{'label':'离均值','value':'div'}],
-                    value ='score',
-                )],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
-            ]),
+            html.Div(id = 'ma-select-class',style = {'display':'inline-block','margin':'10px','width':'30%'}),
+            html.Div(id = 'ma-select-subject-innerclass',style = {'display':'inline-block','margin':'10px','width':'30%'}),
+            html.Div(id = 'ma-select-score-type',
+                children = dash_DropDown('ma-score-type-selector','请选择分数类型:',ScoreType.values(),ScoreType.keys(),list(ScoreType.keys())[0]),
+                style = {'display':'inline-block','margin':'10px','width':'30%'}),
         ],className = 'son-row-wrap'),
 
         html.Div(id = 'ma-class-grade-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'left-column'),
@@ -76,15 +52,8 @@ mass_layout = html.Div([
 def ma_select_term(term):
     data = get_classes_by_term(term)
     grades = open_grade_sep(data)
-    return [html.H6('请选择年级:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-                html.Div(children = [
-                    dcc.Dropdown(
-                        id = 'ma-grade-selector',
-                        options = [{'label':i,'value':i} for i in grades],
-                        value = grades[0],
-                    )
-        ], style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
-   ]
+    return dash_DropDown('ma-grade-selector','请选择年级:',grades,grades,grades[0])
+
 
 @app.callback(
     Output('ma-select-exam','children'),
@@ -98,18 +67,18 @@ def ma_select_grade(grade,term):
     cla_id = ma.get_one_class_by_grade(grade)
     cla_info = ClassInfo(cla_id)
     exams = cla_info.get_exam()
+
     if not exams:
-        return dcc.Dropdown(
-                id = 'ma-exam-selector',
-                options = [{'label':'此学期当前年级无考试记录','value':0}],
-                value = 0
-        )
+        labels = ['此学期当前年级无考试记录']
+        values = [0]
+        init_value = 0
     else:
-        return dcc.Dropdown(
-                id = 'ma-exam-selector',
-                options = [{'label':EXAMS[i],'value':i} for i in exams],
-                value = exams[0]
-        )
+        labels = [EXAMS[i] for i in exams]
+        values = exams
+        init_value = exams[0]
+
+    return dash_DropDown('ma-exam-selector','请选择考试：',labels,values,init_value)
+    
 
 @app.callback(
     Output('ma-select-subject','children'),
@@ -123,17 +92,16 @@ def ma_gen_subject_select(exam,grade):
     subjects.append('总')
 
     if not exam:
-        return dcc.Dropdown(
-                id = 'ma-subject-selector',
-                options = [{'label':'此学期当前年级无考试记录','value':0}],
-                value = 0
-        )
+        labels = ['此学期当前年级无考试记录']
+        values = [0]
+        init_value = 0
+        
     else:
-        return dcc.Dropdown(
-                id = 'ma-subject-selector',
-                options = [{'label':i,'value':i} for i in subjects],
-                value = '总'
-        )
+        labels = subjects
+        values = subjects
+        init_value = subjects[0]
+        
+        return dash_DropDown('ma-subject-selector','请选择科目：',labels,values,init_value)
 
 @app.callback(
     Output('ma-class-grade','children'),
@@ -173,12 +141,12 @@ def ma_gen_class_select(grade,term):
     data = get_classes_by_term(term)
     grade_class = open_part_by_grade(data)
     class_id = grade_class[grade]
-    ids = list(class_id.keys())
-    return dcc.Dropdown(
-            id = 'ma-class-selector',
-            options = [{'label':class_id[i],'value':i} for i in ids],
-            value = ids[0]
-    )
+    
+    class_ids = list(class_id.keys())
+    class_names = [class_id[i] for i in class_ids]
+
+    return dash_DropDown('ma-class-selector','请选择班级：',class_names,class_ids,class_ids[0])
+   
 
 @app.callback(
     Output('ma-select-subject-innerclass','children'),
@@ -191,11 +159,8 @@ def ma_select_subject_innerclass(exam,grade,term):
     cla_info = ClassInfo(cla_id)
     subjects = cla_info.get_exam_subjects(exam)
     subjects.append('总')
-    return dcc.Dropdown(
-            id = 'ma-subject-selector-innerclass',
-            options = [{'label':i,'value':i} for i in subjects],
-            value = '总'
-    )
+    return dash_DropDown('ma-subject-selector-innerclass','请选择课程：',subjects,subjects,subjects[-1])
+    
 
 @app.callback(
     Output('ma-class-grade-rank','children'),

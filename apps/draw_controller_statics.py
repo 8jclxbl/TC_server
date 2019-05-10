@@ -5,6 +5,7 @@ import pandas as pd
 
 from dash.dependencies import Input,Output
 from models.student import get_study_days_by_start_year
+from apps.simple_chart import dash_DropDown
 from app import app
 
 type_class = {'arrive_late':[100000,100100,100200,100300,9900100,9900300],'leaving':[200200]}
@@ -44,23 +45,14 @@ class controller_statics:
         self.title = '学生{0}考勤总体状况统计'.format(self.id)
 
     def gen_layout(self):
+        terms = self.terms
+        term_dropdown = dash_DropDown('controller-sta-term-selector','请选择学期',terms,terms,terms[0])
+  
         layout = [
-            html.Div(id = 'controller-static-container',children = [
-                html.H6('请选择学期',style = {'display':'inline-block','margin-left':'10px','margin-left':'10px'}),
-                html.Div(id = 'select-term', children = [
-                    dcc.Dropdown(
-                        id = 'term-selector',
-                        options = [{'label':i,'value':i} for i in self.terms],
-                        value = self.terms[0],
-                        clearable = False
-                    ),
-                ],style = {'display':'inline-block','width':'30%','margin-left':'10px','margin-left':'10px','vertical-align':'middle'}),
-            ]),
-            
-            html.Div(
-                id = 'controller-statics',
-            ),
+            html.Div(id = 'controller-static-container',children = term_dropdown),
+            html.Div(id = 'controller-statics'),
         ]
+
         return layout
     
     def get_grade(self,cla_name):

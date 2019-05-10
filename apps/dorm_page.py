@@ -8,23 +8,17 @@ from models.dorm import get_dorm_by_class_id,get_student_by_dorm_id
 from models.student import get_student_info_by_student_id,consumption_by_student_id
 
 from apps.draw_consumption import consumption_data_seperate,consumption_bar_dorm_month_compare
-from apps.simple_chart import dash_table,find_nothing,simple_table
+from apps.simple_chart import dash_table,find_nothing,simple_table,dash_DropDown
 from apps.util import transpose
 
 class_has_dorm = {i:CLASS_TABLE[i] for i in CLASS_HAS_DORM}
 
 dorm_layout = html.Div([
     html.Div(id = 'dm-select-class',children = [
-        html.Div(children = [
-            html.H6('请选择班级:',style = {'display':'inline-block'}),
-            html.Div(id = 'dm-select-class-container', children = [
-                dcc.Dropdown(
-                    id = 'dm-class-selector',
-                    options = [{'label':j,'value':i} for i,j in class_has_dorm.items()],
-                    value = CLASS_HAS_DORM[0]
-                    )
-            ],style = {'display':'inline-block','width':'40%','vertical-align':'middle','margin-left':'10px','margin-right':'10px'}),],style = {'display':'inline-block','width':'50%'}),
-        
+        html.Div(id = 'dm-select-class',
+            children = dash_DropDown('dm-class-selector','请选择班级：',class_has_dorm.values(),class_has_dorm.keys(),list(class_has_dorm.keys())[0]),
+            style = {'display':'inline-block','width':'50%'}),
+
         html.Div(id = 'dm-select-class-dorm',style = {'display':'inline-block','width':'50%'})
     ],className = 'one-row'),
     html.Div(id = 'ma-info-show-table-container', children = [
@@ -40,16 +34,9 @@ dorm_layout = html.Div([
 )
 def get_dorm_of_class(cla_id):
     dorms = get_dorm_by_class_id(cla_id)
-    return [
-        html.H6('请选择宿舍:',style = {'display':'inline-block'}),
-        html.Div(children = [
-                dcc.Dropdown(
-                id = 'dm-class-dorm-selector',
-                options = [{'label':i,'value':i} for i in dorms],
-                value = dorms[0])
-            ],style = {'display':'inline-block','width':'40%','vertical-align':'middle','margin-left':'10px','margin-right':'10px'}
-        )
-    ]
+    dorms.sort()
+    return dash_DropDown('dm-class-dorm-selector','请选择宿舍:',dorms,dorms,dorms[0])
+   
 
 @app.callback(
     Output('ma-info-show-table','children'),
@@ -63,6 +50,7 @@ def get_student_of_dorm(sushe_id,cla_id):
     for i in students:
         data.append(get_student_info_by_student_id(i)['value'])
     return dash_table(index,transpose(data),'dm-dorm-student-info','{0}宿舍学生数据'.format(sushe_id),300,columnwidth_=[1,1,1,1,1,3,1,1,1,1,1,1,1,1])
+    #return simple_table({'index':index,'value':data},'{0}宿舍学生数据'.format(sushe_id))
     
 @app.callback(
     Output('ma-consumption-compare','children'),

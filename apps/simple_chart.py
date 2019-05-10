@@ -8,19 +8,26 @@ from app import app
 #利用HTML制作的只有一行的表格
 #接受的数据格式
 #{'index'：表头信息，'value'：表中数据}
+
+#此表格已支持多行
 def simple_table(query_res,title_):
     indexs = query_res['index']
     values = query_res['value']
+
+    #判断是否时单行表
+    if isinstance(values[0],list):
+        content = [html.Tr([html.Td(str(value)) for value in column]) for column in values]
+    else:
+        content = [html.Tr([html.Td(str(value)) for value in values])]
 
     #作为图的一个下拉菜单来处理
     return html.Div(children = [
         html.H6(title_,style = {'text-align':'center'}),
         html.Table(
             #表头
-            [html.Tr([html.Th(index) for index in indexs])] + 
+            [html.Tr([html.Th(index) for index in indexs])] + content
             #内容
-            #html.Td如果输入的值为int0的话不会显示
-            [html.Tr([html.Td(str(value)) for value in values])]
+            #html.Td如果输入的值为int0的话不会显示   
         )
     ],style = {'margin-bottom':'10px'})
 
@@ -38,7 +45,6 @@ def text_return(content):
 def dash_table_predict(head_val,value_val,tab_id,title_name = '',predict = None):
     if predict:
         length = len(value_val[0])
-        
         warning = predict[-1]
 
         if warning == 1:
@@ -146,12 +152,17 @@ def dash_bar(head_val,value_val,x_title,y_title,tab_id,title_name = ''):
         )
 
 
-def dash_DropDown(id_,option_label,option_value,default_value):
-    return dcc.Dropdown(
-        id = id_,
-        options = [{'label':i,'value':j} for i,j in zip(option_label,option_value)],
-        value = default_value
-    )
+def dash_DropDown(id_,title_,option_label,option_value,default_value):
+    return [
+        html.H6(title_,style = {'display':'inline-block','width':'30%','margin-left':'10px','margin-right':'10px'}),
+        html.Div(id = id_ + '-container',children = [
+            dcc.Dropdown(
+                id = id_,
+                options = [{'label':i,'value':j} for i,j in zip(option_label,option_value)],
+                value = default_value
+            )
+        ],style = {'display':'inline-block','width':'50%','margin-left':'10px','margin-right':'10px','vertical-align':'middle'})        
+    ]
     
 def dash_min_max_line(data,x_title,y_title,id_,title_name = ''):
     data = data.sort_values('exam_id')
