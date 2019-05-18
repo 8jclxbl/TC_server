@@ -1,9 +1,9 @@
 from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,SubjectSelect
-from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE
+from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE,ALL_CLASSES
 import pandas as pd
 
-
+"""
 #获取所有的班级，返回字典结构
 def get_all_calsses_raw():
     info = session.query(Class_).all()
@@ -27,6 +27,7 @@ def get_all_calsses():
 
 def get_classes_by_term(term):
     info = session.query(Class_).filter_by(term = term).all()
+    
     class_ids = []
     class_terms = []
     class_names = []
@@ -37,6 +38,24 @@ def get_classes_by_term(term):
         class_terms.append(term)
         class_names.append(i.name)
     data = {'id':class_ids,'term':class_terms,'name':class_names}
+    return pd.DataFrame(data)
+"""
+
+
+def get_classes_by_term(term):
+    info = ALL_CLASSES.loc[ALL_CLASSES['class_term'] == term]
+
+    class_ids = []
+    class_terms = []
+    class_names = []
+
+    for i in info.values:
+        if 'IB' in i[2]:continue
+        class_ids.append(i[0])
+        class_terms.append(i[1])
+        class_names.append(i[2])
+    data = {'id':class_ids,'term':class_terms,'name':class_names}
+
     return pd.DataFrame(data)
 
 #根据班级id获取所有的学生，返回字典结构
@@ -74,6 +93,8 @@ def get_all_dict_by_class_id(cla_id):
         student[i.id] = i.name
     return student
 
+#已经CSV化
+#根据班级id获取所有的总分
 def get_all_grade_by_class_id_total(cla_id):
     cla_id = int(cla_id)
     data = TOTAL_GRADE.loc[TOTAL_GRADE['class_id'] == cla_id].copy()

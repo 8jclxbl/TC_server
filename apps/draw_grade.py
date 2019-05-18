@@ -106,10 +106,10 @@ class Grade:
                 dcc.RadioItems(
                     id = 'score-exam-type-selector',
                     options = [
-                        {'label':'平时成绩','value':False},
-                        {'label':'考试','value':True}
+                        {'label':'平时成绩','value':'general'},
+                        {'label':'考试','value':'exam'}
                     ],
-                    value = True, 
+                    value = 'exam', 
                     labelStyle={'display': 'inline-block'},
                     style = {'display':'inline-block'},
                     ),
@@ -276,7 +276,7 @@ class Grade:
 
     #由于将分数与其他的评价指标分开了，所以这里需要将这两个分数分开显示
     def line_data_by_subject_score(self,subject,is_normal_exam):
-        return self.line_data_by_subject(subject,'score')
+        return self.line_data_by_subject(subject,'score',is_normal_exam)
 
     def grade_line_graph_score(self,subject_selected,is_normal_exam):
         total_data = {}

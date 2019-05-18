@@ -2,7 +2,7 @@ from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Consumption,Class_,Lesson,Teacher,StudyDays,ExamType,ConsumptionPredict,RankPredict
 import pandas as pd
 
-from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE
+from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE,ALL_CLASSES
 
 
 #简单的信息单行表同一返回以下结构的字典
@@ -10,21 +10,32 @@ from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,T
 #根据学生id来获取学生的所有信息
 def get_student_info_by_student_id(stu_id):
     student = session.query(CurStudent).filter_by(id = stu_id).first()
-    class_info = session.query(Class_).filter_by(id = student.class_id).first()
+    class_info = ALL_CLASSES.loc[ALL_CLASSES['class_id'] == student.class_id]
+    class_name = class_info['class_name'].values[0]
+    class_term = class_info['class_term'].values[0]
+
     index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','政治面貌','班级','班级编号','班级学期','是否住校','是否退学','寝室号']
     zhusu = '是' if student.zhusu else '否'
     tuixue = '是' if student.leave_school else '否'
     if not student.zhusu:qinshihao = '无'
     else: qinshihao = student.qinshihao
+
     value = [stu_id,student.name,student.sex,student.nation,student.born_year,student.native,student.residence,
-                student.policy,class_info.name,student.class_id,class_info.term,zhusu,tuixue,qinshihao]
+                student.policy,class_name,student.class_id,class_term,zhusu,tuixue,qinshihao]
+
+    #value = [stu_id,student.name,student.sex,student.nation,student.born_year,student.native,student.residence,
+    #           student.policy,class_info.name,student.class_id,class_info.term,zhusu,tuixue,qinshihao]
     return {'index':index, 'value':value}
 
 def get_grad_student_info_by_student_id(stu_id):
     student = session.query(GradStudent).filter_by(id = stu_id).first()
-    class_info = session.query(Class_).filter_by(id = student.class_id).first()
+    class_info = ALL_CLASSES.loc[ALL_CLASSES['class_id'] == student.class_id]
+    class_name = class_info['class_name'].values[0]
+    class_term = class_info['class_term'].values[0]
+    #class_info = session.query(Class_).filter_by(id = student.class_id).first()
     index = ['学号','姓名','班级名称','班级编号','班级学期']
-    value = [stu_id,student.name,class_info.name,student.class_id,class_info.term]
+    #value = [stu_id,student.name,class_info.name,student.class_id,class_info.term]
+    value = [stu_id,student.name,class_name,student.class_id,class_term]
     return {'index':index, 'value':value}
 
 #根据班级编号来获取所有班级的任课教师

@@ -3,8 +3,8 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.globaltotal import CLASS_TERMS,THIRD_GRADE,CLASS_TABLE
-from models.subject import get_all_calsses,class_grade_process,sql_73,get_all_grade_by_class_id_total
+from models.globaltotal import CLASS_TERMS,THIRD_GRADE,CLASS_TABLE,ALL_CLASSES
+from models.subject import class_grade_process,sql_73,get_all_grade_by_class_id_total
 from apps.simple_chart import dash_table,dash_min_max_line,dash_DropDown
 from apps.draw_eletive_subject import EletiveSubject
 
@@ -65,10 +65,10 @@ subject_layout = html.Div([
     [Input('sa-term-selector', 'value')]
 )
 def select_term(term):
-    df = get_all_calsses()
-    data = df.loc[df['term'] == term]
-    ids = data['id'].values
-    names = data['name'].values
+    df = ALL_CLASSES
+    data = df.loc[df['class_term'] == term]
+    ids = data['class_id'].values
+    names = data['class_name'].values
     
     return dash_DropDown('sa-class-selector','请选择班级:',names,ids,ids[0])
 

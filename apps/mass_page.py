@@ -51,9 +51,21 @@ mass_layout = html.Div([
 )
 def ma_select_term(term):
     data = get_classes_by_term(term)
-    grades = open_grade_sep(data)
-    return dash_DropDown('ma-grade-selector','请选择年级:',grades,grades,grades[0])
-
+    if data.empty:
+        labels = ['当前学期无班级记录']
+        values = [0]
+        init_value = 0
+    else:
+        grades = open_grade_sep(data)
+        if not grades:
+            labels = ['当前学期无班级记录']
+            values = [0]
+            init_value = 0
+        else:
+            labels = grades
+            values = grades
+            init_value = grades[0]
+        return dash_DropDown('ma-grade-selector','请选择年级:',labels,values,init_value)
 
 @app.callback(
     Output('ma-select-exam','children'),
@@ -61,21 +73,26 @@ def ma_select_term(term):
     [State('ma-term-selector','value')],
 )
 def ma_select_grade(grade,term):
-    data = get_classes_by_term(term)
-    global ma
-    ma = Mass(data) 
-    cla_id = ma.get_one_class_by_grade(grade)
-    cla_info = ClassInfo(cla_id)
-    exams = cla_info.get_exam()
-
-    if not exams:
-        labels = ['此学期当前年级无考试记录']
+    if not grade:
+        labels = ['此学期无班级记录']
         values = [0]
         init_value = 0
     else:
-        labels = [EXAMS[i] for i in exams]
-        values = exams
-        init_value = exams[0]
+        data = get_classes_by_term(term)
+        global ma
+        ma = Mass(data) 
+        cla_id = ma.get_one_class_by_grade(grade)
+        cla_info = ClassInfo(cla_id)
+        exams = cla_info.get_exam()
+
+        if not exams:
+            labels = ['此学期当前年级无考试记录']
+            values = [0]
+            init_value = 0
+        else:
+            labels = [EXAMS[i] for i in exams]
+            values = exams
+            init_value = exams[0]
 
     return dash_DropDown('ma-exam-selector','请选择考试：',labels,values,init_value)
     
@@ -86,20 +103,25 @@ def ma_select_grade(grade,term):
     [State('ma-grade-selector','value')]
 )
 def ma_gen_subject_select(exam,grade):
-    cla_id = ma.get_one_class_by_grade(grade)
-    cla_info = ClassInfo(cla_id)
-    subjects = cla_info.get_exam_subjects(exam)
-    subjects.append('总')
-
-    if not exam:
-        labels = ['此学期当前年级无考试记录']
+    if not grade:
+        labels = ['此学期无班级记录']
         values = [0]
         init_value = 0
-        
     else:
-        labels = subjects
-        values = subjects
-        init_value = subjects[0]
+        cla_id = ma.get_one_class_by_grade(grade)
+        cla_info = ClassInfo(cla_id)
+        subjects = cla_info.get_exam_subjects(exam)
+        subjects.append('总')
+
+        if not exam:
+            labels = ['此学期当前年级无考试记录']
+            values = [0]
+            init_value = 0
+            
+        else:
+            labels = subjects
+            values = subjects
+            init_value = subjects[0]
         
         return dash_DropDown('ma-subject-selector','请选择科目：',labels,values,init_value)
 
@@ -136,14 +158,27 @@ def ma_gen_distribute_compare(subject,grade,exam):
     [State('ma-term-selector','value')]
 )
 def ma_gen_class_select(grade,term):
-    data = get_classes_by_term(term)
-    grade_class = open_part_by_grade(data)
-    class_id = grade_class[grade]
-    
-    class_ids = list(class_id.keys())
-    class_names = [class_id[i] for i in class_ids]
+    if not grade:
+        labels = ['此学期无班级记录']
+        values = [0]
+        init_value = 0
+    else:
+        data = get_classes_by_term(term)
+        if data.empty:
+            labels = ['此学期无班级记录']
+            values = [0]
+            init_value = 0
+        else:
+            grade_class = open_part_by_grade(data)
+            class_id = grade_class[grade]
+            
+            class_ids = list(class_id.keys())
+            class_names = [class_id[i] for i in class_ids]
+            labels = class_names
+            values = class_ids
+            init_value = values[0]
 
-    return dash_DropDown('ma-class-selector','请选择班级：',class_names,class_ids,class_ids[0])
+    return dash_DropDown('ma-class-selector','请选择班级：',labels,values,init_value)
    
 
 @app.callback(

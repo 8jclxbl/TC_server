@@ -243,6 +243,7 @@ class ClassInfo:
     def mean_grade(self,exam_id,subject):
         data = self.get_exam_grade(exam_id)
         if subject != '总':
+            if data.empty:return 0
             data = data.loc[data['subject'] == subject]
         data = data.loc[data['score'] >= 0]
         if data.empty:return 0
