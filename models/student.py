@@ -2,7 +2,7 @@ from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Consumption,Class_,Lesson,Teacher,StudyDays,ExamType,ConsumptionPredict,RankPredict
 import pandas as pd
 
-from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,LESSON
+from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,LESSON,CONTROLLER_INFO,STUDYDAYS,CONSUMPTION,CONSUMPTION_PREDICT,RANK_PREDICT
 
 
 #简单的信息单行表同一返回以下结构的字典
@@ -50,6 +50,66 @@ def get_teachers_by_class_id(cla_id):
         subjects.append(subjects_table[i.subject_id])
         teachers.append(teacher.name)
     return {'index':subjects,'value':teachers}
+
+#基于学生id查询考勤信息, type: int
+def controller_info_by_student_id(stu_id):
+    infos = session.query(ControllerInfo).filter_by(student_id = stu_id).all()
+    type_table = CONTROLLER_TABLE
+    
+    type_ids = []
+    dates = []
+    terms = []
+    class_ = []
+
+    cur_class_id = -1
+    for i in infos:
+        type_ids.append(i.type_id)
+        dates.append(i.date_time)
+        terms.append(i.Term)
+        class_.append(CLASS_TABLE[i.class_id])
+
+    #基于学生id查询考勤信息, type: int
+def controller_info_by_student_id(stu_id):
+    infos = session.query(ControllerInfo).filter_by(student_id = stu_id).all()
+    type_table = CONTROLLER_TABLE
+    
+    type_ids = []
+    dates = []
+    terms = []
+    class_ = []
+
+    cur_class_id = -1
+    for i in infos:
+        type_ids.append(i.type_id)
+        dates.append(i.date_time)
+        terms.append(i.Term)
+        class_.append(CLASS_TABLE[i.class_id])
+            
+
+    data = {'dates':dates,'types':type_ids,'terms':terms,'class':class_}
+    return {'id':stu_id,'data':pd.DataFrame(data),'type':type_table}
+
+    #以pd.dataframe的格式来输出查询结果
+def consumption_by_student_id(stu_id):
+    infos = session.query(Consumption).filter_by(student_id = stu_id).all()
+
+    date = []
+    time = []
+    money = []
+    text = []
+    for i in infos:
+        d,t = str(i.date_time).split(' ')
+        m = i.money
+
+        txt = str(i.date_time) + str(i.money)
+
+        date.append(d)
+        time.append(t)
+        money.append(m)
+        text.append(txt)
+
+    data = {'date':date, 'time':time, 'money':money}
+    return {'id':stu_id,'data':pd.DataFrame(data),'text':text}
     """
 
 def get_student_info_by_student_id(stu_id):
@@ -77,79 +137,58 @@ def get_teachers_by_class_id(cla_id):
     subjects = [SUBJECTS[i] for i in subjects]
     return {'index':subjects,'value':list(teachers)}
 
-#基于学生id查询考勤信息, type: int
+
 def controller_info_by_student_id(stu_id):
-    infos = session.query(ControllerInfo).filter_by(student_id = stu_id).all()
-    type_table = CONTROLLER_TABLE
-    
-    type_ids = []
-    dates = []
-    terms = []
-    class_ = []
+    stu_id = int(stu_id)
+    controller_info = CONTROLLER_INFO.loc[CONTROLLER_INFO['student_id'] == stu_id].copy()
+    controller_info = controller_info.sort_values('id')
+    controller_info['dates'] = pd.to_datetime(controller_info['date_time'], format='%Y/%m/%d %H:%M:%S')
+    data = controller_info[['dates', 'type_id', 'term','class_name']]
+    data.columns = ['dates','types','terms','class']
 
-    cur_class_id = -1
-    for i in infos:
-        type_ids.append(i.type_id)
-        dates.append(i.date_time)
-        terms.append(i.Term)
-        class_.append(CLASS_TABLE[i.class_id])
-            
-
-    data = {'dates':dates,'types':type_ids,'terms':terms,'class':class_}
-    return {'id':stu_id,'data':pd.DataFrame(data),'type':type_table}
-
+    return {'id':stu_id,'data':data,'type':CONTROLLER_TABLE}
 
 #以pd.dataframe的格式来输出查询结果
 def consumption_by_student_id(stu_id):
-    infos = session.query(Consumption).filter_by(student_id = stu_id).all()
-
-    date = []
-    time = []
-    money = []
-    text = []
-    for i in infos:
-        d,t = str(i.date_time).split(' ')
-        m = i.money
-
-        txt = str(i.date_time) + str(i.money)
-
-        date.append(d)
-        time.append(t)
-        money.append(m)
-        text.append(txt)
-
-    data = {'date':date, 'time':time, 'money':money}
-    return {'id':stu_id,'data':pd.DataFrame(data),'text':text}
+    stu_id = int(stu_id)
+    consumption_info = CONSUMPTION.loc[CONSUMPTION['student_id'] == stu_id]
+    data = consumption_info[['date','time','money']]
+    return {'id':stu_id,'data':data}
 
 # {id:student_id,data:[columns[date,time,money]],text:total_info}
-
 def get_predict_consumption(stu_id):
-    info = session.query(ConsumptionPredict).filter_by(student_id = stu_id).first()
-    money = info.money
-    warning = info.consumption_mode
+    stu_id = int(stu_id)
+    info = CONSUMPTION_PREDICT.loc[CONSUMPTION_PREDICT['student_id'] == stu_id]
+    money = info['money'].values[0]
+    warning = info['consumption_mode'].values[0]
+    money = round(money,2)
     return [money,warning]
 
 def get_predict_rank(stu_id):
-    info = session.query(RankPredict).filter_by(student_id = stu_id).all()
-    result = {}
-    for i in info:
-        if i.subject_id in [9,11,12]:continue
-        rank = i.r_score
-        if rank < 0: rank = 0.1 + (rank/10)
-        elif rank > 1: rank = 0.9 + (rank-1)/10
-        rank = round(rank,5)
-        result[SUBJECTS[i.subject_id]] = rank
+    stu_id = int(stu_id)
 
+    info = RANK_PREDICT.loc[RANK_PREDICT['student_id'] == stu_id]
+    subject = info['subject_id'].values
+    rank = info['r_score'].values
+    result = {}
+    for s,r in zip(subject,rank):
+        if s in [9,11,12]:continue
+        if r < 0: r = 0.1 + (r/10)
+        elif r > 1: r = 0.9 + (r-1)/10
+        r = round(r,5)
+        result[SUBJECTS[s]] = r
     return result
 
 def get_study_days_by_start_year(year):
-    info = session.query(StudyDays).filter_by(year = year).first()
-    data = [info.term_one,info.term_two_first,info.term_two_second,info.term_two_trird]
+    year = int(year)
+    study_days = STUDYDAYS.loc[STUDYDAYS['year'] == year].values[0]
+    data = study_days[1:]
     return data
 
 
 def get_student_grades_by_student_id(stu_id):
-    data = TOTAL_GRADE.loc[TOTAL_GRADE['student_id'] == int(stu_id)].copy()
+    stu_id = int(stu_id)
+    data = TOTAL_GRADE.loc[TOTAL_GRADE['student_id'] == stu_id].copy()
     data = data.sort_values('exam_id')
 
     Test_ids     = []
@@ -189,7 +228,8 @@ def get_student_grades_by_student_id(stu_id):
     return pd.DataFrame(data)
 
 def get_student_totals_by_student_id(stu_id):
-    data = TOTAL_TOTALS.loc[TOTAL_TOTALS['stu_id'] == int(stu_id)].copy()
+    stu_id = int(stu_id)
+    data = TOTAL_TOTALS.loc[TOTAL_TOTALS['stu_id'] == stu_id].copy()
     exams = []
     totals = []
     divs = []

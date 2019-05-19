@@ -77,6 +77,25 @@ def get_all_lesson():
     lesson = pd.read_csv('./static/lesson.csv')
     return lesson
 
+def get_all_controller_info():
+    controller_info = pd.read_csv('./static/controller_info.csv')
+    return controller_info
+
+def get_study_day():
+    study_day = pd.read_csv('./static/study_days.csv')
+    return study_day
+
+def get_all_consumption():
+    consumption = pd.read_csv('./static/consumption.csv')
+    return consumption
+
+def get_all_consumption_predict():
+    conusmption_p = pd.read_csv('./static/consumption_predict.csv')
+    return conusmption_p
+
+def get_all_rank_predict():
+    rank_predict = pd.read_csv('./static/rank_predict.csv')
+    return rank_predict
 ALL_CLASSES = get_all_class()
 
 SUBJECTS = get_all_subject()
@@ -87,6 +106,11 @@ CONTROLLER_TABLE = get_all_controller()
 
 CUR_STUDENT = get_cur_student()
 GRAD_STUDENT = get_grad_student()
+CONTROLLER_INFO = get_all_controller_info()
+STUDYDAYS = get_study_day()
+CONSUMPTION = get_all_consumption()
+CONSUMPTION_PREDICT = get_all_consumption_predict()
+RANK_PREDICT = get_all_rank_predict()
 
 LESSON = get_all_lesson()
 #需要处理的三次考试，用于计算7选三

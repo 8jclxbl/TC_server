@@ -144,6 +144,8 @@ def student_grade_graph(subjects,score_type,score_types,is_nor_exam,stu_id):
     if grade['data'].empty:return find_nothing('缺失该学生的考试数据')
     gd = Grade(grade)
     gd.draw_all_lines()
+
+    is_nor_exam = True if is_nor_exam == 'exam' else False
     if score_type == 'origin':
         return gd.draw_line_total(subjects,0,is_nor_exam)
     else:

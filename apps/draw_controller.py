@@ -14,13 +14,13 @@ def controller_total(query_res,ctype,stu_id):
     data['date'] = data['dates'].dt.date
     data['time'] = data['dates'].dt.time
 
-
     if ctype == 'graph':
         data = data[['date','time','types']]
         data_p = data_partation(data,table)
         chart = controller_graph(data_p,stu_id)
     else:
-        data = data[['date','time','types']]
+        data['type_name'] = [str(i)+','+table[i] for i in data['types'].values]
+        data = data[['date','time','type_name']]
         header = ['日期','时间','类型']
         chart = controller_table(header,data.T)
     return chart
