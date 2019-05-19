@@ -79,11 +79,11 @@ def select_student(n_clicks,value):
         stu_id = int(value)
         try:
             info = get_student_info_by_student_id(stu_id)
-        except AttributeError:
+        except IndexError:
             try:
                 info = get_grad_student_info_by_student_id(stu_id)
                 is_grad = True
-            except AttributeError:
+            except IndexError:
                 return find_nothing("此学生的部分信息有缺失")
 
         student_infos = simple_table(info,'学生{0}基本信息'.format(stu_id))
@@ -91,7 +91,7 @@ def select_student(n_clicks,value):
         if is_grad:
             return [student_infos]
 
-        class_id = info['value'][9]
+        class_id = info['value'][7]
         teachers = get_teachers_by_class_id(class_id)
         student_teachers = simple_table(teachers,'学生{0}各科教师'.format(stu_id))
         return [student_infos,student_teachers]

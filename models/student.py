@@ -2,13 +2,13 @@ from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Consumption,Class_,Lesson,Teacher,StudyDays,ExamType,ConsumptionPredict,RankPredict
 import pandas as pd
 
-from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE,ALL_CLASSES
+from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,LESSON
 
 
 #简单的信息单行表同一返回以下结构的字典
 #{'index'：表头信息，'value'：表中数据}
 #根据学生id来获取学生的所有信息
-def get_student_info_by_student_id(stu_id):
+"""def get_student_info_by_student_id(stu_id):
     student = session.query(CurStudent).filter_by(id = stu_id).first()
     class_info = ALL_CLASSES.loc[ALL_CLASSES['class_id'] == student.class_id]
     class_name = class_info['class_name'].values[0]
@@ -26,7 +26,7 @@ def get_student_info_by_student_id(stu_id):
     #value = [stu_id,student.name,student.sex,student.nation,student.born_year,student.native,student.residence,
     #           student.policy,class_info.name,student.class_id,class_info.term,zhusu,tuixue,qinshihao]
     return {'index':index, 'value':value}
-
+    
 def get_grad_student_info_by_student_id(stu_id):
     student = session.query(GradStudent).filter_by(id = stu_id).first()
     class_info = ALL_CLASSES.loc[ALL_CLASSES['class_id'] == student.class_id]
@@ -37,7 +37,7 @@ def get_grad_student_info_by_student_id(stu_id):
     #value = [stu_id,student.name,class_info.name,student.class_id,class_info.term]
     value = [stu_id,student.name,class_name,student.class_id,class_term]
     return {'index':index, 'value':value}
-
+    
 #根据班级编号来获取所有班级的任课教师
 def get_teachers_by_class_id(cla_id):
     lessons = session.query(Lesson).filter_by(class_id = cla_id).all()
@@ -50,6 +50,32 @@ def get_teachers_by_class_id(cla_id):
         subjects.append(subjects_table[i.subject_id])
         teachers.append(teacher.name)
     return {'index':subjects,'value':teachers}
+    """
+
+def get_student_info_by_student_id(stu_id):
+    student = CUR_STUDENT.loc[CUR_STUDENT['id'] == stu_id].values
+    index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','班级编号','班级名称','班级学期','政治面貌','是否住校','是否退学','寝室号']
+    student_info = {k:v for k,v in zip(index,student[0])}
+    student_info['是否住校'] = '是' if student_info['是否住校'] else '否'
+    student_info['是否退学'] = '是' if student_info['是否退学'] else '否'
+    
+    if not student_info['是否住校']: student_info['寝室号'] = '无'
+
+    return {'index':index, 'value':list(student_info.values())}
+
+def get_grad_student_info_by_student_id(stu_id):
+    student = GRAD_STUDENT.loc[GRAD_STUDENT['id'] == stu_id].values
+    index =['学号','姓名','班级编号','班级名称','班级学期']
+    return {'index':index, 'value':student[0]}
+
+#根据班级编号来获取所有班级的任课教师
+def get_teachers_by_class_id(cla_id):
+    lesson = LESSON.loc[LESSON['class_id'] == cla_id]
+    subjects = lesson['subject_id'].values
+    teachers = lesson['teacher_name'].values
+
+    subjects = [SUBJECTS[i] for i in subjects]
+    return {'index':subjects,'value':list(teachers)}
 
 #基于学生id查询考勤信息, type: int
 def controller_info_by_student_id(stu_id):

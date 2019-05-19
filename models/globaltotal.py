@@ -65,6 +65,17 @@ def get_class_table(all_classes):
     names = all_classes.class_name.values
     return {k:v for k,v in zip(ids,names)}
 
+def get_cur_student():
+    students = pd.read_csv('./static/cur_student.csv')
+    return students
+
+def get_grad_student():
+    students = pd.read_csv('./static/grad_student.csv')
+    return students
+
+def get_all_lesson():
+    lesson = pd.read_csv('./static/lesson.csv')
+    return lesson
 
 ALL_CLASSES = get_all_class()
 
@@ -74,6 +85,10 @@ GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考',-6:'缺考,作弊,免考'}
 
 CONTROLLER_TABLE = get_all_controller()
 
+CUR_STUDENT = get_cur_student()
+GRAD_STUDENT = get_grad_student()
+
+LESSON = get_all_lesson()
 #需要处理的三次考试，用于计算7选三
 NEED_PROCESS = [301,302,303]
 #当前高三的id
