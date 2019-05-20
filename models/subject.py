@@ -1,46 +1,7 @@
 from app import session
 from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,SubjectSelect
-from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE,ALL_CLASSES
+from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,ALL_SUBJECT_73
 import pandas as pd
-
-"""
-#获取所有的班级，返回字典结构
-def get_all_calsses_raw():
-    info = session.query(Class_).all()
-
-    class_ids = []
-    class_terms = []
-    class_names = []
-
-    for i in info:
-        if 'IB' in i.name:continue
-        class_ids.append(i.id)
-        class_terms.append(i.term)
-        class_names.append(i.name)
-
-    return {'id':class_ids,'term':class_terms,'name':class_names}
-    
-#获取所有的班级，返回df
-def get_all_calsses():
-    data = get_all_calsses_raw()
-    return pd.DataFrame(data)
-
-def get_classes_by_term(term):
-    info = session.query(Class_).filter_by(term = term).all()
-    
-    class_ids = []
-    class_terms = []
-    class_names = []
-
-    for i in info:
-        if 'IB' in i.name:continue
-        class_ids.append(i.id)
-        class_terms.append(term)
-        class_names.append(i.name)
-    data = {'id':class_ids,'term':class_terms,'name':class_names}
-    return pd.DataFrame(data)
-"""
-
 
 def get_classes_by_term(term):
     info = ALL_CLASSES.loc[ALL_CLASSES['class_term'] == term]
@@ -58,40 +19,18 @@ def get_classes_by_term(term):
 
     return pd.DataFrame(data)
 
-#根据班级id获取所有的学生，返回字典结构
-def get_all_student_by_class_id_raw(cla_id):
-    cla_id = int(cla_id)
-    info = session.query(CurStudent.id,CurStudent.name).filter_by(class_id = cla_id).all()
-    if not info:
-        info = session.query(GradStudent).filter_by(class_id = cla_id).all()
-        if not info: return None
-
-    student_names = []
-    student_ids = []
-
-    for i in info:
-        student_ids.append(i.id)
-        student_names.append(i.name)
-
-    data = {'student_id':student_ids,'student_name':student_names}
-    return data
-
-#根据班级id
-def get_all_student_by_class_id(cla_id):
-    return pd.DataFrame(get_all_student_by_class_id_raw(cla_id))
-
-
-#根据班级id获取班级学生和姓名的对照字典
 def get_all_dict_by_class_id(cla_id):
     cla_id = int(cla_id)
-    info = session.query(CurStudent.id,CurStudent.name).filter_by(class_id = cla_id).all()
-    if not info:
-        info = session.query(GradStudent).filter_by(class_id = cla_id).all()
-        if not info: return None
-    student = {}
-    for i in info:
-        student[i.id] = i.name
-    return student
+    info = CUR_STUDENT.loc[CUR_STUDENT['class_id'] == cla_id]
+    if info.empty:
+        info = GRAD_STUDENT.loc[GRAD_STUDENT['class_id'] == cla_id]
+        if info.empty: return None
+    
+    ids = info['id'].values
+    names = info['name'].values
+    student_table = {k:v for k,v in zip(ids,names)}
+    return student_table
+   
 
 #已经CSV化
 #根据班级id获取所有的总分
@@ -130,7 +69,7 @@ def class_grade_process(df):
     res = {'subject':subjects_,'exam':exam_name,'exam_id':exam_id,'max':maxs,'min':mins}
     return pd.DataFrame(res)
 
-#基于之前获取的7选三表，直接读取七选三数据
+"""#基于之前获取的7选三表，直接读取七选三数据
 def sql_73(cla_id = None):
     if not cla_id:
         info = session.query(SubjectSelect).all()
@@ -147,4 +86,14 @@ def sql_73(cla_id = None):
         subject_names.append(i.subjects)
 
     data = {'student_id':student_ids,'student_name':student_names,'class_id':class_ids,'subjects':subject_names}
-    return pd.DataFrame(data)
+    return pd.DataFrame(data)"""
+
+#基于之前获取的7选三表，直接读取七选三数据
+def sql_73(cla_id = None):
+    if not cla_id:
+        info = ALL_SUBJECT_73
+    else:
+        cla_id = int(cla_id)
+        info = ALL_SUBJECT_73.loc[ALL_SUBJECT_73['class_id'] == cla_id]
+    info = info[['student_id', 'student_name', 'class_id','subjects']]
+    return info

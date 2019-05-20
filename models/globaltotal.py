@@ -96,6 +96,11 @@ def get_all_consumption_predict():
 def get_all_rank_predict():
     rank_predict = pd.read_csv('./static/rank_predict.csv')
     return rank_predict
+
+def get_all_subject_73():
+    subject_73 = pd.read_csv('./static/process_7_3.csv')
+    return subject_73
+
 ALL_CLASSES = get_all_class()
 
 SUBJECTS = get_all_subject()
@@ -111,6 +116,7 @@ STUDYDAYS = get_study_day()
 CONSUMPTION = get_all_consumption()
 CONSUMPTION_PREDICT = get_all_consumption_predict()
 RANK_PREDICT = get_all_rank_predict()
+ALL_SUBJECT_73 = get_all_subject_73()
 
 LESSON = get_all_lesson()
 #需要处理的三次考试，用于计算7选三
