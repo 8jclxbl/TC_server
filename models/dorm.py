@@ -1,13 +1,12 @@
-from models.models import Sushe
-from app import session
-
+from models.globaltotal import DORMS_INFO
 
 def get_dorm_by_class_id(cla_id):
-    info = session.query(Sushe.sushe_id).filter_by(class_id = cla_id).all()
-    info = [i[0] for i in info]
-    return list(set(info))
+    cla_id = int(cla_id)
+    info = DORMS_INFO.loc[DORMS_INFO['class_id'] == cla_id,'sushe_id'].drop_duplicates().values
+    return list(info)
 
 def get_student_by_dorm_id(sushe_id,cla_id):
-    info = session.query(Sushe.student_id).filter_by(sushe_id = sushe_id,class_id = cla_id).all()
-    info = [i[0] for i in info]
-    return info
+    sushe_id = int(sushe_id)
+    cla_id = int(cla_id)
+    info = DORMS_INFO.loc[(DORMS_INFO['sushe_id'] == sushe_id) & (DORMS_INFO['class_id'] == cla_id), 'student_id'].values
+    return list(info)

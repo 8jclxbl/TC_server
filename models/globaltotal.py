@@ -1,5 +1,3 @@
-from app import session
-from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,Sushe
 import pandas as pd
 
 #pure_scv,去除数据库，直接将数据读入内存

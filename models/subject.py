@@ -1,5 +1,3 @@
-from app import session
-from models.models import CurStudent,GradStudent,ControllerInfo,Controller,Consumption,Class_,Lesson,Teacher,Subject,StudyDays,Exam,ExamRes,ExamType,SubjectSelect
 from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,ALL_SUBJECT_73
 import pandas as pd
 
@@ -68,25 +66,6 @@ def class_grade_process(df):
 
     res = {'subject':subjects_,'exam':exam_name,'exam_id':exam_id,'max':maxs,'min':mins}
     return pd.DataFrame(res)
-
-"""#基于之前获取的7选三表，直接读取七选三数据
-def sql_73(cla_id = None):
-    if not cla_id:
-        info = session.query(SubjectSelect).all()
-    else:
-        info = session.query(SubjectSelect).filter_by(class_id = cla_id).all()
-    student_ids = []
-    student_names = []
-    class_ids = []
-    subject_names = []
-    for i in info:
-        student_ids.append(i.student_id)
-        student_names.append(i.student_name)
-        class_ids.append(i.class_id)
-        subject_names.append(i.subjects)
-
-    data = {'student_id':student_ids,'student_name':student_names,'class_id':class_ids,'subjects':subject_names}
-    return pd.DataFrame(data)"""
 
 #基于之前获取的7选三表，直接读取七选三数据
 def sql_73(cla_id = None):
