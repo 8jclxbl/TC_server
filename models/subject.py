@@ -1,6 +1,10 @@
-from models.globaltotal import SUBJECTS,NEED_PROCESS,CURRENT_THIRD,ELETIVE_CLASS,CLASS_TERMS,EXAMS,TOTAL_GRADE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,ALL_SUBJECT_73
+from models.globaltotal import SUBJECTS,EXAMS,TOTAL_GRADE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,ALL_SUBJECT_73
 import pandas as pd
 
+#根据学期获取当前学期的班级数据
+#input: term 'str'
+#return: 'pd.dataFrame'
+#{'id','term','name','grade_name'}
 def get_classes_by_term(term):
     info = ALL_CLASSES.loc[ALL_CLASSES['class_term'] == term]
 
@@ -19,6 +23,10 @@ def get_classes_by_term(term):
 
     return pd.DataFrame(data)
 
+#根据班级id获取，次班级所有的学生名单
+#input: cla_id 'str'
+#return: student_table 'dict'
+#student_table: keys 学生id, values 学生姓名
 def get_all_dict_by_class_id(cla_id):
     cla_id = int(cla_id)
     info = CUR_STUDENT.loc[CUR_STUDENT['class_id'] == cla_id]
@@ -34,6 +42,9 @@ def get_all_dict_by_class_id(cla_id):
 
 #已经CSV化
 #根据班级id获取所有的考试分数
+#input: cla_id 'str'
+#return: 'pd.DataFrame'
+#['student_id','exam_id','subject','score','z_score','t_score','r_score','div','class_rank']
 def get_all_grade_by_class_id_total(cla_id):
     cla_id = int(cla_id)
     data = TOTAL_GRADE.loc[TOTAL_GRADE['class_id'] == cla_id].copy()
@@ -43,6 +54,9 @@ def get_all_grade_by_class_id_total(cla_id):
     return data[['student_id','exam_id','subject','score','z_score','t_score','r_score','div','class_rank']]
 
 #获取一个班级所有考试的最高分和最低分
+#input: df 'pd.DataFrame'
+#return: 'pd.DataFrame'
+#{'subject','exam','exam_id','max','min'}
 def class_grade_process(df):
     #考试的学科
     subjects = df['subject'].drop_duplicates().values
@@ -70,6 +84,9 @@ def class_grade_process(df):
     return pd.DataFrame(res)
 
 #基于之前获取的7选三表，直接读取七选三数据
+#input: cla_id 'str' 没有输入时获取全部数据
+#return: 'pd.DataFrame'
+#['student_id', 'student_name', 'class_id','subjects']
 def sql_73(cla_id = None):
     if not cla_id:
         info = ALL_SUBJECT_73

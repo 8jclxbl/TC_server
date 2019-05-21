@@ -1,8 +1,10 @@
 import pandas as pd
-
 #pure_scv,去除数据库，直接将数据读入内存
+#此文件集成了服务所需要的所有数据的获取
 
 STATIC_PATH = './static/'
+
+#对应的文件名称
 FILE_NAME = {
     'classes':'class_.csv',                                                        #班级信息
     'subjects':'subject.csv',                                                     #学科信息             
@@ -22,18 +24,25 @@ FILE_NAME = {
     'subjects_select':'process_7_3.csv'                                      #七选三信息
 }
 
-
+#使用pd.read_csv读取csv文件
+#Input: fileName 文件名 'str',
+#return: data 对应的数据 'pd.DataFrame
 def get_csv_data(fileName):
     file_path = STATIC_PATH + FILE_NAME[fileName]
     data = pd.read_csv(file_path)
     return data
 
 #获取全部的班级信息
+#return: classes 班级信息 'pd.DataFrame
+#classes.columns = [class_id,class_term,class_name,grade_name]
 def get_all_class():
     classes = get_csv_data('classes')
     return classes
 
 #获取全部的科目信息
+#return: sub_dic 科目信息的字典 'dict'
+#sub_dic: keys, 科目id; values, 科目名称
+#   额外加入了-1，用于表示缺失的科目
 def get_all_subject():
     subjects = get_csv_data('subjects')
     ids = subjects['id'].values
@@ -42,6 +51,9 @@ def get_all_subject():
     sub_dic[-1] = '此次考试科目数据缺失'
     return sub_dic
 
+#获取所有的考勤类型
+#return: controllers_dic  'dict'
+#controllers_dic: keys 考勤类型的id; values 考勤类型的名称
 def get_all_controller():
     controller_type = get_csv_data('controller_type')
     ids = controller_type['task_id'].values
@@ -51,11 +63,16 @@ def get_all_controller():
     controllers_dic = {k:v for k,v in zip(ids, total_names)}
     return controllers_dic
 
+#获取所有的靠前信息
+#return: controller_infos 'pd.DataFrame'
+#controller_infos.columns = [id,term,date_time,type_id,class_id,student_id,class_name]
 def get_all_controller_info():
     controller_infos = get_csv_data('controller_infos')
     return controller_infos
 
 #获取所有的考试名称
+#return: exam_dic 'dict'
+#exam_dic: keys 考试的id; values 考试的名称
 def get_exam_name():
     exams = get_csv_data('exams')
     ids = exams['id'].values
@@ -64,70 +81,108 @@ def get_exam_name():
     return exam_dic
 
 #获取所有的有班级的学期
+#return:term_results  有班级信息的学期 'list'
 def get_terms_of_all_class(all_classes):
     terms = all_classes.class_term
     terms_dd = terms.drop_duplicates().values
-    #terms_dd = [i for i in terms_dd if i[-1] != '2']
     terms_sorted = sorted(terms_dd)
     return terms_sorted
 
+#获取所有的考试信息，经过处理后的考试信息，加入了考试离均值，班级排名和年级排名
+#return: exam_results 'pd.DataFrame'
+#exam_results.columns = [test_id,exam_id,subject_id,student_id,class_id,grade,score,z_score,t_score,r_score,mean,div,rank,class_rank]
 def get_all_grades():
     exam_results = get_csv_data('exam_results')
     return exam_results
 
-#获取所有的总分
+#获取所有的总分信息，是将上面的考试成绩，基于每次考试的每个学生求得总分，班级排名和年级排名
+#return: total_grade_and_rank 'pd.DataFrame'
+#total_grade_and_rank.columns = [stu_id,exam,total,grade,class,rank,mean,div,class_rank]
 def get_all_totals():
     total_grade_and_rank = get_csv_data('total_grade_and_rank')
     return total_grade_and_rank
 
+#获取所有的宿舍信息，基于学生信息表，获取住校学生的信息
+#return: dorms 'pd.DataFrame'
+#dorms.columns = ['student_id,student_name,student_sex,class_id,sushe_id]
 def get_all_dorms():
     dorms = get_csv_data('dorms')
     return dorms
 
+#基于整体的宿舍信息，获取有在校学生的班级的id的列表
+#Input: dorms_info, 'pd.DataFrame'
+#return: info 'list'
 def get_class_has_dorm(dorms_info):
     info = dorms_info.class_id.drop_duplicates().values
     return sorted(info)
 
+#基于所有的班级信息，获取班级id和班级名称的字典
+#Input: all_classes, 'pd.DataFrame'
+#return: 'dict'
+#keys 班级id; values 班级名称
 def get_class_table(all_classes):
     ids = all_classes.class_id.values
     names = all_classes.class_name.values
     return {k:v for k,v in zip(ids,names)}
 
+#基于初始的学生信息表生成的在校学生数据
+#return: current_student 'pd.DataFrame'
+#current_student.columns = [id,name,sex,nation,born_year,native,residence,class_id,class_name,class_term,policy,zhusu,leave_school,qinshihao]
 def get_cur_student():
     current_student = get_csv_data('current_student')
     return current_student
 
+#基于考勤和消费信息获取的不在上面的在校学生数据的学生数据，由于此表中的学生数据只有部分特征，所以分成两个表
+#return: graduated_student 'pd.DataFrame'
+#graduated_student.columns = [id,name,class_id,class_name,class_term]
 def get_grad_student():
     graduated_student = get_csv_data('graduated_student')
     return graduated_student
 
+#获取所有的课程信息，在设计数据库的时候，把课程和教师的数据划分了，这个表的划分继承了数据库中的设计
+#return: lessons 'pd.DataFrame'
+#lessons.columns = [subject_id,class_id,teacher_id,teacher_name]
 def get_all_lesson():
     lessons = get_csv_data('lessons')
     return lessons
 
+#基于效实中学的官网给出的校历，计算出的各个学期的在校天数
+#return: study_days
+#study_days.columns = [year,term_one,term_two_first,term_two_second,term_three_third]
 def get_study_day():
     study_days = get_csv_data('study_days')
     return study_days
 
+#获取所有的消费信息
+#return: consumptions 'pd.DataFrame'
+#consumptions.columns = [date_time,money,student_id,date,time]
 def get_all_consumption():
     consumptions = get_csv_data('consumptions')
     return consumptions
 
+#获取我们预测的下个月的消费
+#return: consumption_predicts 'pd.DataFrame'
+#consumption_predicts.columns = [student_id,money,consumption_mode]
 def get_all_consumption_predict():
     consumption_predicts = get_csv_data('consumption_predicts')
     return consumption_predicts
 
+#获取我们预测的下次考试的等第
+#return: rank_predicts 'pd.DataFrame'
+#rank_predicts.columns = [student_id,subject_id,r_score]
 def get_all_rank_predict():
     rank_predicts = get_csv_data('rank_predicts')
     return rank_predicts
 
+#获取处理后所得的所有的7选三数据，原本设计的是在线生成，后来出于响应速度的考虑采用预先计算的结果
+#return subjects_select 'pd.columns'
+#subjects_select = [student_id,student_name,class_id,subjects]
 def get_all_subject_73():
     subjects_select = get_csv_data('subjects_select')
     return subjects_select
 
 ALL_CLASSES = get_all_class()
 SUBJECTS = get_all_subject()
-#EXAMS = get_all_exam_type()
 GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考',-6:'缺考,作弊,免考'}
 
 CONTROLLER_TABLE = get_all_controller()
@@ -148,18 +203,21 @@ NEED_PROCESS = [301,302,303]
 CURRENT_THIRD = [i for i in range(916,926)]
 #七选三的备选课程
 ELETIVE_CLASS = ['政治','历史','地理','物理','化学','生物','技术']
+
 CLASS_TERMS = get_terms_of_all_class(ALL_CLASSES)
 CLASS_TABLE = get_class_table(ALL_CLASSES)
 EXAMS = get_exam_name()
+
+#平时成绩的考试ID
 GENERE_EXAM_ID = [285,287,291,297,303,305]
 TOTAL_GRADE = get_all_grades()
 TOTAL_TOTALS = get_all_totals()
 DORMS_INFO = get_all_dorms()
 CLASS_HAS_DORM = get_class_has_dorm(DORMS_INFO)
 
+#当前高三的表
 THIRD_GRADE = {916: '高三(02)',917: '高三(03)',918: '高三(04)',919: '高三(07)',920: '高三(08)',
                921: '高三(01)',922: '高三(05)',923: '高三(09)',924: '高三(06)',925: '高三(10)'}
-
 
 #色表
 SUBJECT_COLOR = {'语文':'#b71c1c','数学':'#0D47A1','英语':'#FFEB3B','物理':'#4A148C','化学':'#AB47BC',
