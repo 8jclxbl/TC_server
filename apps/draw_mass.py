@@ -6,11 +6,29 @@ from apps.simple_chart import dash_table
 
 from app import app
 from models.subject import get_all_dict_by_class_id,get_all_grade_by_class_id_total
-from models.globaltotal import SUBJECTS,GRADETYPE,GENERE_EXAM_ID
+from models.globaltotal import SUBJECTS,GRADETYPE,GENERE_EXAM_ID,TOTAL_TOTALS
 
 import pandas as pd
 import re
 
+#
+def get_grade_names(class_data):
+    grade_names = class_data['grade_name'].drop_duplicates().values
+    return list(grade_names)
+
+def get_classes_by_term_grade(class_data,grade_name):
+    classes = class_data.loc[class_data['grade_name'] == grade_name]
+    class_names = classes['name'].values
+    class_ids = classes['id'].values
+    return {'ids':list(class_ids), 'names':list(class_names)}
+
+def get_a_class_by_grade(class_data,grade_name):
+    classes = class_data.loc[class_data['grade_name'] == grade_name]
+    if classes.empty:return 0
+    else:
+        cur_class_id = classes['id'].values[0]
+        return cur_class_id
+#
 
 def static_header_trans(static_res,exam_id,score_type = 'score'):
     head = static_res.keys()
@@ -37,86 +55,29 @@ def static_header_trans(static_res,exam_id,score_type = 'score'):
         value.append(static_res[i])
     return [header,value]
 
-def open_grade_get(query_res):
-    temp = query_res['name'].values
-    res_temp = []
-    for i in temp:
-            #利用正则表达式获取当前的年级
-        res_temp.append(re.search(r'\u9ad8.{1}',i).group())
-    return res_temp
-
-def open_grade_sep(query_res):
-    temp = open_grade_get(query_res)
-    return list(set(temp))   
-
-def get_a_class(query_res,grade_):
-    grade = open_grade_get(query_res)
-    data = query_res.copy()
-    data.insert(0,'grade',grade)
-    #暂存各年级数据的字典
-    grade_class = {}
-    #将数据整合成字典结构{年级{班级id：班级名称}}
-    for i in data.values:
-        if i[0] == grade_:
-            return i[1]
-    else:return 0
-
-def open_part_by_grade(query_res):
-    grade = open_grade_get(query_res)
-    data = query_res.copy()
-    data.insert(0,'grade',grade)
-    #暂存各年级数据的字典
-    grade_class = {}
-    #将数据整合成字典结构{年级{班级id：班级名称}}
-    for i in data.values:
-        if i[0] not in grade_class:
-            grade_class[i[0]] = {i[1]:i[3]}
-        else:
-            grade_class[i[0]].update({i[1]:i[3]})
-    return grade_class
-
 class Mass:
     #组织班级数据
     def __init__(self, query_res):
         #输入数据为，根据学期查询的班级数据
         self.data = query_res
         
-        self.grade_sep()
         self.part_by_grade()
         self.class_obj = {}
-
-    def grade_sep(self):
-        #获取当前学期所有班级的名称
-        temp = self.data['name'].values
-        res_temp = []
-        for i in temp:
-            #利用正则表达式获取当前的年级
-            res_temp.append(re.search(r'\u9ad8.{1}',i).group())
-        
-        #将年级数据置入数据表中
-        self.data.insert(0,'grade',res_temp)
-
-        #此学期的年级数据
-        self.grades = list(set(res_temp))
-        
+     
     def part_by_grade(self):
         #根据年级划分数据
         data = self.data
         #暂存各年级数据的字典
         grade_class = {}
-        #将数据整合成字典结构{年级{班级id：班级名称}}
-        for i in self.data.values:
+        for i in data[['grade_name', 'id' , 'name']].values:
             if i[0] not in grade_class:
-                grade_class[i[0]] = {i[1]:i[3]}
+                grade_class[i[0]] = {i[1]:i[2]}
             else:
-                grade_class[i[0]].update({i[1]:i[3]})
+                grade_class[i[0]].update({i[1]:i[2]})
+    
         self.grade_class = grade_class
 
-    #获取当前对象中所包含的年级
-    def get_grades(self):
-        return self.grades 
-
-    #根据年级获取当前年级的数据
+    #根据年级获取当前年级的班级
     def get_class_by_grade_dict(self,grade):
         return self.grade_class[grade]
 
@@ -252,41 +213,22 @@ class ClassInfo:
 
     #计算本次考试的班内排名
     def rank_grade(self,exam_id,subject,score_type = 'score'):
-        #获取本版所有学生
+        #获取本班所有学生
         self.get_students()
         #注意，很多时候这样获取值，可能知识得到指定的pd.DataFrame对象的一个view
         #此时，改变对象的值可能引起原始的值的变化，为了避免这种情况触发的warning
         #这里直接指定数据是原始对象的一个copy
         data = self.get_exam_grade(exam_id)
-
-        #对于非总分数据，计算排名时只需要把异常的考试状态排在最后面即可
         if subject != '总':
+            
             data = data.loc[data['subject'] == subject]
             names = [self.students[i] for i in data.student_id.values]
             data['name'] = names
-
-            if score_type == 'div':
-                data = data.sort_values(score_type,ascending = False)
-                data['rank'] = range(1,len(data) + 1)
-                data[score_type] = [round(i,2) for i in data[score_type].values]
-                return data
-
-            normal = data.loc[data[score_type] >= 0]
-            normal = normal.sort_values(score_type,ascending = False)
-            normal[score_type] = [round(i,2) for i in normal[score_type].values]
-            normal.index = range(1,len(normal) + 1)
-            normal['rank'] = normal.index
-
-            except_ = data.loc[data[score_type] < 0].copy()
-            temp = except_.score.values
-            temp = [GRADETYPE[i] for i in temp]
-            except_['rank'] = temp
-            return pd.concat([normal,except_])
+            data[score_type] = data[score_type].round(2)
+            return data.sort_values('class_rank')
         else:
             #由于要计算总分，为了避免异常状态的影响，均记为0
-
             #如果前面不指定copy,此处的赋值操作会一直warning
-
             if score_type != 'div':
                 data.loc[data.score < 0,score_type] = 0
 
@@ -298,9 +240,8 @@ class ClassInfo:
             scores = [round(i,2) for i in total[score_type].values]
 
             result = pd.DataFrame({'student_id':student_ids,'name':names,score_type:scores})
-            result['rank'] = range(1,len(result) + 1)
-
-            return result
+            result['class_rank'] = range(1,len(result) + 1)
+            return result.sort_values('class_rank')
 
     def static_grade(self,exam_id,subject,score_type = 'score'):
         #分数统计，和排名差不多

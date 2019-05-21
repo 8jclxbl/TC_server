@@ -7,13 +7,15 @@ def get_classes_by_term(term):
     class_ids = []
     class_terms = []
     class_names = []
+    grade_names = []
 
     for i in info.values:
         if 'IB' in i[2]:continue
         class_ids.append(i[0])
         class_terms.append(i[1])
         class_names.append(i[2])
-    data = {'id':class_ids,'term':class_terms,'name':class_names}
+        grade_names.append(i[3])
+    data = {'id':class_ids,'term':class_terms,'name':class_names,'grade_name':grade_names}
 
     return pd.DataFrame(data)
 
@@ -31,14 +33,14 @@ def get_all_dict_by_class_id(cla_id):
    
 
 #已经CSV化
-#根据班级id获取所有的总分
+#根据班级id获取所有的考试分数
 def get_all_grade_by_class_id_total(cla_id):
     cla_id = int(cla_id)
     data = TOTAL_GRADE.loc[TOTAL_GRADE['class_id'] == cla_id].copy()
     subjects = [SUBJECTS[i] for i in data.subject_id.values]
     data['subject'] = subjects
 
-    return data[['student_id','exam_id','subject','score','z_score','t_score','r_score','div']]
+    return data[['student_id','exam_id','subject','score','z_score','t_score','r_score','div','class_rank']]
 
 #获取一个班级所有考试的最高分和最低分
 def class_grade_process(df):

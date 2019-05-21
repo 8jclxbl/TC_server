@@ -5,7 +5,7 @@ from app import app
 
 from models.globaltotal import CLASS_TERMS,EXAMS,CLASS_TABLE
 from models.subject import get_classes_by_term
-from apps.draw_mass import Mass,ClassInfo,static_header_trans,open_grade_sep,open_part_by_grade,get_a_class,dash_compare_bar
+from apps.draw_mass import Mass,ClassInfo,static_header_trans,get_classes_by_term_grade,dash_compare_bar,get_grade_names,get_a_class_by_grade
 from apps.simple_chart import dash_table,dash_bar,find_nothing,dash_DropDown
 
 ScoreType = {'score':'原始分','t_score':'标准分','div':'离均值'}
@@ -59,7 +59,7 @@ def ma_select_term(term):
         values = [0]
         init_value = 0
     else:
-        grades = open_grade_sep(data)
+        grades = get_grade_names(data)
         if not grades:
             labels = ['当前学期无班级记录']
             values = [0]
@@ -172,13 +172,10 @@ def ma_gen_class_select(grade,term):
             values = [0]
             init_value = 0
         else:
-            grade_class = open_part_by_grade(data)
-            class_id = grade_class[grade]
-            
-            class_ids = list(class_id.keys())
-            class_names = [class_id[i] for i in class_ids]
-            labels = class_names
-            values = class_ids
+            classes = get_classes_by_term_grade(data,grade)
+           
+            labels = classes['names']
+            values = classes['ids']
             init_value = values[0]
 
     return dash_DropDown('ma-class-selector','请选择班级：',labels,values,init_value)
@@ -191,7 +188,7 @@ def ma_gen_class_select(grade,term):
 )
 def ma_select_subject_innerclass(exam,grade,term):
     data = get_classes_by_term(term)
-    cla_id = get_a_class(data,grade)
+    cla_id = get_a_class_by_grade(data,grade)
     cla_info = ClassInfo(cla_id)
     subjects = cla_info.get_exam_subjects(exam)
     subjects.append('总')
@@ -207,7 +204,7 @@ def ma_gen_rank(class_,subject,score_type,grade,exam):
     class_info = ClassInfo(class_)
     res =class_info.rank_grade(exam,subject,score_type)
     if res.empty:return find_nothing('此班级此次考试数据缺失')
-    res = res[['student_id','name',score_type,'rank']]
+    res = res[['student_id','name',score_type,'class_rank']]
     header = ['学号','姓名','分数','排名']
     return dash_table(header,res.T,'class-rank-by-exam-table','{0}{1}班{2}{3}排名'.format(EXAMS[exam],CLASS_TABLE[class_],subject,ScoreType[score_type]))
 
