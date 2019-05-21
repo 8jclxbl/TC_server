@@ -9,7 +9,6 @@ from apps.draw_mass import Mass,ClassInfo,static_header_trans,get_classes_by_ter
 from apps.simple_chart import dash_table,dash_bar,find_nothing,dash_DropDown
 
 ScoreType = {'score':'原始分','t_score':'标准分','div':'离均值'}
-ma = None
 grade_CLASS_TERMS = [i for i in CLASS_TERMS if i[-1] != '2']
 grade_CLASS_TERMS.insert(1, '2013-2014-2')
 
@@ -82,9 +81,8 @@ def ma_select_grade(grade,term):
         init_value = 0
     else:
         data = get_classes_by_term(term)
-        global ma
         ma = Mass(data) 
-        cla_id = ma.get_one_class_by_grade(grade)
+        cla_id = get_a_class_by_grade(data,grade)
         cla_info = ClassInfo(cla_id)
         exams = cla_info.get_exam()
 
@@ -103,15 +101,16 @@ def ma_select_grade(grade,term):
 @app.callback(
     Output('ma-select-subject','children'),
     [Input('ma-exam-selector','value')],
-    [State('ma-grade-selector','value')]
+    [State('ma-grade-selector','value'),State('ma-term-selector','value')]
 )
-def ma_gen_subject_select(exam,grade):
+def ma_gen_subject_select(exam,grade,term):
     if not grade:
         labels = ['此学期无班级记录']
         values = [0]
         init_value = 0
     else:
-        cla_id = ma.get_one_class_by_grade(grade)
+        data = get_classes_by_term(term)
+        cla_id = get_a_class_by_grade(data,grade)
         cla_info = ClassInfo(cla_id)
         subjects = cla_info.get_exam_subjects(exam)
         subjects.append('总')
@@ -131,11 +130,12 @@ def ma_gen_subject_select(exam,grade):
 @app.callback(
     Output('ma-class-grade','children'),
     [Input('ma-subject-selector','value')],
-    [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
+    [State('ma-grade-selector','value'),State('ma-exam-selector','value'),State('ma-term-selector','value')]
 )
-def ma_select_subject(subject,grade,exam):
+def ma_select_subject(subject,grade,exam,term):
     if not subject or not exam:return find_nothing('此学期当前年级无考试记录')
-            
+    data = get_classes_by_term(term)
+    ma = Mass(data) 
     res = ma.get_mean_by_grade_exam(grade,exam,subject)
     res = res.sort_values('mean',ascending = False)
     res['rank'] = range(1,len(res['mean'].values)+1)
@@ -146,11 +146,12 @@ def ma_select_subject(subject,grade,exam):
 @app.callback(
     Output('ma-distribute-compare','children'),
     [Input('ma-subject-selector','value')],
-    [State('ma-grade-selector','value'),State('ma-exam-selector','value')]
+    [State('ma-grade-selector','value'),State('ma-exam-selector','value'),State('ma-term-selector','value')]
 )
-def ma_gen_distribute_compare(subject,grade,exam):
+def ma_gen_distribute_compare(subject,grade,exam,term):
     if not subject or not exam:return find_nothing('此学期当前年级无考试记录')
-            
+    data = get_classes_by_term(term)
+    ma = Mass(data) 
     res = ma.total_distribute_compare(grade,exam,subject)
     return dash_compare_bar(res,'成绩区间','人数','ma-distribute-compare-bar','{0}{1}{2}成绩分布比较'.format(EXAMS[exam],grade,subject))
 
