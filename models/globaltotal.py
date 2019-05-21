@@ -2,14 +2,40 @@ import pandas as pd
 
 #pure_scv,去除数据库，直接将数据读入内存
 
+STATIC_PATH = './static/'
+FILE_NAME = {
+    'classes':'class_.csv',                                                        #班级信息
+    'subjects':'subject.csv',                                                     #学科信息             
+    'controller_type':'controller.csv',                                      #考勤类型
+    'controller_infos':'controller_info.csv',                             #考勤信息
+    'exams':'exam.csv',                                                             #考试信息
+    'exam_results':'examres.csv',                                              #考试成绩
+    'total_grade_and_rank':'total_gc_rank.csv',                        #考试总分 
+    'dorms':'sushe.csv',                                                               #宿舍信息
+    'current_student':'cur_student.csv',                                       #在校学生
+    'graduated_student':'grad_student.csv',                                 #毕业学生
+    'lessons':'lesson.csv',                                                             #课程信息
+    'study_days':'study_days.csv',                                              #在校天数
+    'consumptions':'consumption.csv',                                       #消费信息
+    'consumption_predicts':'consumption_predict.csv',            #消费预测
+    'rank_predicts':'rank_predict.csv',                                       #等地预测
+    'subjects_select':'process_7_3.csv'                                      #七选三信息
+}
+
+
+def get_csv_data(fileName):
+    file_path = STATIC_PATH + FILE_NAME[fileName]
+    data = pd.read_csv(file_path)
+    return data
+
 #获取全部的班级信息
 def get_all_class():
-    all_classes = pd.read_csv('./static/class_.csv')
-    return all_classes
+    classes = get_csv_data('classes')
+    return classes
 
 #获取全部的科目信息
 def get_all_subject():
-    subjects = pd.read_csv('./static/subject.csv')
+    subjects = get_csv_data('subjects')
     ids = subjects['id'].values
     names = subjects['name'].values
     sub_dic = {k:v for k,v in zip(ids,names)}
@@ -17,18 +43,21 @@ def get_all_subject():
     return sub_dic
 
 def get_all_controller():
-    controllers = pd.read_csv('./static/controller.csv')
-    ids = controllers['task_id'].values
-    names = controllers['name'].values
-    task_names = controllers['task_name'].values
+    controller_type = get_csv_data('controller_type')
+    ids = controller_type['task_id'].values
+    names = controller_type['name'].values
+    task_names = controller_type['task_name'].values
     total_names = [i+';'+j for i,j in zip(names,task_names)]
     controllers_dic = {k:v for k,v in zip(ids, total_names)}
-
     return controllers_dic
+
+def get_all_controller_info():
+    controller_infos = get_csv_data('controller_infos')
+    return controller_infos
 
 #获取所有的考试名称
 def get_exam_name():
-    exams = pd.read_csv('./static/exam.csv')
+    exams = get_csv_data('exams')
     ids = exams['id'].values
     names = exams['name'].values
     exam_dic = {k:v.strip() for k,v in zip(ids,names)}
@@ -38,20 +67,21 @@ def get_exam_name():
 def get_terms_of_all_class(all_classes):
     terms = all_classes.class_term
     terms_dd = terms.drop_duplicates().values
+    #terms_dd = [i for i in terms_dd if i[-1] != '2']
     terms_sorted = sorted(terms_dd)
     return terms_sorted
 
 def get_all_grades():
-    total_grades = pd.read_csv('./static/examres.csv')
-    return total_grades
+    exam_results = get_csv_data('exam_results')
+    return exam_results
 
 #获取所有的总分
 def get_all_totals():
-    total = pd.read_csv('./static/total_gc_rank.csv')
-    return total
+    total_grade_and_rank = get_csv_data('total_grade_and_rank')
+    return total_grade_and_rank
 
 def get_all_dorms():
-    dorms = pd.read_csv('./static/sushe.csv')
+    dorms = get_csv_data('dorms')
     return dorms
 
 def get_class_has_dorm(dorms_info):
@@ -64,43 +94,38 @@ def get_class_table(all_classes):
     return {k:v for k,v in zip(ids,names)}
 
 def get_cur_student():
-    students = pd.read_csv('./static/cur_student.csv')
-    return students
+    current_student = get_csv_data('current_student')
+    return current_student
 
 def get_grad_student():
-    students = pd.read_csv('./static/grad_student.csv')
-    return students
+    graduated_student = get_csv_data('graduated_student')
+    return graduated_student
 
 def get_all_lesson():
-    lesson = pd.read_csv('./static/lesson.csv')
-    return lesson
-
-def get_all_controller_info():
-    controller_info = pd.read_csv('./static/controller_info.csv')
-    return controller_info
+    lessons = get_csv_data('lessons')
+    return lessons
 
 def get_study_day():
-    study_day = pd.read_csv('./static/study_days.csv')
-    return study_day
+    study_days = get_csv_data('study_days')
+    return study_days
 
 def get_all_consumption():
-    consumption = pd.read_csv('./static/consumption.csv')
-    return consumption
+    consumptions = get_csv_data('consumptions')
+    return consumptions
 
 def get_all_consumption_predict():
-    conusmption_p = pd.read_csv('./static/consumption_predict.csv')
-    return conusmption_p
+    consumption_predicts = get_csv_data('consumption_predicts')
+    return consumption_predicts
 
 def get_all_rank_predict():
-    rank_predict = pd.read_csv('./static/rank_predict.csv')
-    return rank_predict
+    rank_predicts = get_csv_data('rank_predicts')
+    return rank_predicts
 
 def get_all_subject_73():
-    subject_73 = pd.read_csv('./static/process_7_3.csv')
-    return subject_73
+    subjects_select = get_csv_data('subjects_select')
+    return subjects_select
 
 ALL_CLASSES = get_all_class()
-
 SUBJECTS = get_all_subject()
 #EXAMS = get_all_exam_type()
 GRADETYPE = {-2:'缺考',-1:'作弊',-3:'免考',-6:'缺考,作弊,免考'}
@@ -123,25 +148,20 @@ NEED_PROCESS = [301,302,303]
 CURRENT_THIRD = [i for i in range(916,926)]
 #七选三的备选课程
 ELETIVE_CLASS = ['政治','历史','地理','物理','化学','生物','技术']
-
 CLASS_TERMS = get_terms_of_all_class(ALL_CLASSES)
-
 CLASS_TABLE = get_class_table(ALL_CLASSES)
-
 EXAMS = get_exam_name()
-
 GENERE_EXAM_ID = [285,287,291,297,303,305]
-
 TOTAL_GRADE = get_all_grades()
 TOTAL_TOTALS = get_all_totals()
-
 DORMS_INFO = get_all_dorms()
-
 CLASS_HAS_DORM = get_class_has_dorm(DORMS_INFO)
 
 THIRD_GRADE = {916: '高三(02)',917: '高三(03)',918: '高三(04)',919: '高三(07)',920: '高三(08)',
                921: '高三(01)',922: '高三(05)',923: '高三(09)',924: '高三(06)',925: '高三(10)'}
 
+
+#色表
 SUBJECT_COLOR = {'语文':'#b71c1c','数学':'#0D47A1','英语':'#FFEB3B','物理':'#4A148C','化学':'#AB47BC',
                  '生物':'#880E4F','历史':'#ef5350','地理':'#F06292','体育':'#1B5E20','音乐':'#4CAF50',
                  '美术':'#009688','信息技术':'#006064','政治':'#FF6F00','科学':'#00796B','通用技术':'#26C6DA',

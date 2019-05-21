@@ -10,11 +10,14 @@ from apps.simple_chart import dash_table,dash_bar,find_nothing,dash_DropDown
 
 ScoreType = {'score':'原始分','t_score':'标准分','div':'离均值'}
 ma = None
+grade_CLASS_TERMS = [i for i in CLASS_TERMS if i[-1] != '2']
+grade_CLASS_TERMS.insert(1, '2013-2014-2')
+
 
 mass_layout = html.Div([
     html.Div(id = 'ma-total-selector', children = [
         html.Div(children = [
-            html.Div(id = 'ma-select-term', children = dash_DropDown('ma-term-selector','请选择学期:',CLASS_TERMS,CLASS_TERMS,CLASS_TERMS[0]),style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'ma-select-term', children = dash_DropDown('ma-term-selector','请选择学期:',grade_CLASS_TERMS,grade_CLASS_TERMS,grade_CLASS_TERMS[0]),style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
             html.Div(id = 'ma-select-grade',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
             ],className = 'son-row-wrap')
         ],className = 'one-row'),

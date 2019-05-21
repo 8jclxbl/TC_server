@@ -1,6 +1,5 @@
 import dash
 from flask import Flask
-from models import *
 
 server = Flask(__name__)
 external_stylesheets = ['./static/total.css'] 

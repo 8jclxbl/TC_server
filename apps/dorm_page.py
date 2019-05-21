@@ -18,13 +18,15 @@ dorm_layout = html.Div([
         html.Div(id = 'dm-select-class',
             children = dash_DropDown('dm-class-selector','请选择班级：',class_has_dorm.values(),class_has_dorm.keys(),list(class_has_dorm.keys())[0]),
             style = {'display':'inline-block','width':'50%'}),
-
         html.Div(id = 'dm-select-class-dorm',style = {'display':'inline-block','width':'50%'})
     ],className = 'one-row'),
-    html.Div(id = 'ma-info-show-table-container', children = [
-        html.Div(id = 'ma-info-show-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],style = {'width':'98%','margin-left':'1%','margin-right':'1%'})
+
+    html.Div(id = 'dm-info-show-table-container', children = [
+        html.Div(id = 'dm-info-show-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],style = {'width':'98%','margin-left':'1%','margin-right':'1%'})
     ],className = 'one-row'),
-    html.Div(id = 'ma-consumption-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row')
+
+    html.Div(id = 'dm-consumption-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
+    #html.Div(id = 'dm-grade-of-dorm', children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row')
 ])
 
 
@@ -39,7 +41,7 @@ def get_dorm_of_class(cla_id):
    
 
 @app.callback(
-    Output('ma-info-show-table','children'),
+    Output('dm-info-show-table','children'),
     [Input('dm-class-dorm-selector','value')],
     [State('dm-class-selector','value')]
 )
@@ -50,14 +52,13 @@ def get_student_of_dorm(sushe_id,cla_id):
     for i in students:
         data.append(get_student_info_by_student_id(i)['value'])
     return dash_table(index,transpose(data),'dm-dorm-student-info','{0}宿舍学生数据'.format(sushe_id),300,columnwidth_=[1,1,1,1,1,3,1,1,1,1,1,1,1,1])
-    #return simple_table({'index':index,'value':data},'{0}宿舍学生数据'.format(sushe_id))
     
 @app.callback(
-    Output('ma-consumption-compare','children'),
+    Output('dm-consumption-compare','children'),
     [Input('dm-class-dorm-selector','value')],
-     [State('dm-class-selector','value')]
+    [State('dm-class-selector','value')]
 )
-def get_student_of_dorm(sushe_id,cla_id):
+def dorm_student_consumption_compare(sushe_id,cla_id):
     students = get_student_by_dorm_id(sushe_id,cla_id)
     data = {}
     for i in students:
@@ -67,3 +68,12 @@ def get_student_of_dorm(sushe_id,cla_id):
         data[i] = {'data':sumed['data'],'predict':sumed['predict']}
     
     return consumption_bar_dorm_month_compare(data,sushe_id)
+
+"""
+@app.callback(
+    Output('dm-grade-of-dorm', 'children'),
+    [Input('dm-class-dorm-selector','value')],
+    [State('dm-class-selector','value')]
+)
+def dorm_student_grade(sushe_id, cla_id):
+"""

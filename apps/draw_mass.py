@@ -4,7 +4,6 @@ import plotly.graph_objs as go
 
 from apps.simple_chart import dash_table
 
-
 from app import app
 from models.subject import get_all_dict_by_class_id,get_all_grade_by_class_id_total
 from models.globaltotal import SUBJECTS,GRADETYPE,GENERE_EXAM_ID
