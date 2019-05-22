@@ -7,7 +7,7 @@ from models.student import controller_info_by_student_id,consumption_by_student_
 from models.student import total_query_res
 from apps.draw_controller import controller_total
 from apps.draw_consumption import consumption_total
-from apps.draw_controller_statics import controller_statics_total,controller_statics
+from apps.draw_controller_statics import controller_statics_total,controller_statics,get_terms
 from apps.draw_grade import Grade
 from apps.simple_chart import simple_table,dash_table,find_nothing,dash_DropDown
 
@@ -39,6 +39,7 @@ student_layout = [
     html.Div(id = 'grade-lines',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
 
     html.Div(id = 'stu-controller-title',children = [html.H4('学生考勤数据',style = {'font-weight':'bold'})],className = 'one-row'),
+
     html.Div(id = 'student-controller-total', children = [
         html.H6('学生考勤状况统计:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
         html.Div(id = 'controller-selector-container',children = [
@@ -49,7 +50,10 @@ student_layout = [
             html.Div(id = 'controller-select-chart',
                 children = dash_DropDown('controller-graph-table-selector','图表切换:',['统计图','统计表'],['graph','table'],'graph'),
                 style = {'width':'40%','display':'inline-block','margin-left':'10px'}),  
-        ],style = {'display':'inline-block','vertical-align':'middle','width':'80%'})
+
+             html.Div(id = 'controller-select-term',style = {'width':'40%','display':'inline-block','margin-left':'10px'}),  
+
+        ],style = {'display':'inline-block','vertical-align':'middle','width':'80%'}),
     ],className = 'one-row-con'),
 
     html.Div(id = 'student-controller-show', className = 'one-row'),
@@ -71,7 +75,8 @@ student_layout = [
 #注意此处的参数位置和名称无关，只和Input的位置
 @app.callback(
     Output('student-info', 'children'),
-    [Input('student-id-submmit','n_clicks'),Input('input-student-id', 'value')],
+    [Input('student-id-submmit','n_clicks')],
+    [State('input-student-id', 'value')]
 )
 def select_student(n_clicks,value):
     is_grad = False
@@ -152,10 +157,28 @@ def student_grade_graph(subjects,score_type,score_types,is_nor_exam,stu_id):
         return gd.draw_line_total(subjects,score_types,is_nor_exam)
 
 @app.callback(
-    Output('student-controller-show','children'),
-    [Input('controller-aspect-selector','value'),Input('controller-graph-table-selector','value'),Input('input-student-id', 'value')],
+    Output('controller-select-term', 'children'),
+    [Input('input-student-id', 'value')]
 )
-def controller_selector(aspect,graph_table,stu_id):
+def gen_term_selector(stu_id):
+    query_res = controller_info_by_student_id(stu_id)
+    if query_res['data'].empty:
+        labels = ['无可用数据']
+        values = [0]
+        init_value = values[0]
+    else:
+        terms = get_terms(query_res)
+        labels = terms
+        values = terms
+        init_value = values[0]
+    return dash_DropDown('controller-sta-term-selector','请选择学期:',labels, values, init_value)
+
+@app.callback(
+    Output('student-controller-show','children'),
+    [Input('controller-aspect-selector','value'),Input('controller-graph-table-selector','value'),Input('controller-sta-term-selector', 'value')],
+    [State('input-student-id', 'value')],
+)
+def controller_selector(aspect,graph_table,term,stu_id):
     query_res = controller_info_by_student_id(stu_id)
     #The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
     if query_res['data'].empty:return find_nothing('缺失该学生的考勤数据')
@@ -163,7 +186,10 @@ def controller_selector(aspect,graph_table,stu_id):
         return controller_total(query_res,graph_table,stu_id)
     else:
         cs = controller_statics(query_res)
-        return cs.gen_layout()
+        info = cs.pie_data(term)
+        title = cs.title
+        table_data = {'index':['出勤','迟到早退','请假'],'value':info}
+    return [controller_statics_total(info,term,title),simple_table(table_data,'学生{0}{1}学期出勤情况统计'.format(stu_id,term))]
 
 @app.callback(
     Output('student-consumption-show','children'),
@@ -175,6 +201,16 @@ def consumption_selector(graph_table,intervel,stu_id):
     return consumption_total(query_res,intervel,graph_table)
 
 @app.callback(
+    Output('controller-select-term','style'),
+    [Input('controller-aspect-selector','value')]
+)
+def term_select_lantent(aspect):
+    if aspect == 'controller' :
+        return {'display':'None'}
+    else:
+        return {'width':'30%','display':'inline-block','margin-left':'10px','margin-right':'10px'}
+
+@app.callback(
     Output('controller-select-chart','style'),
     [Input('controller-aspect-selector','value')]
 )
@@ -183,21 +219,6 @@ def graph_table_lantent(aspect):
         return {'display':'None'}
     else:
         return {'width':'30%','display':'inline-block','margin-left':'10px','margin-right':'10px'}
-
-
-@app.callback(
-    Output('controller-statics','children'),
-    [Input('controller-sta-term-selector','value'),Input('input-student-id', 'value')]
-)
-def term_selector(term,stu_id):
-    query_res = controller_info_by_student_id(stu_id)
-    if query_res['data'].empty:return find_nothing('缺失该学生的考勤数据')
-    cs = controller_statics(query_res)
-    info = cs.pie_data(term)
-    title = cs.title
-    table_data = {'index':['出勤','迟到早退','请假'],'value':info}
-    return [controller_statics_total(info,term,title),simple_table(table_data,'学生{0}{1}学期出勤情况统计'.format(stu_id,term))]
-
 
 @app.callback(
     Output('grade-type-selector','style'),

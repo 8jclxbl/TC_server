@@ -16,10 +16,11 @@ title_table = {'Year':'年','Month':'月','Day':'日','Total':'总'}
 #整个文件只向外导出_total即可
 def consumption_total(query_res,sep,ctype):
     sumed = consumption_data_seperate(query_res,sep)
+    stu_id = query_res['id']
     if ctype == 'graph':
-        return consumption_bar_uds(sumed)
+        return consumption_bar_uds(sumed,stu_id)
     else:
-        return consumption_table_uds(sumed)
+        return consumption_table_uds(sumed,stu_id)
 
 def delete_selected_data_series(data,val):
     need_del_bool = data.values != val
@@ -74,14 +75,14 @@ def consumption_data_seperate(data, sep):
 
     return {'data':sumed,'title_part':interval}
 
-def consumption_table_uds(sumed):
+def consumption_table_uds(sumed,stu_id = ''):
     data = sumed['data']
     interval = sumed['title_part']
     if interval != '月':predict = None
     else:predict = sumed['predict']
-    return dash_table_predict(['时间','花费'],[data.index, data.values * -1],'consumption-table-by-interval','学生{0}消费统计表'.format(interval),predict)
+    return dash_table_predict(['时间','花费'],[data.index, data.values * -1],'consumption-table-by-interval','学生{0}{1}消费统计表'.format(stu_id,interval),predict)
 
-def consumption_bar_uds(sumed):
+def consumption_bar_uds(sumed,stu_id = ''):
     data = sumed['data']
     interval = sumed['title_part']
     
@@ -119,7 +120,7 @@ def consumption_bar_uds(sumed):
                     hovermode='closest',  
                     dragmode='select',
                     plot_bgcolor="#dfe6e9",
-                    title='学生{0}消费统计'.format(interval),
+                    title='学生{0}{1}消费统计'.format(stu_id,interval),
                     xaxis = dict(title = '时间', showline = True, tickangle = 75),
                     yaxis = dict(title = '花费', showline = True),
                     margin=dict(l=40,r=40,b=140,t=80),

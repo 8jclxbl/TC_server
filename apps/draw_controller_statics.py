@@ -10,15 +10,17 @@ from app import app
 
 type_class = {'arrive_late':[100000,100100,100200,100300,9900100,9900300],'leaving':[200200]}
 
-def controller_statics_total(info,term,title):
+def get_terms(query_res):
+    terms = query_res['data']['terms'].drop_duplicates().values
+    return terms
 
+def controller_statics_total(info,term,title):
     return dcc.Graph(
         id = 'controller-statics-pie',
         figure = {
             'data':[go.Pie(
                 labels = ['出勤','迟到早退','请假'],
                 values = info,
-                
             )],
             'layout':go.Layout(
                 title = title + '({0})'.format(term)
@@ -43,18 +45,7 @@ class controller_statics:
         self.terms = self.data['terms'].drop_duplicates().values
         self.types = self.data['types'].drop_duplicates().values
         self.title = '学生{0}考勤总体状况统计'.format(self.id)
-
-    def gen_layout(self):
-        terms = self.terms
-        term_dropdown = dash_DropDown('controller-sta-term-selector','请选择学期',terms,terms,terms[0])
   
-        layout = [
-            html.Div(id = 'controller-static-container',children = term_dropdown),
-            html.Div(id = 'controller-statics'),
-        ]
-
-        return layout
-    
     def get_grade(self,cla_name):
         if '高一' in cla_name:
             return 1
