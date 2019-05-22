@@ -4,17 +4,19 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from models.globaltotal import CLASS_TERMS,EXAMS,CLASS_HAS_DORM,CLASS_TABLE
-from models.dorm import get_dorm_by_class_id,get_student_by_dorm_id
+from models.dorm import get_dorm_by_class_id,get_student_by_dorm_id,get_grade_subjects 
 from models.student import get_student_info_by_student_id,consumption_by_student_id
 
 from apps.draw_consumption import consumption_data_seperate,consumption_bar_dorm_month_compare
 from apps.simple_chart import dash_table,find_nothing,simple_table,dash_DropDown
+from apps.draw_dorm import DormGrade
 from apps.util import transpose
 
+ScoreType = {'score':'分数','t_score':'T值','z_score':'Z值','r_score':'等第'}
 class_has_dorm = {i:CLASS_TABLE[i] for i in CLASS_HAS_DORM}
 
 dorm_layout = html.Div([
-    html.Div(id = 'dm-select-class',children = [
+    html.Div(id = 'dm-info-select-container',children = [
         html.Div(id = 'dm-select-class',
             children = dash_DropDown('dm-class-selector','请选择班级：',class_has_dorm.values(),class_has_dorm.keys(),list(class_has_dorm.keys())[0]),
             style = {'display':'inline-block','width':'50%'}),
@@ -26,7 +28,12 @@ dorm_layout = html.Div([
     ],className = 'one-row'),
 
     html.Div(id = 'dm-consumption-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
-    #html.Div(id = 'dm-grade-of-dorm', children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row')
+    html.Div(id = 'dm-grade-select-container', children = [
+        html.Div(id='dm-select-subject',  style = {'display':'inline-block','width':'30%'}),
+        html.Div(id='dm-select-exam-type', children = dash_DropDown('dm-exam-type-selector', '请选择考试类型', ['考试','平时成绩'],['normal','general'],'normal'), style = {'display':'inline-block','width':'30%'}),
+        html.Div(id='dm-select-score-type', children = dash_DropDown('dm-score-type-selector', '请选择分数类型',list(ScoreType.values()),list(ScoreType.keys()),'r_score'),style = {'display':'inline-block','width':'30%'})
+    ],className = 'one-row'),
+    html.Div(id = 'dm-grade-of-dorm', children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row')
 ])
 
 
@@ -69,11 +76,27 @@ def dorm_student_consumption_compare(sushe_id,cla_id):
     
     return consumption_bar_dorm_month_compare(data,sushe_id)
 
-"""
 @app.callback(
-    Output('dm-grade-of-dorm', 'children'),
+    Output('dm-select-subject', 'children'),
     [Input('dm-class-dorm-selector','value')],
     [State('dm-class-selector','value')]
 )
-def dorm_student_grade(sushe_id, cla_id):
-"""
+def get_dorm_subjects(sushe_id, cla_id):
+    subjects = get_grade_subjects(sushe_id,cla_id)
+    labels = subjects['labels']
+    #values = subjects['values']
+    values = labels
+    init_value = values[0]
+    return dash_DropDown('dm-class-subject-selector','请选择科目:',labels,values,init_value)
+
+@app.callback(
+    Output('dm-grade-of-dorm', 'children'),
+    [Input('dm-exam-type-selector','value'),Input('dm-score-type-selector','value'),Input('dm-class-subject-selector','value')],
+    [State('dm-class-dorm-selector','value'),State('dm-class-selector','value')]
+)
+def dorm_student_grade(exam_type,score_type,subject,sushe_id,cla_id):
+    students = get_student_by_dorm_id(sushe_id,cla_id)
+    dg = DormGrade(students,sushe_id)
+    if exam_type == 'normal':is_noraml = True
+    else: is_noraml = False
+    return dg.seprate_by_subjects(subject,score_type,is_noraml)

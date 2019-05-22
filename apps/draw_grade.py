@@ -6,7 +6,7 @@ from apps.simple_chart import dash_table
 import pandas as pd
 from app import app
 
-from models.globaltotal import GENERE_EXAM_ID,SUBJECT_COLOR,SOCRE_TYPE_COLOR
+from models.globaltotal import GENERE_EXAM_ID,SUBJECT_COLOR,SOCRE_TYPE_COLOR,EXAMS
 from models.student import get_predict_rank
 
 ScoreType = {'score':'分数','t_score':'T值','z_score':'Z值','r_score':'等第'}
@@ -56,14 +56,11 @@ class Grade:
         
         self.separate_by_exam()
         self.separate_exam_genere()
-        #self.info_each_exam()
-        
+
         self.separate_by_subject()
         self.info_each_subject()
         #获取预测的分数
         self.predict_rank = get_predict_rank(self.student_id)
-        
-        #self.draw_all_lines()
 
     def gen_layout(self):
         layout = [
@@ -186,36 +183,29 @@ class Grade:
 
     def separate_by_exam(self):
         df = self.data
-        self.exams = df['exam_name'].drop_duplicates().values
         self.exam_ids = df['exam_id'].drop_duplicates().values
-        exam_dic = {}
-        for i in self.exams:
-            exam_dic[i] = df.loc[df['exam_name'] == i]
-
-        self.grade_sep_by_exam = exam_dic
 
     def separate_exam_genere(self):
-        exams = {}
-        generes = {}
-        length = len(self.exams)
-        for i in range(length):
-            if self.exam_ids[i] in GENERE_EXAM_ID:
-                generes[self.exam_ids[i]] = self.exams[i]
+        exams = []
+        generes = []
+
+        for k in self.exam_ids:
+            if k in GENERE_EXAM_ID:
+                generes.append(k)
             else:
-                exams[self.exam_ids[i]] = self.exams[i]
+                exams.append(k)
+
         self.gen_exam = generes
         self.nor_exam = exams
-
 
     def separate_by_subject(self):
         df = self.data
         self.subjects = df['subject'].drop_duplicates().values
-        self.subject_ids = df['subject_id'].drop_duplicates().values
-        subject_dic = {}
+        grade_sep_by_subject = {}
         for i in self.subjects:
-            subject_dic[i] = df.loc[df['subject'] == i]
+            grade_sep_by_subject[i] = df.loc[df['subject'] == i]
 
-        self.grade_sep_by_subject = subject_dic
+        self.grade_sep_by_subject = grade_sep_by_subject
 
     def info_each_subject(self):
         info = {}
@@ -223,19 +213,8 @@ class Grade:
             info[i] = self.grade_sep_by_subject[i][['exam_id','exam_name','score','z_score','t_score','r_score']]
         self.grade_info_by_subject = info
 
-    def get_exams(self):
-        return self.exams
-
     def get_subjects(self):
         return self.subjects
-
-    #获取某次考试各科的成绩
-    def line_data_by_exam(self,exam_name,score_type):
-        df = self.grade_sep_by_exam[exam_name]
-        subject_name = df['subject'].values
-        score = df[score_type].values
-
-        return {'head':subject_name,'score':score}
 
     #获取某一门课各次考试的成绩
     def line_data_by_subject(self,subject,score_type,is_normal_exam):
@@ -249,12 +228,12 @@ class Grade:
         score = df[score_type].values
 
         exam_dic = {i:j for i,j in zip(exam_ids,score)}
-        exam_set_sorted = sorted(list(exam_set.keys()))
+        exam_set_sorted = sorted(exam_set)
 
         en = []
         sc = []
         for i in exam_set_sorted:
-            en.append(exam_set[i])
+            en.append(EXAMS[i])
             if i in exam_ids:
                 sc.append(exam_dic[i])
             else:sc.append(None)
@@ -271,15 +250,4 @@ class Grade:
             for j in type_selected:
                 types_info[j] = self.line_data_by_subject(i,j,is_normal_exam)
             total_data[i] = types_info
-        return total_data
-
-
-    #由于将分数与其他的评价指标分开了，所以这里需要将这两个分数分开显示
-    def line_data_by_subject_score(self,subject,is_normal_exam):
-        return self.line_data_by_subject(subject,'score',is_normal_exam)
-
-    def grade_line_graph_score(self,subject_selected,is_normal_exam):
-        total_data = {}
-        for i in subject_selected:
-            total_data[i] = self.line_data_by_subject_score(i,is_normal_exam)
         return total_data

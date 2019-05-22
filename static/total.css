@@ -34,7 +34,6 @@
 
 /* Grid
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
-
 .custom-tabs-container {
   width: 100%;
   }
@@ -68,6 +67,15 @@
   border-right: 1px solid lightgrey !important;
   border-top: 3px solid rgb(0, 183, 255) !important;
   }
+
+.submit-button {
+height: 34;
+background: #119DFF;
+border: 1px solid #119DFF;
+color: white;
+margin-left:10px;
+margin-right:10px;
+}
 
 
 .container {

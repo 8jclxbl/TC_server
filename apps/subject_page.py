@@ -80,7 +80,7 @@ def select_subject(class_):
     class_grade = get_all_grade_by_class_id_total(class_)
     if class_grade.empty:return '缺失此班学生的考试数据'
     subjects = class_grade['subject'].drop_duplicates().values  
-    return dash_DropDown('sa-subject-selector','请选择课程:',subjects,subjects,subjects[0])
+    return dash_DropDown('sa-subject-selector','请选择课程:',subjects,subjects,'语文')
 
 @app.callback(
     Output('sa-class-grade-table','children'),
