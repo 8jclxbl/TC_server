@@ -125,7 +125,7 @@ def dash_table(head_val,value_val,tab_id,title_name = '',height_ = 450,columnwid
         },
     )
 
-def dash_bar(head_val,value_val,x_title,y_title,tab_id,title_name = ''):
+def dash_bar(head_val,value_val,x_title,y_title,tab_id,title_name = '',tickangle_ = 75):
     total = [
             go.Bar(
                 x = head_val,
@@ -143,7 +143,7 @@ def dash_bar(head_val,value_val,x_title,y_title,tab_id,title_name = ''):
                     plot_bgcolor="#dfe6e9",
 
                     title=title_name,
-                    xaxis = dict(title = x_title, showline = True, tickangle = 75),
+                    xaxis = dict(title = x_title, showline = True, tickangle = tickangle_),
                     yaxis = dict(title = y_title, showline = True),
                     margin=dict(l=40,r=40,b=140,t=80),
                 )

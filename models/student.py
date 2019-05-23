@@ -1,5 +1,5 @@
 import pandas as pd
-from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,LESSON,CONTROLLER_INFO,STUDYDAYS,CONSUMPTION,CONSUMPTION_PREDICT,RANK_PREDICT
+from models.globaltotal import SUBJECTS,CONTROLLER_TABLE,GRADETYPE,TOTAL_GRADE,TOTAL_TOTALS,EXAMS,CLASS_TABLE,CUR_STUDENT,GRAD_STUDENT,LESSON,CONTROLLER_INFO,STUDYDAYS,CONSUMPTION,CONSUMPTION_PREDICT,RANK_PREDICT
 
 #简单的信息单行表同一返回以下结构的字典
 
@@ -80,14 +80,16 @@ def get_predict_rank(stu_id):
     info = RANK_PREDICT.loc[RANK_PREDICT['student_id'] == stu_id]
     subject = info['subject_id'].values
     rank = info['r_score'].values
+    trend = info['trend'].values
+    trends = {SUBJECTS[k]:v for k,v in zip(subject,trend)}
     result = {}
     for s,r in zip(subject,rank):
-        if s in [9,11,12]:continue
+        #if s in [9,11,12]:continue
         if r < 0: r = 0.1 + (r/10)
         elif r > 1: r = 0.9 + (r-1)/10
         r = round(r,5)
         result[SUBJECTS[s]] = r
-    return result
+    return [result,trends]
 
 #根据学期开始年份获取此年份学期的所有在校日数目
 #input: year 'str'
@@ -97,6 +99,14 @@ def get_study_days_by_start_year(year):
     study_days = STUDYDAYS.loc[STUDYDAYS['year'] == year].values[0]
     data = study_days[1:]
     return data
+
+def r_score_comment(r_score):
+    if isinstance(r_score,str): return r_score
+    if r_score <= 0.05:return '优秀'
+    elif r_score <= 0.2:return '良好'
+    elif r_score <= 0.4:return '中等'
+    elif r_score <= 0.6:return '一般'
+    else: return '后进'
 
 #根据学生id获取考试分数
 #input: stu_id 'str'
@@ -121,6 +131,7 @@ def get_student_grades_by_student_id(stu_id):
     Divs         = []
     G_ranks      = []
     C_ranks      = []
+    Comments = []
 
     for i in data.values: 
         #if i[2] < 0:continue
@@ -132,15 +143,17 @@ def get_student_grades_by_student_id(stu_id):
         Scores.append(i[6] if i[6] >= 0 else GRADETYPE[int(i[6])])
         Zscores.append(round(i[7],2) if i[7] != -6 else '考试状态异常')
         Tscores.append(round(i[8],2) if i[8] != -6 else '考试状态异常')
-        Rscores.append(round(i[9],2) if i[9] != -6 else '考试状态异常')
+        r_score = round(i[9],2) if i[9] != -6 else '考试状态异常'
+        Rscores.append(r_score)
         Means.append(round(i[10],2) if i[10] != -1 else  '考试状态异常')
         Divs.append(round(i[11],2) if i[11] != -100 else '考试状态异常')
         G_ranks.append(round(i[12],2) if i[12] != -1 else '考试状态异常')
         C_ranks.append(round(i[13],2) if i[13] != -1 else '考试状态异常')
+        Comments.append(r_score_comment(r_score))
 
 
     data = {'test_id':Test_ids,'exam_id':Exam_ids,'exam_name':Exam_names,'subject_id':Subject_ids,'subject':Subjects,
-        'score':Scores,'z_score':Zscores,'t_score':Tscores,'r_score':Rscores,'mean':Means,'div':Divs,'Grank':G_ranks,'Crank':C_ranks}
+        'score':Scores,'z_score':Zscores,'t_score':Tscores,'r_score':Rscores,'mean':Means,'div':Divs,'Grank':G_ranks,'Crank':C_ranks,'Comment':Comments}
 
     return pd.DataFrame(data)
 

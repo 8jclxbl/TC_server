@@ -153,7 +153,7 @@ def ma_gen_distribute_compare(subject,grade,exam,term):
     data = get_classes_by_term(term)
     ma = Mass(data) 
     res = ma.total_distribute_compare(grade,exam,subject)
-    return dash_compare_bar(res,'成绩区间','人数','ma-distribute-compare-bar','{0}{1}{2}成绩分布比较'.format(EXAMS[exam],grade,subject))
+    return dash_compare_bar(res,'成绩区间','人数','ma-distribute-compare-bar','{0}{1}{2}成绩分布比较'.format(EXAMS[exam],grade,subject),0)
 
 
 @app.callback(
@@ -226,4 +226,4 @@ def ma_gen_ditribution(class_,subject,score_type,grade,exam):
     title = '{0}{1}班{2}{3}分布'.format(EXAMS[exam],CLASS_TABLE[class_],subject,ScoreType[score_type])
     id_ = 'ma-grade-bar-{0}'.format(class_)
     
-    return dash_bar(header,value,x_t,y_t,id_,title)
+    return dash_bar(header,value,x_t,y_t,id_,title,0)

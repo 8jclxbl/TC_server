@@ -29,7 +29,7 @@ class EletiveSubject:
             }
         )
     
-    def draw_bar(self,index,value,x_title,y_title,id_,title_):
+    def draw_bar(self,index,value,x_title,y_title,id_,title_,tickangle_ = 75):
         return dcc.Graph(
             id = id_,
             figure = {
@@ -44,7 +44,7 @@ class EletiveSubject:
                     plot_bgcolor="#dfe6e9",
 
                     title= title_,
-                    xaxis = dict(title = x_title, showline = True, tickangle = 75),
+                    xaxis = dict(title = x_title, showline = True, tickangle = tickangle_),
                     yaxis = dict(title = y_title, showline = True),
                     margin=dict(l=50,r=20,b=140,t=80),
                 )
@@ -67,14 +67,14 @@ class EletiveSubject:
         data = self.statics_by_one_subject()
         index = list(data.keys())
         value = list(data.values())
-        return self.draw_bar(index,value,'课程','人数','one-subject-bar','单科选择分布')
+        return self.draw_bar(index,value,'课程','人数','one-subject-bar','单科选择分布',0)
 
     def draw_by_subjects(self,subjects):
         data = self.statics_by_subjects(subjects)
         index = data.index
         index = [CLASS_TABLE[i] + '班' for i in index]
         value = data.values
-        return self.draw_bar(index,value,'班级','人数','subjects-bar',subjects)
+        return self.draw_bar(index,value,'班级','人数','subjects-bar',subjects,0)
 
     def subjects_process(self):
         temp = self.data['subjects'].values

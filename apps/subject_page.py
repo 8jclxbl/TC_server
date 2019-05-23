@@ -4,7 +4,7 @@ from dash.dependencies import Input,Output,State
 from app import app
 
 from models.globaltotal import CLASS_TERMS,THIRD_GRADE,CLASS_TABLE,ALL_CLASSES
-from models.subject import class_grade_process,sql_73,get_all_grade_by_class_id_total
+from models.subject import class_grade_process,sql_73,get_all_grade_by_class_id_total,get_classes_by_term_dic
 from apps.simple_chart import dash_table,dash_min_max_line,dash_DropDown
 from apps.draw_eletive_subject import EletiveSubject
 
@@ -65,12 +65,16 @@ subject_layout = html.Div([
     [Input('sa-term-selector', 'value')]
 )
 def select_term(term):
-    df = ALL_CLASSES
-    data = df.loc[df['class_term'] == term]
-    ids = data['class_id'].values
-    names = data['class_name'].values
-    
-    return dash_DropDown('sa-class-selector','请选择班级:',names,ids,ids[0])
+    data = get_classes_by_term_dic(term)
+    labels = data['labels']
+    if not labels:
+        labels = ['当前学期缺失班级数据']
+        values = [0]
+        init_value = 0
+    else:
+        values = data['values']
+        init_value = values[0]
+    return dash_DropDown('sa-class-selector','请选择班级:',labels,values,init_value)
 
 @app.callback(
     Output('sa-select-subject','children'),
@@ -78,9 +82,15 @@ def select_term(term):
 )
 def select_subject(class_):
     class_grade = get_all_grade_by_class_id_total(class_)
-    if class_grade.empty:return '缺失此班学生的考试数据'
-    subjects = class_grade['subject'].drop_duplicates().values  
-    return dash_DropDown('sa-subject-selector','请选择课程:',subjects,subjects,'语文')
+    if class_grade.empty:
+        labels = ['缺失此班学生的考试数据']
+        values = [0]
+        init_value = 0
+    else:
+        labels = class_grade['subject'].drop_duplicates().values  
+        values = labels
+        init_value = '语文'
+    return dash_DropDown('sa-subject-selector','请选择课程:',labels,values,init_value)
 
 @app.callback(
     Output('sa-class-grade-table','children'),
@@ -102,6 +112,7 @@ def grade_max_min_table(class_,term):
     [State('sa-class-selector', 'value')]
 )
 def max_min_graph(subject,class_):
+    if not subject: return '缺失此班学生的考试数据'
     class_grade = get_all_grade_by_class_id_total(class_)
     if class_grade.empty:return '缺失此班学生的考试数据'
     res = class_grade_process(class_grade)

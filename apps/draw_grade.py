@@ -14,8 +14,9 @@ ScoreType = {'score':'分数','t_score':'T值','z_score':'Z值','r_score':'等�
 #data_structure {subject_name:{type:{exam:score}}}
 #绘制图中的一条线的函数
 def draw_line(subject_name,type_name,data):
+    trend = data['trend']
+    trend = ' 趋势:' + trend
     return go.Scatter(
-    
         x = data['head'],
         y = data['score'],
         #当前图的名称，亦即legend中的名称
@@ -23,7 +24,7 @@ def draw_line(subject_name,type_name,data):
         mode = 'lines+markers',
 
         #鼠标悬浮时显示的文字
-        text = ['{0}{1}{2}:{3}'.format(k,subject_name,ScoreType[type_name],v) for k,v in zip(data['head'],data['score'])],
+        text = ['{0},{1}:{2}{3}'.format(k,ScoreType[type_name],v,trend) for k,v in zip(data['head'],data['score'])],
         
         #散点的属性
         marker = dict(
@@ -60,7 +61,7 @@ class Grade:
         self.separate_by_subject()
         self.info_each_subject()
         #获取预测的分数
-        self.predict_rank = get_predict_rank(self.student_id)
+        self.predict_rank,self.trend = get_predict_rank(self.student_id)
 
     def gen_layout(self):
         layout = [
@@ -218,6 +219,8 @@ class Grade:
 
     #获取某一门课各次考试的成绩
     def line_data_by_subject(self,subject,score_type,is_normal_exam):
+        TREND = {0:'原地踏步',2:'有进步',1:'有退步'}
+        trend = ''
         if is_normal_exam:
             exam_set = self.nor_exam
         else:
@@ -238,10 +241,11 @@ class Grade:
                 sc.append(exam_dic[i])
             else:sc.append(None)
         if subject in self.predict_rank and score_type == 'r_score':
+            trend = TREND[self.trend[subject]]
             en.append('下次考试等第预测')
             sc.append(self.predict_rank[subject])
 
-        return {'head':en,'score':sc}
+        return {'head':en,'score':sc,'trend':trend}
 
     def grade_line_graph(self,subject_selected,type_selected,is_normal_exam):
         total_data = {}

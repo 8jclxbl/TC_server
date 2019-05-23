@@ -63,7 +63,7 @@ def get_all_controller():
     controllers_dic = {k:v for k,v in zip(ids, total_names)}
     return controllers_dic
 
-#获取所有的靠前信息
+#获取所有的考勤信息
 #return: controller_infos 'pd.DataFrame'
 #controller_infos.columns = [id,term,date_time,type_id,class_id,student_id,class_name]
 def get_all_controller_info():
@@ -88,6 +88,12 @@ def get_terms_of_all_class(all_classes):
     terms_sorted = sorted(terms_dd)
     return terms_sorted
 
+def get_class_year_of_all_class(all_classes):
+    years = all_classes['class_year']
+    years_d = years.drop_duplicates().values
+    years_sorted = sorted(years_d)
+    return years_sorted
+
 #获取所有的考试信息，经过处理后的考试信息，加入了考试离均值，班级排名和年级排名
 #return: exam_results 'pd.DataFrame'
 #exam_results.columns = [test_id,exam_id,subject_id,student_id,class_id,grade,score,z_score,t_score,r_score,mean,div,rank,class_rank]
@@ -109,7 +115,7 @@ def get_all_dorms():
     dorms = get_csv_data('dorms')
     return dorms
 
-#基于整体的宿舍信息，获取有在校学生的班级的id的列表
+#基于整体的宿舍信息，获取有住校学生的班级的id的列表
 #Input: dorms_info, 'pd.DataFrame'
 #return: info 'list'
 def get_class_has_dorm(dorms_info):
@@ -205,6 +211,7 @@ CURRENT_THIRD = [i for i in range(916,926)]
 ELETIVE_CLASS = ['政治','历史','地理','物理','化学','生物','技术']
 
 CLASS_TERMS = get_terms_of_all_class(ALL_CLASSES)
+CLASS_YEARS = get_class_year_of_all_class(ALL_CLASSES)
 CLASS_TABLE = get_class_table(ALL_CLASSES)
 EXAMS = get_exam_name()
 

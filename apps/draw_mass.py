@@ -297,7 +297,7 @@ class ClassInfo:
         return partition
 
 
-def dash_compare_bar(res,x_title,y_title,tab_id,title_name = ''):
+def dash_compare_bar(res,x_title,y_title,tab_id,title_name = '',tickangle_ = 75):
     total = []
     data = res['data']
     exam_id = res['exam']
@@ -321,7 +321,7 @@ def dash_compare_bar(res,x_title,y_title,tab_id,title_name = ''):
                     plot_bgcolor="#dfe6e9",
 
                     title=title_name,
-                    xaxis = dict(title = x_title, showline = True, tickangle = 75),
+                    xaxis = dict(title = x_title, showline = True, tickangle = tickangle_),
                     yaxis = dict(title = y_title, showline = True),
                     margin=dict(l=40,r=40,b=140,t=80),
                 )

@@ -1,4 +1,4 @@
-from models.globaltotal import SUBJECTS,EXAMS,TOTAL_GRADE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,ALL_SUBJECT_73
+from models.globaltotal import SUBJECTS,EXAMS,TOTAL_GRADE,ALL_CLASSES,CUR_STUDENT,GRAD_STUDENT,ALL_SUBJECT_73,LESSON
 import pandas as pd
 
 #根据学期获取当前学期的班级数据
@@ -20,8 +20,13 @@ def get_classes_by_term(term):
         class_names.append(i[2])
         grade_names.append(i[3])
     data = {'id':class_ids,'term':class_terms,'name':class_names,'grade_name':grade_names}
-
     return pd.DataFrame(data)
+
+def get_classes_by_term_dic(term):
+    df = get_classes_by_term(term)
+    ids = df['id'].values
+    names = df['name'].values
+    return {'labels':list(names),'values':list(ids)}
 
 #根据班级id获取，次班级所有的学生名单
 #input: cla_id 'str'
@@ -95,3 +100,17 @@ def sql_73(cla_id = None):
         info = ALL_SUBJECT_73.loc[ALL_SUBJECT_73['class_id'] == cla_id]
     info = info[['student_id', 'student_name', 'class_id','subjects']]
     return info
+
+
+def subject_of_teachers():
+    info = LESSON.drop_duplicates('subject_id').values
+    values = sorted(info)
+    labels = [SUBJECTS[i] for i in values]
+    return {'labels':labels, 'values':values}
+
+def get_teacher_by_subject(subject_id):
+    info = LESSON.loc[LESSON['subject_id'] == subject_id].drop_duplicates(subset = ['teacher_id'])
+    ids = info.teacher_id.values
+    names = info.teacher_name.values
+    labels = ['编号:{0}, 姓名{1}'.format(str(i),j) for i,j in zip(ids,names)]
+    return {'labels':labels, 'values':ids}

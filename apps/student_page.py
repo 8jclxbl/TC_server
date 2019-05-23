@@ -124,9 +124,9 @@ def student_total_grade(n_clicks,stu_id):
 def student_grade(n_clicks,stu_id):
     grade = grade_query_res(stu_id)['data']
     if grade.empty:return find_nothing('缺失该学生的考试数据')
-    header = ['考试名称','科目','分数','Z值','T值','等第','离均值','年级排名','班级排名']
-    grade = grade[['exam_name','subject','score','z_score','t_score','r_score','div','Grank','Crank']]
-    return dash_table(header,grade.T,'student-grade-table','学生{0}历次考试成绩统计表'.format(stu_id),columnwidth_=[3,1,1,1,1,1,1,1,1])
+    header = ['考试名称','科目','分数','Z值','T值','等第','离均值','年级排名','班级排名','评价']
+    grade = grade[['exam_name','subject','score','z_score','t_score','r_score','div','Grank','Crank','Comment']]
+    return dash_table(header,grade.T,'student-grade-table','学生{0}历次考试成绩统计表'.format(stu_id),columnwidth_=[3,2,1,1,1,1,1,1,1,1])
 
 @app.callback(
     Output('grade-lines', 'children'),
