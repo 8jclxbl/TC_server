@@ -11,13 +11,11 @@ from apps.welcome_page import welcome_layout
 
 
 total_layout = html.Div([
-    html.Div(
+   html.Div(
         className = 'app-title',
-        children = [html.Span(
-            children = ['忽然之间克哈的霓虹为我在闪烁'], 
-            style = {'color':'#FFF','line-height':'60px','font-size':'40px','font-weight':'200','padding-left':'10px'},
-        )],
-        style = {'backgroundColor':'#0D47A1','height':'60px'},
+        children = [
+            html.Img(id = 'total_img', src = './static/background.jpg', style = {'width':'100%', 'height':'auto'},),
+        ],
     ),
 
     dcc.Tabs(id='main-func-selector', value = 'welcome',className='custom-tabs-container',children = [

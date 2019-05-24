@@ -25,8 +25,9 @@ student_layout = [
         html.Button(
             children = '提交', 
             id='student-id-submmit',
+            className= 'button-raised button-primary button-pill',
             n_clicks = 0,
-            className = 'submit-button'),
+            ), 
         html.Div(id = 'student-info',style = {'padding-bottom':'10px'}),
         ],
         className = 'one-row',

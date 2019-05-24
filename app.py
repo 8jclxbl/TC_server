@@ -12,7 +12,7 @@ external_stylesheets = ['./static/total.css']
 
 #此js文件是dash绘图所必须的，但是由于其服务器在国外，此js成了网站访问速度的瓶颈
 #这里直接修改了dash库的源代码，dash/__init__.py,注释掉了默认的地址，使得可以从服务器获取文件
-external_scripts = ['./static/plotly-1.47.0.min.js']
+external_scripts = ['./static/plotly-1.47.0.min.js','./static/draw_background.js']
 app = dash.Dash(server = server,external_stylesheets=external_stylesheets,external_scripts=external_scripts)
 #dash的多页面程序所必须的
 app.config.suppress_callback_exceptions = True
