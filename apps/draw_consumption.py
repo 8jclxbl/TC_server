@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 
 import pandas as pd 
 
-from apps.simple_chart import dash_table,dash_table_predict
+from apps.simple_chart import dash_table_predict
 from models.student import get_predict_consumption
 
 title_table = {'Year':'年','Month':'月','Day':'日','Total':'总'}

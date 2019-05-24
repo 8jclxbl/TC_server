@@ -6,7 +6,7 @@ from apps.simple_chart import dash_table
 import pandas as pd
 from app import app
 
-from models.globaltotal import GENERE_EXAM_ID,SUBJECT_COLOR,SOCRE_TYPE_COLOR,EXAMS
+from models.globaltotal import GENERE_EXAM_ID,SUBJECT_COLOR,EXAMS
 from models.student import get_predict_rank
 
 ScoreType = {'score':'分数','t_score':'T值','z_score':'Z值','r_score':'等第'}

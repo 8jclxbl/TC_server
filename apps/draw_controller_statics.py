@@ -3,9 +3,7 @@ import dash_core_components as dcc
 import plotly.graph_objs as go 
 import pandas as pd
 
-from dash.dependencies import Input,Output
 from models.student import get_study_days_by_start_year
-from apps.simple_chart import dash_DropDown
 from app import app
 
 type_class = {'arrive_late':[100000,100100,100200,100300,9900100,9900300],'leaving':[200200]}

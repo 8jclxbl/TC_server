@@ -3,8 +3,8 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.globaltotal import CLASS_TERMS,THIRD_GRADE,CLASS_TABLE,ALL_CLASSES
-from models.subject import class_grade_process,sql_73,get_all_grade_by_class_id_total,get_classes_by_term_dic
+from models.globaltotal import CLASS_TERMS,THIRD_GRADE,CLASS_TABLE,CLASS_YEARS
+from models.subject import class_grade_process,sql_73,get_all_grade_by_class_id_total,get_classes_by_term_dic,get_classes_by_year_dic
 from apps.simple_chart import dash_table,dash_min_max_line,dash_DropDown
 from apps.draw_eletive_subject import EletiveSubject
 

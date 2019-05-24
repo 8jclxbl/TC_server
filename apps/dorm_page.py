@@ -3,12 +3,12 @@ import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
 from app import app
 
-from models.globaltotal import CLASS_TERMS,EXAMS,CLASS_HAS_DORM,CLASS_TABLE
+from models.globaltotal import CLASS_HAS_DORM,CLASS_TABLE
 from models.dorm import get_dorm_by_class_id,get_student_by_dorm_id,get_grade_subjects 
 from models.student import get_student_info_by_student_id,consumption_by_student_id
 
 from apps.draw_consumption import consumption_data_seperate,consumption_bar_dorm_month_compare
-from apps.simple_chart import dash_table,find_nothing,simple_table,dash_DropDown
+from apps.simple_chart import dash_table,dash_DropDown
 from apps.draw_dorm import DormGrade
 from apps.util import transpose
 

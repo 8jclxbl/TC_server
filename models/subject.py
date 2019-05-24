@@ -7,23 +7,34 @@ import pandas as pd
 #{'id','term','name','grade_name'}
 def get_classes_by_term(term):
     info = ALL_CLASSES.loc[ALL_CLASSES['class_term'] == term]
-
-    class_ids = []
-    class_terms = []
-    class_names = []
-    grade_names = []
-
-    for i in info.values:
-        if 'IB' in i[2]:continue
-        class_ids.append(i[0])
-        class_terms.append(i[1])
-        class_names.append(i[2])
-        grade_names.append(i[3])
-    data = {'id':class_ids,'term':class_terms,'name':class_names,'grade_name':grade_names}
-    return pd.DataFrame(data)
+    mask = []
+    for i in info['class_name'].values:
+        if 'IB' in i:mask.append(False)
+        else:mask.append(True)
+    
+    without_ib = info.iloc[mask][['class_id', 'class_term', 'class_name', 'grade_name']]
+    without_ib.columns = ['id','term','name','grade_name']
+    return without_ib
 
 def get_classes_by_term_dic(term):
     df = get_classes_by_term(term)
+    ids = df['id'].values
+    names = df['name'].values
+    return {'labels':list(names),'values':list(ids)}
+
+def get_classes_by_year(year):
+    info = ALL_CLASSES.loc[ALL_CLASSES['class_year'] == year]
+    mask = []
+    for i in info['class_name'].values:
+        if 'IB' in i:mask.append(False)
+        else:mask.append(True)
+    
+    without_ib = info.iloc[mask][['class_id', 'class_term', 'class_name', 'grade_name']]
+    without_ib.columns = ['id','term','name','grade_name']
+    return without_ib
+
+def get_classes_by_year_dic(year):
+    df = get_classes_by_year(year)
     ids = df['id'].values
     names = df['name'].values
     return {'labels':list(names),'values':list(ids)}
@@ -87,6 +98,7 @@ def class_grade_process(df):
 
     res = {'subject':subjects_,'exam':exam_name,'exam_id':exam_id,'max':maxs,'min':mins}
     return pd.DataFrame(res)
+    
 
 #基于之前获取的7选三表，直接读取七选三数据
 #input: cla_id 'str' 没有输入时获取全部数据

@@ -20,7 +20,7 @@ class EletiveSubject:
                 'data':[go.Pie(
                     labels = index,
                     values = value,
-                    marker = dict(colors = PIE_COLOR_MAP[:len(index)]),
+                    marker = dict(colors = PIE_COLOR_MAP[:len(index)],line = dict(width = 1, color = 'white')),
                 )],
                 'layout':go.Layout(
                     title = {'text':'2018-2019学期高三七选三总体状况统计','y':0.95},

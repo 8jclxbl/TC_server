@@ -8,9 +8,8 @@ from apps.draw_grade import Grade
 import pandas as pd
 from app import app
 
-from models.globaltotal import GENERE_EXAM_ID,SUBJECT_COLOR,SOCRE_TYPE_COLOR,TRADITION_COLOR_MAP
-from models.student import grade_query_res,get_predict_rank,grade_query_res
-from models.dorm import get_student_by_dorm_id
+from models.globaltotal import TRADITION_COLOR_MAP
+from models.student import grade_query_res
 
 ScoreType = {'score':'分数','t_score':'T值','z_score':'Z值','r_score':'等第'}
 
