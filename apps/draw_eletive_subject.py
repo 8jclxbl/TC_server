@@ -21,10 +21,12 @@ class EletiveSubject:
                     labels = index,
                     values = value,
                     marker = dict(colors = PIE_COLOR_MAP[:len(index)],line = dict(width = 1, color = 'white')),
+                    direction='counterclockwise',
                 )],
                 'layout':go.Layout(
                     title = {'text':'2018-2019学期高三七选三总体状况统计','y':0.95},
                     margin = {'t':100},
+                    legend=dict(x = 0)
                 )
             }
         )
