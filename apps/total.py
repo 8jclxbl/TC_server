@@ -10,24 +10,24 @@ from apps.dorm_page import dorm_layout
 from apps.welcome_page import welcome_layout
 
 
-total_layout = html.Div([
-   html.Div(
-        className = 'app-title',
-        children = [
-            html.Img(id = 'total_img', src = './static/background.jpg', style = {'width':'100%', 'height':'auto'},),
-        ],
-    ),
+total_layout = html.Div(id = 'total-content',children = [html.Div([
+    html.Div(
+            className = 'app-title',
+            children = [
+                html.Img(id = 'total_img', src = './static/background.jpg', style = {'width':'100%', 'height':'auto'},),
+            ],
+        ),
 
-    dcc.Tabs(id='main-func-selector', value = 'welcome',className='custom-tabs-container',children = [
-        dcc.Tab(label = '欢迎', value = 'welcome',className='custom-tab',selected_className='custom-tab--selected'),
-        dcc.Tab(label = '学生域数据分析', value = 'student_analysis',className='custom-tab',selected_className='custom-tab--selected'),
-        dcc.Tab(label = '课程域数据分析', value = 'subject_analysis',className='custom-tab',selected_className='custom-tab--selected'),
-        dcc.Tab(label = '群体域数据分析', value = 'mass_analysis',className='custom-tab',selected_className='custom-tab--selected'),
-        dcc.Tab(label = '宿舍域数据分析', value = 'dorm_analysis',className='custom-tab',selected_className='custom-tab--selected'),
-    ]),
-    html.Div(id = 'sub-div')
-    
-])
+        dcc.Tabs(id='main-func-selector', value = 'welcome',className='custom-tabs-container',children = [
+            dcc.Tab(label = '欢迎', value = 'welcome',className='custom-tab',selected_className='custom-tab--selected'),
+            dcc.Tab(label = '学生域数据分析', value = 'student_analysis',className='custom-tab',selected_className='custom-tab--selected'),
+            dcc.Tab(label = '课程域数据分析', value = 'subject_analysis',className='custom-tab',selected_className='custom-tab--selected'),
+            dcc.Tab(label = '群体域数据分析', value = 'mass_analysis',className='custom-tab',selected_className='custom-tab--selected'),
+            dcc.Tab(label = '宿舍域数据分析', value = 'dorm_analysis',className='custom-tab',selected_className='custom-tab--selected'),
+        ]),
+        html.Div(id = 'sub-div')
+    ])],
+)
 
 
 @app.callback(

@@ -44,12 +44,12 @@ student_layout = [
     ],className = 'one-row'),
     
     html.Div(id = 'stu-controller-container',children = [
-        html.Div(id = 'stu-controller-title',children = [html.H4('学生考勤数据',style = {'font-weight':'bold'})]),
+        html.Div(id = 'stu-controller-title',children = [html.H4('学生考勤信息',style = {'font-weight':'bold'})]),
         html.Hr(style = {'width':'90%'}),
         html.Div(id = 'student-controller-total', children = [
             html.Div(id = 'controller-selector-container',children = [
                 html.Div(id = 'controller-select-aspect',
-                    children = dash_DropDown('controller-aspect-selector','考勤情况与考勤统计:',['学生考勤情况','学生考勤统计'],['controller','controller-st'],'controller'),
+                    children = dash_DropDown('controller-aspect-selector','考勤情况与统计:',['学生考勤情况','学生考勤统计'],['controller','controller-st'],'controller'),
                     style = {'width':'40%','display':'inline-block'}),
 
                 html.Div(id = 'controller-select-chart',
@@ -62,7 +62,7 @@ student_layout = [
     ],className = 'one-row'),
     
     html.Div(id = 'stu-consumption-container',children = [
-        html.Div(id = 'stu-consumption-title',children = [html.H4('学生消费数据',style = {'font-weight':'bold'})]),
+        html.Div(id = 'stu-consumption-title',children = [html.H4('学生消费信息',style = {'font-weight':'bold'})]),
         html.Hr(style = {'width':'90%'}),
         html.Div(id = 'student-consumption-total',children = [
             #html.H6('学生消费状况统计:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
@@ -96,16 +96,18 @@ def select_student(n_clicks,value):
                 is_grad = True
             except IndexError:
                 return find_nothing("此学生的部分信息有缺失")
-    
-        student_infos = simple_table(info,'学生{0}基本信息'.format(stu_id))
 
+        student_infos = simple_table(info,'学生{0}基本信息'.format(stu_id))
         if is_grad:
-            return [student_infos]
+            return [html.Div(id = 'student-info-container',children = [student_infos])]
 
         class_id = info['value'][7]
         teachers = get_teachers_by_class_id(class_id)
         student_teachers = simple_table(teachers,'学生{0}各科教师'.format(stu_id))
-        return [student_infos,student_teachers]
+        return [
+            html.Div(id = 'student-info-container',children = [student_infos]),
+            html.Div(id = 'student-teacher-container',children = [student_teachers]),
+        ]
     except ValueError:
         return find_nothing("学号应该是纯数字")
 

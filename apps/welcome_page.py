@@ -4,10 +4,10 @@ welcome_layout = [
     html.Div(id = 'preview',children = [
         html.Div(id = 'w-title-container',children = [
             html.H3('“数智教育”数据可视化创新大赛作品'),
-        ],style = {'text-align':'center'}),
+        ],style = {'text-align':'center','font-weight':'bold'}),
         html.Div(id = 'w-team-name', children = [
             html.H5('参赛队伍名称：忽然之间克哈的霓虹为我在闪烁'),
-        ],style = {'text-align':'center'}),
+        ],style = {'text-align':'center','font-weight':'bold'}),
         
        
         html.Div(id = 'preview-text',children = [

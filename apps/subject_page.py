@@ -16,7 +16,7 @@ subject_layout = html.Div([
         html.Div(id = 'sa-class-grade-title',children = [html.H4('班级历史得分趋势',style = {'font-weight':'bold'})]),
         html.Hr(style = {'width':'90%'}),
         html.Div(id= 'sa-class-term-select', children = [
-            html.Div(id = 'sa-select-term',children = dash_DropDown('sa-term-selector','请选择要统计的学期:',CLASS_TERMS,CLASS_TERMS,CLASS_TERMS[0]),
+            html.Div(id = 'sa-select-term',children = dash_DropDown('sa-term-selector','学期选择:',CLASS_TERMS,CLASS_TERMS,CLASS_TERMS[0]),
             style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
             html.Div(id = 'sa-select-class-container',children = [
                 html.Div(id = 'sa-select-class', style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
@@ -41,14 +41,14 @@ subject_layout = html.Div([
 
             html.Div(id = 'sa-73-show-down',children = [
                 html.Div(children = [
-                    html.Div(id = 'sa-73-select-class', children = dash_DropDown('sa-third-class-selector','请选择统计的班级：',THIRD_GRADE.values(),THIRD_GRADE.keys(),list(THIRD_GRADE.keys())[0]),className = 'one-row-con'),
+                    html.Div(id = 'sa-73-select-class', children = dash_DropDown('sa-third-class-selector','班级选择:',THIRD_GRADE.values(),THIRD_GRADE.keys(),list(THIRD_GRADE.keys())[0]),className = 'one-row-con'),
                     html.Div(id = 'sa-73-bar-class'),
                 ],
                 className = 'left-column'
                 ),
                 
                 html.Div(id = 'sa-73-bar-subjecs-container',children = [
-                    html.Div(id = 'sa-third-select-combines',children = dash_DropDown('sa-subjects-selector','请选择统计的组合：',es.combines,es.combines,es.combines[0]),className = 'one-row-con'),
+                    html.Div(id = 'sa-third-select-combines',children = dash_DropDown('sa-subjects-selector','组合选择:',es.combines,es.combines,es.combines[0]),className = 'one-row-con'),
                     html.Div(id = 'sa-73-bar-subjects'),
                     ],
                 className = 'right-column'
@@ -73,7 +73,7 @@ def select_term(term):
     else:
         values = data['values']
         init_value = values[0]
-    return dash_DropDown('sa-class-selector','请选择班级:',labels,values,init_value)
+    return dash_DropDown('sa-class-selector','班级选择:',labels,values,init_value)
 
 @app.callback(
     Output('sa-select-subject','children'),
@@ -89,7 +89,7 @@ def select_subject(class_):
         labels = class_grade['subject'].drop_duplicates().values  
         values = labels
         init_value = '语文'
-    return dash_DropDown('sa-subject-selector','请选择课程:',labels,values,init_value)
+    return dash_DropDown('sa-subject-selector','课程选择:',labels,values,init_value)
 
 @app.callback(
     Output('sa-class-grade-table','children'),

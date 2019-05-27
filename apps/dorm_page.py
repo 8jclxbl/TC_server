@@ -20,7 +20,7 @@ dorm_layout = html.Div([
         html.Div(id = 'dm-student-info-title',children = [html.H4('宿舍学生基本信息',style = {'font-weight':'bold'})]),
         html.Hr(style = {'width':'90%'}),
         html.Div(id = 'dm-select-class',
-            children = dash_DropDown('dm-class-selector','请选择班级：',class_has_dorm.values(),class_has_dorm.keys(),list(class_has_dorm.keys())[0]),
+            children = dash_DropDown('dm-class-selector','班级选择:',class_has_dorm.values(),class_has_dorm.keys(),list(class_has_dorm.keys())[0]),
             style = {'display':'inline-block','width':'50%'}),
         html.Div(id = 'dm-select-class-dorm',style = {'display':'inline-block','width':'50%'}),
         html.Div(id = 'dm-info-show-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')])
@@ -37,8 +37,8 @@ dorm_layout = html.Div([
         html.Hr(style = {'width':'90%'}),
         html.Div(id = 'dm-grade-selector-container', children = [
             html.Div(id='dm-select-subject',  style = {'display':'inline-block','width':'30%'}),
-            html.Div(id='dm-select-exam-type', children = dash_DropDown('dm-exam-type-selector', '请选择考试类型', ['考试','平时成绩'],['normal','general'],'normal'), style = {'display':'inline-block','width':'30%'}),
-            html.Div(id='dm-select-score-type', children = dash_DropDown('dm-score-type-selector', '请选择分数类型',list(ScoreType.values()),list(ScoreType.keys()),'r_score'),style = {'display':'inline-block','width':'30%'}),
+            html.Div(id='dm-select-exam-type', children = dash_DropDown('dm-exam-type-selector', '考试类型:', ['考试','平时成绩'],['normal','general'],'normal'), style = {'display':'inline-block','width':'30%'}),
+            html.Div(id='dm-select-score-type', children = dash_DropDown('dm-score-type-selector', '分数类型:',list(ScoreType.values()),list(ScoreType.keys()),'r_score'),style = {'display':'inline-block','width':'30%'}),
         ], className = 'son-row-wrap'),
         html.Div(id = 'dm-grade-of-dorm', children = [html.Img(id = 'chart-loading', src = './static/loading.gif')])
     ],className = 'one-row'),
@@ -52,7 +52,7 @@ dorm_layout = html.Div([
 def get_dorm_of_class(cla_id):
     dorms = get_dorm_by_class_id(cla_id)
     dorms.sort()
-    return dash_DropDown('dm-class-dorm-selector','请选择宿舍:',dorms,dorms,dorms[0])
+    return dash_DropDown('dm-class-dorm-selector','宿舍选择:',dorms,dorms,dorms[0])
    
 
 @app.callback(
@@ -95,7 +95,7 @@ def get_dorm_subjects(sushe_id, cla_id):
     #values = subjects['values']
     values = labels
     init_value = values[0]
-    return dash_DropDown('dm-class-subject-selector','请选择科目:',labels,values,init_value)
+    return dash_DropDown('dm-class-subject-selector','科目选择:',labels,values,init_value)
 
 @app.callback(
     Output('dm-grade-of-dorm', 'children'),
