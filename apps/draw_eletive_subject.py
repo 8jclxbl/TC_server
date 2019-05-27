@@ -26,7 +26,7 @@ class EletiveSubject:
                 'layout':go.Layout(
                     title = {'text':'2018-2019学期高三七选三总体状况统计','y':0.95},
                     margin = {'t':100},
-                    legend=dict(x = 0)
+                    legend=dict(x = -1,borderwidth = 1, font = dict(size = 10), tracegroupgap = 5)
                 )
             }
         )
