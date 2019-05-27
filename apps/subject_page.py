@@ -12,52 +12,51 @@ info = sql_73()
 es = EletiveSubject(info)
 
 subject_layout = html.Div([
-    html.Div(id = 'sa-class-grade-title',children = [html.H4('班级历史得分趋势',style = {'font-weight':'bold'})],className = 'one-row'),
-    
-    html.Div(id= 'sa-class-term-select', children = [
-        html.Div(id = 'sa-select-term',children = dash_DropDown('sa-term-selector','请选择要统计的学期:',CLASS_TERMS,CLASS_TERMS,CLASS_TERMS[0]),
-        style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+    html.Div(id = 'sa-class-grade-container',children = [
+        html.Div(id = 'sa-class-grade-title',children = [html.H4('班级历史得分趋势',style = {'font-weight':'bold'})]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id= 'sa-class-term-select', children = [
+            html.Div(id = 'sa-select-term',children = dash_DropDown('sa-term-selector','请选择要统计的学期:',CLASS_TERMS,CLASS_TERMS,CLASS_TERMS[0]),
+            style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            html.Div(id = 'sa-select-class-container',children = [
+                html.Div(id = 'sa-select-class', style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
+            ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+        ]),
+        html.Div(id = 'sa-class-grade-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'sa-select-subject-container',children = [
+            html.Div(id = 'sa-select-subject',style = {'display':'inline-block','width':'30%','margin-left':'10px','vertical-align':'middle'})]),
         
-        html.Div(id = 'sa-select-class-container',children = [
-            html.Div(id = 'sa-select-class', style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'60%','vertical-align':'middle'})
-        ],style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+        html.Div(id = 'sa-class-grade-graph'),
     ],className = 'one-row'),
     
-    html.Div(id = 'sa-class-grade-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
-
-    html.Div(id = 'sa-select-subject-container',children = [
-        html.Div(id = 'sa-select-subject',style = {'display':'inline-block','width':'30%','margin-left':'10px','vertical-align':'middle'})],className = 'one-row'),
-    
-    html.Div(id = 'sa-class-grade-graph',className = 'one-row'),
-
-    html.Div(id = 'sa-73-title',children = [html.H4('2018-2019高三年级七选三状况统计',style = {'font-weight':'bold'})],className = 'one-row'),
-    html.Div(id = 'total-73-statics', children = [
-        html.Div(id = 'sa-73-show-up', children = [
-            html.Div(id = 'sa-73-pie-total',className = 'left-column'),
-            html.Div(id = 'sa-73-bar-total',className = 'right-column'),
-        ],
-        className = 'one-row-wrap'
-        ),
-
-        html.Div(id = 'sa-73-show-down',children = [
-            html.Div(children = [
-                html.Div(id = 'sa-73-select-class', children = dash_DropDown('sa-third-class-selector','请选择统计的班级：',THIRD_GRADE.values(),THIRD_GRADE.keys(),list(THIRD_GRADE.keys())[0]),className = 'one-row-con'),
-                html.Div(id = 'sa-73-bar-class'),
+    html.Div(id = 'sa-73-container',children = [
+        html.Div(id = 'sa-73-title',children = [html.H4('2018-2019高三年级七选三状况统计',style = {'font-weight':'bold'})]),
+            html.Div(id = 'sa-73-show-up', children = [
+                html.Div(id = 'sa-73-pie-total',className = 'left-column'),
+                html.Div(id = 'sa-73-bar-total',className = 'right-column'),
             ],
-            className = 'left-column'
+            className = 'one-row-wrap'
             ),
-            
-            html.Div(id = 'sa-73-bar-subjecs-container',children = [
-                html.Div(id = 'sa-third-select-combines',children = dash_DropDown('sa-subjects-selector','请选择统计的组合：',es.combines,es.combines,es.combines[0]),className = 'one-row-con'),
-                html.Div(id = 'sa-73-bar-subjects'),
+
+            html.Div(id = 'sa-73-show-down',children = [
+                html.Div(children = [
+                    html.Div(id = 'sa-73-select-class', children = dash_DropDown('sa-third-class-selector','请选择统计的班级：',THIRD_GRADE.values(),THIRD_GRADE.keys(),list(THIRD_GRADE.keys())[0]),className = 'one-row-con'),
+                    html.Div(id = 'sa-73-bar-class'),
                 ],
-            className = 'right-column'
+                className = 'left-column'
+                ),
+                
+                html.Div(id = 'sa-73-bar-subjecs-container',children = [
+                    html.Div(id = 'sa-third-select-combines',children = dash_DropDown('sa-subjects-selector','请选择统计的组合：',es.combines,es.combines,es.combines[0]),className = 'one-row-con'),
+                    html.Div(id = 'sa-73-bar-subjects'),
+                    ],
+                className = 'right-column'
+                ),
+            ],
+            className = 'one-row-wrap'
             ),
-        ],
-        className = 'one-row-wrap'
-        )
-    ])
-    
+    ],className = 'one-row'),
 ])
 
 @app.callback(

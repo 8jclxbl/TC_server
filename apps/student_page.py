@@ -12,66 +12,71 @@ from apps.draw_grade import Grade
 from apps.simple_chart import simple_table,dash_table,find_nothing,dash_DropDown
 
 student_layout = [
-    html.Div(id = 'stu-info-title',children = [html.H4('学生基本信息',style = {'font-weight':'bold'})],className = 'one-row'),
-    html.Div(id = 'student-id',children = [
-        html.H6(
-            id = 'student-id-indicator',
-            children = '请输入所要查询的学号: ',
-            style = {'display': 'inline-block','margin-right':'10px'}),
-        dcc.Input(id='input-student-id', 
-            type='text', 
-            value='14012',
-            style = {'display': 'inline-block','margin-left':'10px','margin-right':'10px'}),
-        html.Button(
-            children = '提交', 
-            id='student-id-submmit',
-            className= 'button-raised button-primary button-pill',
-            n_clicks = 0,
-            ), 
-        html.Div(id = 'student-info',style = {'padding-bottom':'10px'}),
-        ],
-        className = 'one-row',
-    ),
+    html.Div(id = 'stu-info-container',children = [
+        html.Div(id = 'stu-info-title',children = [html.H4('学生基本信息',style = {'font-weight':'bold'})]),
+        html.Div(id = 'student-id',children = [
+            html.H6(
+                id = 'student-id-indicator',
+                children = '请输入所要查询的学号: ',
+                style = {'display': 'inline-block','margin-right':'10px','font-weight':'bold'}),
+            dcc.Input(id='input-student-id', 
+                type='text', 
+                value='14012',
+                style = {'display': 'inline-block','margin-left':'10px','margin-right':'10px'}),
+            html.Button(
+                children = '提交', 
+                id='student-id-submmit',
+                className= 'button-raised button-primary button-pill',
+                n_clicks = 0,), 
+            html.Hr(style = {'width':'90%'}),
+            html.Div(id = 'student-info',style = {'padding-bottom':'10px'}),
+        ]),
+    ],className = 'one-row'),
+   
 
-    html.Div(id = 'stu-grade-title',children = [html.H4('学生考试数据',style = {'font-weight':'bold'})],className = 'one-row'),
-    html.Div(id = 'student-total-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
+    html.Div(id = 'stu-grade-container',children = [
+        html.Div(id = 'stu-grade-title',children = [html.H4('学生考试数据',style = {'font-weight':'bold'})]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'student-total-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')]),
+        html.Div(id = 'student-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'grade-lines',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')]),
+    ],className = 'one-row'),
+    
+    html.Div(id = 'stu-controller-container',children = [
+        html.Div(id = 'stu-controller-title',children = [html.H4('学生考勤数据',style = {'font-weight':'bold'})]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'student-controller-total', children = [
+            html.Div(id = 'controller-selector-container',children = [
+                html.Div(id = 'controller-select-aspect',
+                    children = dash_DropDown('controller-aspect-selector','考勤情况与考勤统计:',['学生考勤情况','学生考勤统计'],['controller','controller-st'],'controller'),
+                    style = {'width':'40%','display':'inline-block'}),
 
-    html.Div(id = 'student-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
-    html.Div(id = 'grade-lines',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
-
-    html.Div(id = 'stu-controller-title',children = [html.H4('学生考勤数据',style = {'font-weight':'bold'})],className = 'one-row'),
-
-    html.Div(id = 'student-controller-total', children = [
-        html.H6('学生考勤状况统计:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-        html.Div(id = 'controller-selector-container',children = [
-            html.Div(id = 'controller-select-aspect',
-                children = dash_DropDown('controller-aspect-selector','',['学生考勤情况','学生考勤统计'],['controller','controller-st'],'controller'),
-                style = {'width':'40%','display':'inline-block'}),
-
-            html.Div(id = 'controller-select-chart',
-                children = dash_DropDown('controller-graph-table-selector','图表切换:',['统计图','统计表'],['graph','table'],'graph'),
-                style = {'width':'40%','display':'inline-block','margin-left':'10px'}),  
-
-             html.Div(id = 'controller-select-term',style = {'width':'40%','display':'inline-block','margin-left':'10px'}),  
-
-        ],style = {'display':'inline-block','vertical-align':'middle','width':'80%'}),
-    ],className = 'one-row-con'),
-
-    html.Div(id = 'student-controller-show', className = 'one-row'),
-
-    html.Div(id = 'stu-consumption-title',children = [html.H4('学生消费数据',style = {'font-weight':'bold'})],className = 'one-row'),
-    html.Div(id = 'student-consumption-total',children = [
-        html.H6('学生消费状况统计:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
-        html.Div(id = 'consumption-selector-container',children = [
-            html.Div(id = 'consumption-select-chart',
-            children = dash_DropDown('consumption-graph-table-selector','图表切换:',['统计图','统计表'],['graph','table'],'graph'),
-            style={'width':'40%','display': 'inline-block','margin-left':'10px'}),     
-        html.Div(id = 'stua-select-interval', 
-            children = dash_DropDown('interval-selector','年月日数据切换:',['年数据','月数据','日数据','总数据'],['Year','Month','Day','Total'],'Day'),
-            style={'width':'40%','display': 'inline-block','margin-left':'10px',},), 
-        ],style = {'display':'inline-block','vertical-align':'middle','width':'80%'}),  
-    ],className = 'one-row-con'),
-    html.Div(id = 'student-consumption-show', className = 'one-row'),
+                html.Div(id = 'controller-select-chart',
+                    children = dash_DropDown('controller-graph-table-selector','图表切换:',['统计图','统计表'],['graph','table'],'graph'),
+                    style = {'width':'50%','display':'inline-block','margin-left':'10px'}),  
+                html.Div(id = 'controller-select-term',style = {'width':'40%','display':'inline-block','margin-left':'10px'}),  
+            ],style = {'display':'inline-block','vertical-align':'middle','width':'90%'}),
+        ],className = 'one-row-con'),
+        html.Div(id = 'student-controller-show'),
+    ],className = 'one-row'),
+    
+    html.Div(id = 'stu-consumption-container',children = [
+        html.Div(id = 'stu-consumption-title',children = [html.H4('学生消费数据',style = {'font-weight':'bold'})]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'student-consumption-total',children = [
+            #html.H6('学生消费状况统计:',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px'}),
+            html.Div(id = 'consumption-selector-container',children = [
+                html.Div(id = 'consumption-select-chart',
+                children = dash_DropDown('consumption-graph-table-selector','图表切换:',['统计图','统计表'],['graph','table'],'graph'),
+                style={'width':'40%','display': 'inline-block','margin-left':'10px'}),     
+            html.Div(id = 'stua-select-interval', 
+                children = dash_DropDown('interval-selector','年月日切换:',['年数据','月数据','日数据','总数据'],['Year','Month','Day','Total'],'Day'),
+                style={'width':'40%','display': 'inline-block','margin-left':'10px',},), 
+            ],style = {'display':'inline-block','vertical-align':'middle','width':'90%'}),  
+        ],className = 'one-row-con'),
+        html.Div(id = 'student-consumption-show'),
+    ],className = 'one-row'),
 ]
 #注意此处的参数位置和名称无关，只和Input的位置
 @app.callback(
@@ -91,7 +96,7 @@ def select_student(n_clicks,value):
                 is_grad = True
             except IndexError:
                 return find_nothing("此学生的部分信息有缺失")
-
+    
         student_infos = simple_table(info,'学生{0}基本信息'.format(stu_id))
 
         if is_grad:

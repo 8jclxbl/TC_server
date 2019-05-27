@@ -77,7 +77,7 @@ def get_exam_name():
     exams = get_csv_data('exams')
     ids = exams['id'].values
     names = exams['name'].values
-    exam_dic = {k:v for k,v in zip(ids,names)}
+    exam_dic = {k:v.strip() for k,v in zip(ids,names)}
     return exam_dic
 
 #获取所有的有班级的学期

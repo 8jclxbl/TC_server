@@ -14,24 +14,24 @@ grade_CLASS_TERMS.insert(1, '2013-2014-2')
 
 
 mass_layout = html.Div([
-    html.Div(id = 'ma-total-selector', children = [
+    
+    html.Div(id = 'ma-top-selector-container', children = [
+        html.Div(id = 'ma-title',children = [html.H4('群体域成绩对比',style = {'font-weight':'bold'})]),
         html.Div(children = [
             html.Div(id = 'ma-select-term', children = dash_DropDown('ma-term-selector','请选择学期:',grade_CLASS_TERMS,grade_CLASS_TERMS,grade_CLASS_TERMS[0]),style =  {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
             html.Div(id = 'ma-select-grade',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
-            ],className = 'son-row-wrap')
-        ],className = 'one-row'),
+            ],className = 'son-row-wrap'),
+        html.Div(id = 'ma-means-show', children = [
+                html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+                html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
+            ], className = 'son-row-wrap'),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'ma-class-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'ma-distribute-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')]),
+    ], className = 'one-row'),
     
-    html.Div(id = 'ma-means-show', children = [
-        html.Div(children = [
-
-            html.Div(id = 'ma-select-exam',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
-            html.Div(id = 'ma-select-subject',style = {'display':'inline-block','margin-left':'10px','margin-right':'10px','width':'40%'}),
-
-        ], className = 'son-row-wrap'),
-    ],className = 'one-row'),
-
-    html.Div(id = 'ma-class-grade',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
-    html.Div(id = 'ma-distribute-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
+   
     
     html.Div(id = 'ma-last-row',children = [
         html.Div(id = 'ma-inner-class',children = [
@@ -41,10 +41,11 @@ mass_layout = html.Div([
                 children = dash_DropDown('ma-score-type-selector','请选择分数类型:',ScoreType.values(),ScoreType.keys(),list(ScoreType.keys())[0]),
                 style = {'display':'inline-block','margin':'10px','width':'30%'}),
         ],className = 'son-row-wrap'),
-
-        html.Div(id = 'ma-class-grade-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'left-column'),
-        html.Div(id = 'ma-class-grade-static',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'right-column'),
-    ],className = 'one-row-wrap'),
+        html.Div(id = 'ma-grade-chart', children = [
+            html.Div(id = 'ma-class-grade-rank',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'left-column'),
+            html.Div(id = 'ma-class-grade-static',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'right-column'),
+        ], className = 'son-row-wrap')
+    ],className = 'one-row'),
 ])
 
 @app.callback(
@@ -95,7 +96,7 @@ def ma_select_grade(grade,term):
             values = exams
             init_value = exams[0]
 
-    return dash_DropDown('ma-exam-selector','请选择考试：',labels,values,init_value)
+    return dash_DropDown('ma-exam-selector','请选择考试:',labels,values,init_value)
     
 
 @app.callback(
@@ -125,7 +126,7 @@ def ma_gen_subject_select(exam,grade,term):
             values = subjects
             init_value = subjects[0]
         
-        return dash_DropDown('ma-subject-selector','请选择科目：',labels,values,init_value)
+        return dash_DropDown('ma-subject-selector','请选择科目:',labels,values,init_value)
 
 @app.callback(
     Output('ma-class-grade','children'),

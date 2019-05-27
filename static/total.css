@@ -180,28 +180,27 @@
   }
 
   .one-row-con{
-    margin-left: 10%;
-    margin-right: 10%;
-    margin-top: 10px;
-    margin-bottom: 10px; 
+    margin-top: 5px;
+    margin-bottom: 5px; 
     padding-top: 5px;
     background: #fff;
   }
   .one-row-wrap{
-    margin-left: 10%;
-    margin-right: 10%;
-    margin-top: 10px;
-    margin-bottom: 10px; 
+    margin-top: 0px;
+    margin-bottom: 0px; 
     text-align:center;
+    background: #fff;
   }
 
   .son-row-wrap{
+    margin-bottom: 5px; 
+    padding-bottom: 5px;
     background: #fff;
   }
 
   .left-column{
     float: left;
-    width:48%;
+    width:49%;
     height:100%;
     margin-right: 0.5%;
     margin-top: 10px;
@@ -212,7 +211,7 @@
 
   .right-column{
     float: right;
-    width:48%;
+    width:49%;
     margin-left: 0.5%;
     margin-top: 10px;
     margin-bottom: 10px; 
@@ -607,7 +606,7 @@
     color: #0562a7; }
 
   #student-id-submmit.button-pill {
-  border-radius: 10px; }
+  border-radius: 0px; }
   
   .button-raised {
   border-color: #e1e1e1;

@@ -17,23 +17,31 @@ class_has_dorm = {i:CLASS_TABLE[i] for i in CLASS_HAS_DORM}
 
 dorm_layout = html.Div([
     html.Div(id = 'dm-info-select-container',children = [
+        html.Div(id = 'dm-student-info-title',children = [html.H4('宿舍学生基本信息',style = {'font-weight':'bold'})]),
+        html.Hr(style = {'width':'90%'}),
         html.Div(id = 'dm-select-class',
             children = dash_DropDown('dm-class-selector','请选择班级：',class_has_dorm.values(),class_has_dorm.keys(),list(class_has_dorm.keys())[0]),
             style = {'display':'inline-block','width':'50%'}),
-        html.Div(id = 'dm-select-class-dorm',style = {'display':'inline-block','width':'50%'})
+        html.Div(id = 'dm-select-class-dorm',style = {'display':'inline-block','width':'50%'}),
+        html.Div(id = 'dm-info-show-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')])
     ],className = 'one-row'),
-
-    html.Div(id = 'dm-info-show-table-container', children = [
-        html.Div(id = 'dm-info-show-table',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],style = {'width':'98%','margin-left':'1%','margin-right':'1%'})
+    
+    html.Div(id = 'id-concumption-container', children = [
+        html.Div(id = 'dm-student-info-title',children = [html.H4('宿舍学生消费对比',style = {'font-weight':'bold'})]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'dm-consumption-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')]),
+    ],className ='one-row'),
+    
+    html.Div(id = 'dm-grade-container', children = [
+        html.Div(id = 'dm-student-info-title',children = [html.H4('宿舍学生考试成绩对比',style = {'font-weight':'bold'})]),
+        html.Hr(style = {'width':'90%'}),
+        html.Div(id = 'dm-grade-selector-container', children = [
+            html.Div(id='dm-select-subject',  style = {'display':'inline-block','width':'30%'}),
+            html.Div(id='dm-select-exam-type', children = dash_DropDown('dm-exam-type-selector', '请选择考试类型', ['考试','平时成绩'],['normal','general'],'normal'), style = {'display':'inline-block','width':'30%'}),
+            html.Div(id='dm-select-score-type', children = dash_DropDown('dm-score-type-selector', '请选择分数类型',list(ScoreType.values()),list(ScoreType.keys()),'r_score'),style = {'display':'inline-block','width':'30%'}),
+        ], className = 'son-row-wrap'),
+        html.Div(id = 'dm-grade-of-dorm', children = [html.Img(id = 'chart-loading', src = './static/loading.gif')])
     ],className = 'one-row'),
-
-    html.Div(id = 'dm-consumption-compare',children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row'),
-    html.Div(id = 'dm-grade-select-container', children = [
-        html.Div(id='dm-select-subject',  style = {'display':'inline-block','width':'30%'}),
-        html.Div(id='dm-select-exam-type', children = dash_DropDown('dm-exam-type-selector', '请选择考试类型', ['考试','平时成绩'],['normal','general'],'normal'), style = {'display':'inline-block','width':'30%'}),
-        html.Div(id='dm-select-score-type', children = dash_DropDown('dm-score-type-selector', '请选择分数类型',list(ScoreType.values()),list(ScoreType.keys()),'r_score'),style = {'display':'inline-block','width':'30%'})
-    ],className = 'one-row'),
-    html.Div(id = 'dm-grade-of-dorm', children = [html.Img(id = 'chart-loading', src = './static/loading.gif')],className = 'one-row')
 ])
 
 
@@ -58,7 +66,7 @@ def get_student_of_dorm(sushe_id,cla_id):
     index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','政治面貌','班级','班级编号','班级学期','是否住校','是否退学','寝室号']
     for i in students:
         data.append(get_student_info_by_student_id(i)['value'])
-    return dash_table(index,transpose(data),'dm-dorm-student-info','{0}宿舍学生数据'.format(sushe_id),300,columnwidth_=[1,1,1,1,1,3,1,1,1,1,1,1,1,1])
+    return dash_table(index,transpose(data),'dm-dorm-student-info','{0}宿舍学生信息'.format(sushe_id),300,columnwidth_=[1,1,1,1,1,3,1,1,1,1,1,1,1,1])
     
 @app.callback(
     Output('dm-consumption-compare','children'),
