@@ -61,7 +61,7 @@ class DormGrade:
             if not data:continue
             data['student_id'] = obj.student_id
             total.append(dorm_draw_line(subject, score_type, data,order))
-            order += 3
+            order += 5
         return dcc.Graph(
             id = 'dorm-student-grade-graph',
             figure = {

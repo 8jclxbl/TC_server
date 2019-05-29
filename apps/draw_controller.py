@@ -41,7 +41,6 @@ def gen_color_value_map(type_table):
 def data_partation(data,table):
     colors = gen_color_value_map(table)
     dp_dic = {}
-
     for row in data.values:
         #当前类型
         cur_type = row[2]
@@ -88,7 +87,6 @@ def controller_graph(data_p,stu_id):
     total = []
     for i in data_p.values():
         total.append(sub_scatter_bytype(i['name'],i['color'],i['x'],i['y'],i['desc']))
-
     return dcc.Graph(
             id = 'student-controller',
             figure = {
@@ -108,7 +106,7 @@ def controller_graph(data_p,stu_id):
                         xanchor='left',
                     ),
                     margin=dict(l=140,r=40,b=50,t=80),
-                    
+
             )
             },
             style = {'align':'center','width':'80%','margin-left': '10%','margin-right': '10%'},

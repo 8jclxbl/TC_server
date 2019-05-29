@@ -154,7 +154,7 @@ def dash_bar(head_val,value_val,x_title,y_title,tab_id,title_name = '',tickangle
 
 def dash_DropDown(id_,title_,option_label,option_value,default_value):
     return [
-        html.H6(title_,style = {'display':'inline-block','width':'40%','margin-right':'5px','font-size':'16px','font-weight':'bold'}),
+        html.H6(title_,style = {'display':'inline-block','width':'35%','margin-right':'5px','font-size':'16px','font-weight':'bold'}),
         html.Div(id = id_ + '-container',children = [
             dcc.Dropdown(
                 id = id_,
@@ -162,7 +162,7 @@ def dash_DropDown(id_,title_,option_label,option_value,default_value):
                 value = default_value,
                 clearable = False,
             )
-        ],style = {'display':'inline-block','width':'40%','vertical-align':'middle'})        
+        ],style = {'display':'inline-block','width':'50%','vertical-align':'middle'})        
     ]
     
 def dash_min_max_line(data,x_title,y_title,id_,title_name = ''):

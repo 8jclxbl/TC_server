@@ -15,7 +15,10 @@ ScoreType = {'score':'分数','t_score':'T值','z_score':'Z值','r_score':'等�
 #绘制图中的一条线的函数
 def draw_line(subject_name,type_name,data):
     trend = data['trend']
-    trend = ' 趋势:' + trend
+    trend_text = ' 趋势:' + trend
+
+    if trend: text_ =  ['{0},{1}:{2}{3}'.format(k,ScoreType[type_name],v,trend_text) for k,v in zip(data['head'],data['score'])]
+    else: text_ =  ['{0},{1}:{2}'.format(k,ScoreType[type_name],v) for k,v in zip(data['head'],data['score'])],
     return go.Scatter(
         x = data['head'],
         y = data['score'],
@@ -24,7 +27,7 @@ def draw_line(subject_name,type_name,data):
         mode = 'lines+markers',
 
         #鼠标悬浮时显示的文字
-        text = ['{0},{1}:{2}{3}'.format(k,ScoreType[type_name],v,trend) for k,v in zip(data['head'],data['score'])],
+        text = text_,
         
         #散点的属性
         marker = dict(

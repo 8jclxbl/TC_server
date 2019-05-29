@@ -10,11 +10,23 @@ def get_student_info_by_student_id(stu_id):
     student = CUR_STUDENT.loc[CUR_STUDENT['id'] == stu_id].values
     index = ['学号','姓名','性别','民族','出生年份','家庭住址','家庭类型','班级编号','班级名称','班级学期','政治面貌','是否住校','是否退学','寝室号']
     student_info = {k:v for k,v in zip(index,student[0])}
+
+    if not student_info['是否住校']: 
+        student_info['寝室号'] = '无'
+    else:
+        student_info['寝室号'] = int(student_info['寝室号'])
+
+    student_info['班级编号'] = int(student_info['班级编号'])
     student_info['是否住校'] = '是' if student_info['是否住校'] else '否'
     student_info['是否退学'] = '是' if student_info['是否退学'] else '否'
     
-    if not student_info['是否住校']: student_info['寝室号'] = '无'
+    if student_info['出生年份'] != 'Unknown': 
+        student_info['出生年份'] = int(float(student_info['出生年份']))
+    else:
+        student_info['出生年份'] = '未知'
 
+    if student_info['家庭住址'] == 'Unknown': student_info['家庭住址'] = '未知'
+    
     return {'index':index, 'value':list(student_info.values())}
 
 #根据学生id获取毕业生的基本信息
